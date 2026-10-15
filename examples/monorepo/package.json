@@ -1,0 +1,14 @@
+{
+  "name": "example-monorepo",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "archlint": "archlint check"
+  },
+  "devDependencies": {
+    "@archlint/plugin-boundaries": "workspace:*",
+    "@archlint/plugin-conventions": "workspace:*",
+    "archlint": "workspace:*"
+  }
+}

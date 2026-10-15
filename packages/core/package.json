@@ -1,0 +1,48 @@
+{
+  "name": "@archlint/core",
+  "version": "0.0.0",
+  "description": "Engine, project model, and rule API for archlint.",
+  "license": "MIT",
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./testing": "./src/testing/index.ts",
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "exports": {
+      ".": "./dist/index.mjs",
+      "./testing": "./dist/testing.mjs",
+      "./package.json": "./package.json"
+    },
+    "access": "public"
+  },
+  "scripts": {
+    "build": "vp pack",
+    "dev": "vp pack --watch",
+    "test": "vp test",
+    "check": "vp check",
+    "prepublishOnly": "vp run build"
+  },
+  "dependencies": {
+    "@standard-schema/spec": "catalog:",
+    "oxc-parser": "catalog:",
+    "oxc-resolver": "catalog:",
+    "pathe": "catalog:",
+    "picomatch": "catalog:",
+    "tinyglobby": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "@types/picomatch": "catalog:",
+    "typescript": "catalog:",
+    "valibot": "catalog:",
+    "vite-plus": "catalog:"
+  },
+  "engines": {
+    "node": ">=22.18.0"
+  }
+}

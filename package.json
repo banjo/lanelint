@@ -1,0 +1,32 @@
+{
+  "name": "archlint-monorepo",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "ready": "vp check && vp run -r test && vp run archlint",
+    "archlint": "archlint check",
+    "changeset": "changeset",
+    "prepare": "vp config"
+  },
+  "devDependencies": {
+    "@archlint/plugin-boundaries": "workspace:*",
+    "@archlint/plugin-changes": "workspace:*",
+    "@archlint/plugin-conventions": "workspace:*",
+    "@changesets/cli": "catalog:",
+    "@types/node": "catalog:",
+    "archlint": "workspace:*",
+    "typescript": "catalog:",
+    "vite-plus": "catalog:"
+  },
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "12.11.2",
+      "onFail": "download"
+    }
+  },
+  "engines": {
+    "node": ">=22.18.0"
+  }
+}

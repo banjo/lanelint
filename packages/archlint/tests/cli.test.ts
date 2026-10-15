@@ -1,0 +1,169 @@
+import { afterEach, describe, expect, it } from 'vite-plus/test';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { createFixture, type Fixture } from './fixture.ts';
+
+const fixtures: Fixture[] = [];
+const fixture = (example: string, files?: Record<string, string>) => {
+  const created = createFixture(example, files);
+  fixtures.push(created);
+  return created;
+};
+
+afterEach(() => {
+  fixtures.splice(0).forEach((created) => created.remove());
+});
+
+const violations = {
+  'src/features/calendar/hooks/useSlots.ts': [
+    '// @ts-ignore',
+    "import { BookingPage } from '../../booking/components/bookingPage.ts';",
+    '',
+    'export default function useSlots() {',
+    '  return [BookingPage];',
+    '}',
+  ].join('\n'),
+};
+
+describe('archlint check', () => {
+  it('passes on the example projects', () => {
+    for (const example of ['feature-folders', 'monorepo']) {
+      const result = fixture(example).run('check');
+      expect(result.stdout).toMatch(/^0 errors, 0 warnings in \d+ files \(\d+ ms\)$/m);
+      expect(result.status).toBe(0);
+    }
+  });
+
+  it('reports findings with locations, rule ids, and hints, and exits with 1', () => {
+    const project = fixture('feature-folders');
+    project.write(violations);
+    const result = project.run('check', '--changed', '--new');
+    expect(result.status).toBe(1);
+    expect(result.stdout).toContain(
+      'src/features/calendar/hooks/useSlots.ts:2 error boundaries/entry-only Import src/features/booking through its entry file, not src/features/booking/components/bookingPage.ts.',
+    );
+    expect(result.stdout).toContain(
+      '  hint: Export what you need from src/features/booking/index.ts and import it from there.',
+    );
+    expect(result.stdout).toContain(
+      'src/features/calendar/hooks/useSlots.ts:1 error conventions/no-suppressions',
+    );
+    expect(result.stdout).toContain(
+      'src/features/calendar/hooks/useSlots.ts:4 error conventions/no-default-export',
+    );
+    expect(result.stdout).toMatch(/3 errors, 1 warning in 1 file, new since HEAD/);
+  });
+
+  it('shows only new findings with --new', () => {
+    const project = fixture('feature-folders', violations);
+    project.write({
+      'src/features/calendar/hooks/useSlots.ts': `\n\n${violations['src/features/calendar/hooks/useSlots.ts']}`,
+    });
+    const all = project.run('check', '--changed');
+    expect(all.stdout).toMatch(/3 errors, 1 warning/);
+    const onlyNew = project.run('check', '--changed', '--new');
+    expect(onlyNew.stdout).toMatch(/^0 errors, 0 warnings in 1 file, new since HEAD/m);
+    expect(onlyNew.status).toBe(0);
+  });
+
+  it('limits the report to paths and rules, and respects --fail-on', () => {
+    const project = fixture('feature-folders', violations);
+    const result = project.run(
+      'check',
+      'src/features/calendar/hooks',
+      '--rule',
+      'boundaries/entry-only,conventions/no-default-export',
+      '--format',
+      'json',
+    );
+    const report = JSON.parse(result.stdout) as {
+      summary: { errors: number };
+      findings: { ruleId: string }[];
+    };
+    expect(report.findings.map((finding) => finding.ruleId)).toEqual([
+      'boundaries/entry-only',
+      'conventions/no-default-export',
+    ]);
+    expect(report.summary.errors).toBe(2);
+    expect(project.run('check', '--fail-on', 'never').status).toBe(0);
+  });
+
+  it('truncates long reports and counts the rest per rule', () => {
+    const project = fixture('feature-folders', violations);
+    const result = project.run('check', '--max-findings', '1');
+    expect(result.stdout).toContain('3 more findings not shown: ');
+    expect(result.stdout).toContain('Narrow the run with --rule or a path.');
+  });
+
+  it('reports config changes for human review', () => {
+    const project = fixture('feature-folders');
+    const config = readFileSync(join(project.root, 'archlint.config.ts'), 'utf8');
+    project.write({ 'archlint.config.ts': `// Relaxed by an agent.\n${config}` });
+    const result = project.run('check', '--changed', '--new');
+    expect(result.stdout).toContain(
+      '(project) warn archlint/config-changed The archlint config archlint.config.ts changed and needs a human review.',
+    );
+    expect(result.status).toBe(0);
+  });
+
+  it('exits with 2 on setup problems', () => {
+    const project = fixture('feature-folders');
+    expect(project.run('check', '--rule', 'nope/rule').status).toBe(2);
+    expect(project.run('check', '--base', 'not-a-ref', '--new').stderr).toContain(
+      'Unknown git ref "not-a-ref".',
+    );
+    expect(project.run('check', 'missing/path').stderr).toContain('missing/path does not exist.');
+    expect(project.run('check', '--config', 'nope.config.ts').status).toBe(2);
+    const badFlag = project.run('check', '--format', 'xml');
+    expect(badFlag.status).toBe(2);
+    expect(badFlag.stderr).toContain(
+      'Invalid value for argument: --format (xml). Expected one of: compact, json.',
+    );
+    expect(project.run('nope').status).toBe(2);
+    project.write({
+      'archlint.config.ts':
+        "export default { rules: { 'nope/rule': 'error', 'archlint/config-changed': 'off' } };",
+    });
+    const invalid = project.run('check');
+    expect(invalid.status).toBe(2);
+    expect(invalid.stderr).toContain(
+      'Unknown rule "nope/rule". Is the plugin "nope" listed in plugins?',
+    );
+    expect(invalid.stderr).toContain('"archlint/config-changed" cannot be turned off.');
+  });
+});
+
+describe('archlint describe', () => {
+  it('describes the structure and what applies to a path', () => {
+    const project = fixture('feature-folders');
+    const all = project.run('describe');
+    expect(all.status).toBe(0);
+    expect(all.stdout).toContain('## Elements');
+    expect(all.stdout).toContain('Current: `src/features/booking`, `src/features/calendar`.');
+    expect(all.stdout).toContain(
+      '### Feature and domain code uses named exports, except message catalogs.',
+    );
+    const path = project.run('describe', 'src/features/calendar/hooks/useNew.ts');
+    expect(path.stdout).toContain('This path does not exist yet.');
+    expect(path.stdout).toContain(
+      'Part of the **feature** element `src/features/calendar`, at `hooks/useNew.ts`.',
+    );
+    expect(path.stdout).toContain('`conventions/no-default-export`');
+  });
+});
+
+describe('archlint rules', () => {
+  it('lists and explains rules', () => {
+    const project = fixture('feature-folders');
+    const list = project.run('rules', 'list');
+    expect(list.stdout).toMatch(
+      /^error boundaries\/entry-only +Imports from outside an element must target its entry files\.$/m,
+    );
+    const explain = project.run('rules', 'explain', 'boundaries/entry-only');
+    expect(explain.stdout).toContain('# boundaries/entry-only');
+    expect(explain.stdout).toContain(
+      'Code outside a feature element imports it only through its entry files.',
+    );
+    expect(project.run('rules', 'explain', 'nope/rule').status).toBe(2);
+  });
+});

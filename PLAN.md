@@ -3,6 +3,12 @@
 `archlint` is a working name. The unscoped npm name is taken by an abandoned
 package, so the final name is decided before the first release.
 
+## Status
+
+Milestones 1 to 7 are implemented: the engine, the CLI, all three plugins, the
+agent skill, the examples, and CI. Adoption in Queenbolt and the first release
+are open. See [Milestones](#milestones).
+
 ## Goal
 
 A fast, structure-agnostic architecture checker for TypeScript projects. One
@@ -72,9 +78,9 @@ archlint into a different product.
 Structure is described with element patterns such as `src/features/:name`.
 Alternatives considered:
 
-| Model | Why not |
-|---|---|
-| No elements, paths only | Every plugin would parse paths itself, and generic rules such as cycles between groups could not be shared |
+| Model                                        | Why not                                                                                                                  |
+| -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| No elements, paths only                      | Every plugin would parse paths itself, and generic rules such as cycles between groups could not be shared               |
 | Tags, several per file (as in Sheriff or Nx) | More flexible but harder to reason about, and every rule must handle sets of tags. Can be added on top of elements later |
 
 ### Three official plugins
@@ -141,26 +147,31 @@ archlint/
   examples/
     feature-folders/      end-to-end fixture with feature and common folders
     monorepo/             end-to-end fixture with packages/*
-  tooling/
-    tsconfig/             private shared tsconfig
+  .changeset/             Changesets config and pending changesets
+  .github/workflows/      CI with voidzero-dev/setup-vp
   archlint.config.ts      archlint checks its own repo
+  tsconfig.base.json      shared compiler options
   vite.config.ts          Vite+ config: lint, fmt, test, pack, run, staged
-  pnpm-workspace.yaml
+  pnpm-workspace.yaml     workspaces and the version catalog
 ```
+
+Packages export their TypeScript source during development and their build
+output when published (tsdown `devExports`, applied through `publishConfig`), so
+the CLI runs without a build step in the workspace.
 
 ### Development toolchain
 
 The repo uses the VoidZero stack through Vite+, which is a dev dependency only.
 No published package depends on `vite-plus`.
 
-| Task | Command | Tool |
-|---|---|---|
-| Format, lint, type check | `vp check` | Oxfmt, Oxlint (type-aware) |
-| Test | `vp test` | Vitest |
-| Build packages | `vp pack` | tsdown (Rolldown) |
-| Monorepo tasks with caching | `vp run <task> -r` | Vite Task |
-| Pre-commit checks | `vp staged` | Vite+ commit hooks |
-| Versioning and publishing | `changeset` | Changesets |
+| Task                        | Command            | Tool                       |
+| --------------------------- | ------------------ | -------------------------- |
+| Format, lint, type check    | `vp check`         | Oxfmt, Oxlint (type-aware) |
+| Test                        | `vp test`          | Vitest                     |
+| Build packages              | `vp pack`          | tsdown (Rolldown)          |
+| Monorepo tasks with caching | `vp run <task> -r` | Vite Task                  |
+| Pre-commit checks           | `vp staged`        | Vite+ commit hooks         |
+| Versioning and publishing   | `changeset`        | Changesets                 |
 
 Contributors use the project-local CLI (`pnpm exec vp ...`). The global `vp`
 installation is optional. Changesets is used because neither VoidZero nor unjs
@@ -176,30 +187,32 @@ are upgraded on its release schedule.
 Kept small and chosen for startup time. Oxc and unjs are preferred. All
 dependencies are kept at their latest versions.
 
-| Need | Package | Used in |
-|---|---|---|
-| Parsing | `oxc-parser` | core |
-| Module resolution | `oxc-resolver` | core |
-| Path handling with `/` on all platforms | `pathe` (unjs) | core |
-| File discovery | `tinyglobby` | core |
-| Glob matching for `overrides`, `ignore`, and rule options | `picomatch` | core |
-| Options schema types | `@standard-schema/spec` | core (types only) |
-| Running git | `node:child_process` | core |
-| CLI commands | `citty` (unjs) | archlint |
-| Config loading | `c12` (unjs) | archlint |
-| Colors | `node:util` `styleText` | archlint |
+| Need                                                      | Package                 | Used in           |
+| --------------------------------------------------------- | ----------------------- | ----------------- |
+| Parsing                                                   | `oxc-parser`            | core              |
+| Module resolution                                         | `oxc-resolver`          | core              |
+| Path handling with `/` on all platforms                   | `pathe` (unjs)          | core              |
+| File discovery                                            | `tinyglobby`            | core              |
+| Glob matching for `overrides`, `ignore`, and rule options | `picomatch`             | core              |
+| Options schema types                                      | `@standard-schema/spec` | core (types only) |
+| Running git                                               | `node:child_process`    | core              |
+| CLI commands                                              | `citty` (unjs)          | archlint          |
+| Config loading                                            | `c12` (unjs)            | archlint          |
+| TypeScript config files with extensionless imports        | `jiti` (unjs)           | archlint          |
+| Rule options                                              | `valibot`               | plugins           |
+| Colors                                                    | `node:util` `styleText` | archlint          |
 
 All packages are ESM only and target the current Node LTS.
 
 ## Packages
 
-| Package | Contents | Used by |
-|---|---|---|
-| `@archlint/core` | Engine, snapshots, project model, elements, parsing and resolution, git changes, config resolution, `defineRule`, `definePlugin`, `defineConfig`, types. `@archlint/core/testing` exports the rule test helpers. No CLI code. | Plugin authors (as a peer dependency), the CLI |
-| `archlint` | citty CLI, config loading, reporters, agent skill. Re-exports `defineConfig` and the public types from core so users install one package. | Everyone using the tool |
-| `@archlint/plugin-boundaries` | Rules about dependencies between elements and on packages | Any project |
-| `@archlint/plugin-conventions` | Rules about names, placement, required files, export shape, and suppression comments | Any project |
-| `@archlint/plugin-changes` | Rules about files that must or must not change | Projects in git |
+| Package                        | Contents                                                                                                                                                                                                                      | Used by                                        |
+| ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
+| `@archlint/core`               | Engine, snapshots, project model, elements, parsing and resolution, git changes, config resolution, `defineRule`, `definePlugin`, `defineConfig`, types. `@archlint/core/testing` exports the rule test helpers. No CLI code. | Plugin authors (as a peer dependency), the CLI |
+| `archlint`                     | citty CLI, config loading, reporters, agent skill. Re-exports `defineConfig` and the public types from core so users install one package.                                                                                     | Everyone using the tool                        |
+| `@archlint/plugin-boundaries`  | Rules about dependencies between elements and on packages                                                                                                                                                                     | Any project                                    |
+| `@archlint/plugin-conventions` | Rules about names, placement, required files, export shape, and suppression comments                                                                                                                                          | Any project                                    |
+| `@archlint/plugin-changes`     | Rules about files that must or must not change                                                                                                                                                                                | Projects in git                                |
 
 Project-specific rules do not live in this repo. For example, the VGCS
 Queenbolt rules live in Queenbolt as a local plugin.
@@ -218,11 +231,11 @@ Queenbolt rules live in Queenbolt as a local plugin.
 All file access goes through a snapshot. A snapshot lists paths and reads file
 contents.
 
-| Snapshot | Used for |
-|---|---|
-| Working tree | Normal runs |
-| Git ref | The base side of `--new` |
-| Memory | Rule tests |
+| Snapshot     | Used for                 |
+| ------------ | ------------------------ |
+| Working tree | Normal runs              |
+| Git ref      | The base side of `--new` |
+| Memory       | Rule tests               |
 
 The git ref snapshot is the working tree with changed paths replaced by their
 content at the ref. Files added since the ref are removed, and deleted files
@@ -239,12 +252,12 @@ can be parsed.
 The engine builds data in tiers and only builds a tier when an active rule
 needs it.
 
-| Tier | Data | Source | Built for |
-|---|---|---|---|
-| 1. Paths | Files, directories, elements, packages, test flag | glob | All files |
-| 2. Text | File contents as a string | snapshot | Files in scope that a rule reads |
-| 3. Module info | Imports, re-exports, dynamic imports, exports | `oxc-parser` module record, without materializing the AST | Source files in scope, or all source files when a project rule is active |
-| 4. AST | ESTree program and comments | `oxc-parser` program (lazy) | Source files in scope only |
+| Tier           | Data                                              | Source                                                    | Built for                                                                |
+| -------------- | ------------------------------------------------- | --------------------------------------------------------- | ------------------------------------------------------------------------ |
+| 1. Paths       | Files, directories, elements, packages, test flag | glob                                                      | All files                                                                |
+| 2. Text        | File contents as a string                         | snapshot                                                  | Files in scope that a rule reads                                         |
+| 3. Module info | Imports, re-exports, dynamic imports, exports     | `oxc-parser` module record, without materializing the AST | Source files in scope, or all source files when a project rule is active |
+| 4. AST         | ESTree program and comments                       | `oxc-parser` program (lazy)                               | Source files in scope only                                               |
 
 Test files are part of the project model, and each rule decides whether to
 check them.
@@ -257,23 +270,30 @@ with their own `paths` work.
 
 ```ts
 interface ImportEdge {
+  kind: 'edge';
   from: ProjectFile;
   specifier: string;
   line: number;
-  kind: 'import' | 'export' | 'dynamic' | 'require';
+  syntax: 'import' | 'export' | 'dynamic' | 'require';
   typeOnly: boolean;
-  names: string[]; // imported or re-exported names; '*' for namespaces
+  names: string[]; // imported or re-exported names; 'default', or '*' for namespaces
+  reexport: boolean; // `export ... from`, or an imported binding that is exported
   target:
     | { type: 'internal'; file: ProjectFile }
     | { type: 'external'; package: string; path?: string }
     | { type: 'builtin'; module: string }
+    | { type: 'excluded'; path: string } // in the repository, outside include
     | { type: 'unresolved' };
 }
 ```
 
-An edge that resolves inside the project is internal, including workspace
-packages reached through symlinks. An edge into `node_modules` is external and
-keeps the package name.
+An edge that resolves inside the project is internal. A bare import of a
+workspace package maps to its source entry (`source` in `package.json`, then
+`src/index.*`, then `index.*`) even when its `exports` point at build output
+that does not exist yet. An edge into `node_modules` is external and keeps the
+package name. If a tsconfig cannot be read, for example because its `extends`
+target is missing, resolution retries without tsconfig instead of failing every
+import.
 
 ### Packages
 
@@ -285,9 +305,14 @@ and its declared dependencies. Rules such as `no-undeclared-dependency` use it.
 `ctx.changes` lists files that differ from a base ref, each with a status:
 `added`, `modified`, `deleted`, or `renamed`. The base is `HEAD` by default
 (including staged and untracked files) and can be set with `--base <ref>`, for
-example `--base origin/main` in CI. Changes are computed only when a rule or a
-flag needs them. Outside a git repository, `ctx.changes` is unavailable, and
-rules that need it report one `archlint/no-git` finding instead.
+example `--base origin/main` in CI. Outside a git repository, `ctx.changes` is
+unavailable, and rules that read it report one `archlint/no-git` finding
+instead. Reading `ctx.changes.available` never counts as needing git.
+
+Spawning git is the largest fixed cost of a small run, so archlint asks git
+once for the repository prefix and base commit (`git rev-parse`) and once for
+the changes (`git status` against `HEAD`, or `git diff` plus `git ls-files`
+against other refs). Both run while the file listing is built.
 
 ### Elements
 
@@ -304,8 +329,12 @@ elements: [
     description: 'A user-facing feature. Other code imports it only through index.ts.',
   },
   { type: 'domain', pattern: 'src/common/:name', entry: 'index.ts' },
-  { type: 'shared', pattern: 'src/:name', where: { name: ['api', 'components', 'hooks', 'utils'] } },
-]
+  {
+    type: 'shared',
+    pattern: 'src/:name',
+    where: { name: ['api', 'components', 'hooks', 'utils'] },
+  },
+];
 ```
 
 Pattern rules:
@@ -339,12 +368,16 @@ Examples of other layouts:
 ```ts
 // Feature-Sliced Design
 elements: [
-  { type: 'slice', pattern: 'src/:layer/:slice', where: { layer: ['features', 'entities', 'widgets', 'pages'] } },
+  {
+    type: 'slice',
+    pattern: 'src/:layer/:slice',
+    where: { layer: ['features', 'entities', 'widgets', 'pages'] },
+  },
   { type: 'layer', pattern: 'src/:layer' },
-]
+];
 
 // Monorepo
-elements: [{ type: 'package', pattern: 'packages/:name', entry: 'src/index.ts' }]
+elements: [{ type: 'package', pattern: 'packages/:name', entry: 'src/index.ts' }];
 ```
 
 Multiple elements per file (tags) and capture templates in selectors are
@@ -363,7 +396,9 @@ export const entryOnly = defineRule({
     docs: 'Longer explanation shown by `archlint rules explain`, including how to fix a finding.',
   },
   options: v.object({ elements: v.array(v.string()) }),
-  describe: (options) => `Code outside a ${options.elements.join(' or ')} imports it only through its entry files.`,
+  describe: (options) =>
+    `Code outside a ${options.elements.join(' or ')} imports it only through its entry files.`,
+  elementTypes: (options) => options.elements,
   create: (ctx) => ({
     import(edge) {
       if (edge.target.type !== 'internal') return;
@@ -389,6 +424,10 @@ export const entryOnly = defineRule({
 - `describe(options)` returns one or more sentences about what the rule
   enforces with these options. `archlint describe` uses it. Without it,
   `meta.description` is used.
+- `elementTypes(options)` lists the element types the options reference, so a
+  config that uses an undefined type fails with exit code 2.
+- `describe`, `elementTypes`, and `create` are methods rather than function
+  properties, so every rule is assignable to `AnyRule` without `any`.
 
 #### Reporting
 
@@ -404,14 +443,14 @@ ctx.report({
 
 `at` is one of:
 
-| Location | Example |
-|---|---|
-| A file, optionally with line and column | A default export |
-| A path that does not exist | A missing companion file |
-| A directory | A forbidden directory name |
-| An element | An element without an entry file |
-| An import edge | A deep import |
-| The project | A missing changeset |
+| Location                                | Example                          |
+| --------------------------------------- | -------------------------------- |
+| A file, optionally with line and column | A default export                 |
+| A path that does not exist              | A missing companion file         |
+| A directory                             | A forbidden directory name       |
+| An element                              | An element without an entry file |
+| An import edge                          | A deep import                    |
+| The project                             | A missing changeset              |
 
 The identity of a finding is its rule id, the path of its location, and its
 key. It does not include line numbers, so findings can be matched between the
@@ -421,19 +460,25 @@ working tree and a base ref after lines move.
 
 Visitors decide which tiers are built:
 
-| Visitor | Receives | Needs tier | Runs for |
-|---|---|---|---|
-| `file` | File facts | 1 | Files in scope |
-| `directory` | Directory facts | 1 | Directories in scope |
-| `element` | Element facts and its files | 1 | Elements with a file in scope |
-| `text` | File and its contents | 2 | Files in scope |
-| `module` | Source file and its module info | 3 | Source files in scope |
-| `import` | Import edge | 3 + resolution | Edges from source files in scope |
-| `ast` | Source file, ESTree program, and comments | 4 | Source files in scope |
-| `project` | The project | Depends on use | Once per run |
+| Visitor     | Receives                                  | Needs tier     | Runs for                         |
+| ----------- | ----------------------------------------- | -------------- | -------------------------------- |
+| `file`      | File facts                                | 1              | Files in scope                   |
+| `directory` | Directory facts                           | 1              | Directories in scope             |
+| `element`   | Element facts and its files               | 1              | Elements with a file in scope    |
+| `text`      | File and its contents                     | 2              | Files in scope                   |
+| `module`    | Source file and its module info           | 3              | Source files in scope            |
+| `import`    | Import edge                               | 3 + resolution | Edges from source files in scope |
+| `ast`       | Source file, ESTree program, and comments | 4              | Source files in scope            |
+| `project`   | The project                               | Depends on use | Once per run                     |
 
 If no active rule uses `text`, `module`, `import`, `ast`, or `project`, no file
 is read.
+
+Per-file visitors are synchronous: the engine reads the files they need
+concurrently before calling them, which measured about twice as fast as
+reading on demand. The `project` visitor may be async and loads what it needs
+through `ctx.project`. In the `ast` visitor, comments and module info are cheap;
+the ESTree program is deserialized only when a rule reads `program`.
 
 #### Context
 
@@ -441,14 +486,21 @@ is read.
 
 - `ctx.options`: validated options
 - `ctx.report(...)`: see above
-- `ctx.project`: the project, with `files`, `directories`, `elements`,
-  `file(path)`, `exists(path)`, `text(path)`, `importsOf(file)`,
-  `importersOf(file)`, `packageOf(file)`, and `configFile`
+- `ctx.project`: the project
+  - synchronous: `root`, `configFile`, `files`, `directories`, `elements`,
+    `file(path)`, `directory(path)`, `element(id)`, `exists(path)`,
+    `elementAt(path)`, `packageOf(file)`, `workspacePackage(name)`
+  - asynchronous, building tiers on demand: `read(path)`, `module(file)`,
+    `ast(file)`, `importsOf(file)`, and `graph()`, which parses and resolves
+    every source file and returns `edges`, `importsOf(file)`, and
+    `importersOf(file)`
 - `ctx.changes`: changed files compared with the base ref
 - `ctx.isInScope(location)`: whether findings at a location are shown
 
-Reading through `ctx.project` builds the tiers that are needed, so a `project`
-visitor only pays for what it uses.
+Reading through `ctx.project` builds only the tiers that are needed, so a
+`project` visitor only pays for what it uses. `public-api`, for example,
+follows re-exports from entry files with `importsOf` instead of building the
+whole graph.
 
 #### Shorthands
 
@@ -470,12 +522,12 @@ Core reports some findings itself, under the `archlint/` prefix. They are
 configured like any rule, except that `archlint/config-changed` cannot be
 turned off.
 
-| Id | Default | Reported when |
-|---|---|---|
-| `archlint/config-changed` | `warn` | The archlint config file differs from the base ref |
-| `archlint/stale-config` | `warn` | An element pattern, override, or glob option matches nothing |
-| `archlint/no-git` | `warn` | A rule needs git and there is no repository |
-| `archlint/parse-error` | `error` | A source file cannot be parsed |
+| Id                        | Default | Reported when                                                |
+| ------------------------- | ------- | ------------------------------------------------------------ |
+| `archlint/config-changed` | `warn`  | The archlint config file differs from the base ref           |
+| `archlint/stale-config`   | `warn`  | An element pattern, override, or glob option matches nothing |
+| `archlint/no-git`         | `warn`  | A rule needs git and there is no repository                  |
+| `archlint/parse-error`    | `error` | A source file cannot be parsed                               |
 
 `archlint/config-changed` makes config changes visible. The skill tells the
 agent to stop and ask a human, and code review is the final guard.
@@ -521,12 +573,24 @@ export default defineConfig({
   rules: {
     'conventions/directory-case': ['error', { case: 'kebab' }],
     'boundaries/entry-only': ['error', { elements: ['feature'] }],
-    'boundaries/restricted-packages': ['error', {
-      packages: [{ name: '@mui/material', message: 'Use the design system components instead.' }],
-    }],
-    'changes/requires-change': ['error', {
-      rules: [{ when: 'src/**/messages.ts', require: 'src/translations/en.json', hint: 'Run pnpm extract-intl.' }],
-    }],
+    'boundaries/restricted-packages': [
+      'error',
+      {
+        packages: [{ name: '@mui/material', message: 'Use the design system components instead.' }],
+      },
+    ],
+    'changes/requires-change': [
+      'error',
+      {
+        rules: [
+          {
+            when: 'src/**/messages.ts',
+            require: 'src/translations/en.json',
+            hint: 'Run pnpm extract-intl.',
+          },
+        ],
+      },
+    ],
   },
   overrides: [
     {
@@ -565,10 +629,10 @@ Three layers, most specific wins:
 2. Config level: `rules`, `extends`, and `overrides`
 3. Failure threshold: `failOn` in config, overridden by `--fail-on`
 
-| `failOn` | Exit 1 when |
-|---|---|
-| `'error'` | At least one error |
-| `'warn'` | At least one warning or error |
+| `failOn`  | Exit 1 when                       |
+| --------- | --------------------------------- |
+| `'error'` | At least one error                |
+| `'warn'`  | At least one warning or error     |
 | `'never'` | Never; findings are reported only |
 
 Exit code 2 means a usage or configuration error. Agents can tell "the code
@@ -582,12 +646,12 @@ typescript-eslint, and oxlint JS plugins.
 
 Benchmark on VGCS Queenbolt (1,053 TS/TSX files, warm file cache):
 
-| Step | TypeScript compiler API | oxc |
-|---|---|---|
-| Load library | 133 ms | 16 ms |
-| Collect imports for all files | 260 ms | 60 ms (module info only) |
-| Full AST for all files | included above | 194 ms |
-| Resolve 3,083 local imports | 31 ms (with cache) | 12 ms, 0 unresolved |
+| Step                          | TypeScript compiler API | oxc                      |
+| ----------------------------- | ----------------------- | ------------------------ |
+| Load library                  | 133 ms                  | 16 ms                    |
+| Collect imports for all files | 260 ms                  | 60 ms (module info only) |
+| Full AST for all files        | included above          | 194 ms                   |
+| Resolve 3,083 local imports   | 31 ms (with cache)      | 12 ms, 0 unresolved      |
 
 Both found the same 3,083 imports. Glob (93 ms) and reading files (218 ms) are
 now the largest costs.
@@ -603,8 +667,15 @@ Risks and mitigations:
 - oxc is at 0.x and changes often. Pin exact versions and keep all oxc calls
   inside `@archlint/core`. The ESTree shape is stable across versions.
 - Native binaries per platform. oxc ships a wasm fallback.
-- JSDoc tags such as `@deprecated` are not attached to nodes. Core provides a
-  helper that matches comments to nodes.
+- JSDoc tags such as `@deprecated` are not attached to nodes. Core provides
+  `leadingComments(offset)` on the AST to match comments to declarations.
+- oxc follows the ESM spec and turns `import { a } from 'x'; export { a }` into
+  an indirect export with the import's module request. Core recognizes this and
+  marks the import as re-exported instead of creating a second edge.
+
+Comments are almost free to read (55 ms against 61 ms for module info alone on
+Queenbolt), while the full program costs about 200 ms. Rules that only need
+comments, such as `no-suppressions`, therefore never build the program.
 
 ## Performance
 
@@ -622,11 +693,25 @@ How:
   in scope.
 - `check <paths>` and `--changed` limit reporting. The full graph is built
   only when a `project` rule needs it.
-- Git is called only when changes are needed.
+- Git runs at most twice for `HEAD` (three times for other refs), concurrently
+  with the file listing.
 - `--new` shares parse results between snapshots.
 - Files are read concurrently.
-- Each run prints its duration, and CI fails if the example projects pass a
-  time budget.
+- Each run prints its duration, and a test fails if a generated project of
+  about 1,000 files misses the budgets. CI raises them by a factor with
+  `ARCHLINT_BUDGET_FACTOR` because shared runners are slower.
+
+Measured on the generated project (1,015 files, engine time, on a machine where
+each git process takes about 40 ms):
+
+| Run                                     | Target   | Measured |
+| --------------------------------------- | -------- | -------- |
+| `check` with all rules                  | < 1 s    | 283 ms   |
+| `check --changed` without project rules | < 300 ms | 128 ms   |
+| `check --changed --new` with all rules  | < 1.5 s  | 459 ms   |
+
+The whole process, including Node startup and config loading, takes about
+200 ms more.
 
 A cache of module info keyed by file size and mtime is a v2 option if reading
 files remains the bottleneck.
@@ -639,7 +724,7 @@ Built with citty and organized like the Queenbolt CLI:
 packages/archlint/
   src/
     cli/
-      index.ts              # runMain, --debug, lazy subCommands
+      index.ts              # lazy subCommands, --debug, exit code 2 for bad arguments
       logger.ts
       features/
         check/
@@ -652,7 +737,9 @@ packages/archlint/
             list.ts         # archlint rules list
             explain.ts      # archlint rules explain <id>
       utils/
-        configUtil.ts       # config loading and validation
+        cliUtil.ts          # exit codes, error handling, repeatable flags
+        configUtil.ts       # finds the nearest config and loads it with c12
+        packageUtil.ts      # version
     reporters/
       compactReporter.ts
       jsonReporter.ts
@@ -679,16 +766,16 @@ archlint rules explain <rule-id>   # description and docs for one rule
 
 Flags on `check`:
 
-| Flag | Meaning |
-|---|---|
-| `--changed` | Scope to files that differ from the base ref |
-| `--new` | Show only findings whose identity is not found at the base ref |
-| `--base <ref>` | Base ref for `--changed`, `--new`, and `ctx.changes`. Default `HEAD` |
-| `--rule <id>` | Run only these rules. Repeatable |
-| `--fail-on` | `error`, `warn`, or `never` |
-| `--format` | `compact` or `json` |
-| `--max-findings <n>` | Print at most n findings. Default 50 |
-| `--config <path>` | Config file |
+| Flag                 | Meaning                                                              |
+| -------------------- | -------------------------------------------------------------------- |
+| `--changed`          | Scope to files that differ from the base ref                         |
+| `--new`              | Show only findings whose identity is not found at the base ref       |
+| `--base <ref>`       | Base ref for `--changed`, `--new`, and `ctx.changes`. Default `HEAD` |
+| `--rule <id>`        | Run only these rules. Repeatable                                     |
+| `--fail-on`          | `error`, `warn`, or `never`                                          |
+| `--format`           | `compact` or `json`                                                  |
+| `--max-findings <n>` | Print at most n findings. Default 50                                 |
+| `--config <path>`    | Config file                                                          |
 
 Scope reporting: a finding is shown if its location or any of its `related`
 locations is in scope. Cycles that pass through a changed file are therefore
@@ -752,43 +839,51 @@ Rule-specific guidance comes from each rule's `meta.docs`, `describe`, and
 
 ### `@archlint/plugin-boundaries`
 
-Selectors are element types, or `{ type, captures }` to match captured values.
+Selectors are element types, or `{ type?, captures?, files? }` to match captured
+values or path globs (for files outside elements, such as an aggregator
+`index.ts`). A selector option accepts one selector or a list. Edges from test
+files are skipped unless `includeTests` is set, and most rules can skip
+type-only imports with `ignoreTypeImports`.
 
-| Rule | Purpose | Main options |
-|---|---|---|
-| `allowed-imports` | Which elements may import which | `rules: [{ from, allow?, disallow?, message? }]`, `default: 'allow' \| 'disallow'` |
-| `entry-only` | Imports from outside an element must target its entry files | `elements` |
-| `no-entry-import` | These imports must target files, not entry files (including imports of the element's own entry) | `rules: [{ from, to: selector \| 'self' }]` |
-| `public-api` | An imported file must be reachable from the target element's entry through re-exports | `elements`, `from?` |
-| `no-cycles` | No dependency cycles between elements | `elements` |
-| `no-unresolved` | Imports must resolve | `ignore?` |
-| `restricted-packages` | Packages or named imports that must not be used, optionally per element | `packages: [{ name, importNames?, allowTypeImports?, from?, message? }]` |
-| `no-undeclared-dependency` | External imports must be declared in the nearest `package.json` | `allowDev?: glob[]` |
-| `no-orphans` | Source files that nothing imports and that are not entries, tests, or listed roots | `roots: glob[]` |
+| Rule                       | Purpose                                                                                         | Main options                                                                       |
+| -------------------------- | ----------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| `allowed-imports`          | Which elements may import which                                                                 | `rules: [{ from, allow?, disallow?, message? }]`, `default: 'allow' \| 'disallow'` |
+| `entry-only`               | Imports from outside an element must target its entry files                                     | `elements`                                                                         |
+| `no-entry-import`          | These imports must target files, not entry files (including imports of the element's own entry) | `rules: [{ from, to: selector \| 'self' }]`                                        |
+| `public-api`               | An imported file must be reachable from the target element's entry through re-exports           | `elements`, `from?`, `exceptions?: [{ from?, to: glob }]`                          |
+| `no-cycles`                | No dependency cycles between elements, anchored at the changed import                           | `elements?` (all by default)                                                       |
+| `no-unresolved`            | Imports must resolve                                                                            | `ignore?`                                                                          |
+| `restricted-packages`      | Packages or named imports that must not be used, optionally per element                         | `packages: [{ name, importNames?, allowTypeImports?, from?, message?, hint? }]`    |
+| `no-undeclared-dependency` | External and workspace imports must be declared in the nearest `package.json`                   | `allowDev?: glob[]`, `ignore?`                                                     |
+| `no-orphans`               | Source files that only tests import, unless they are entries, config files, or listed roots     | `roots: glob[]`                                                                    |
+
+`recommended` enables `no-cycles`, `no-unresolved`, and `no-undeclared-dependency`.
 
 ### `@archlint/plugin-conventions`
 
-| Rule | Purpose | Main options |
-|---|---|---|
-| `no-default-export` | Named exports only | none, scope with `overrides` |
-| `file-name-case` | File naming | `case`, `ignore?` |
-| `directory-case` | Directory naming | `case`, `ignore?` |
-| `forbidden-files` | Disallow file names | `patterns: [{ name, message? }]` |
-| `forbidden-directories` | Disallow directory names | `patterns: [{ name, message? }]` |
-| `root-only-files` | Files allowed only at an element root | `names` |
-| `file-name-pattern` | Files in a directory must match a pattern | `directory`, `pattern`, `message?` |
-| `required-files` | Files that must exist in each element or directory | `files: [{ in, path, message? }]` |
-| `companion-files` | A file requires a companion, for example `X.tsx` requires `X.test.tsx` | `rules: [{ files, requires, message? }]` |
-| `export-matches-filename` | A file exports one value named after the file | `files`, `transform`, `allowDeprecated?` |
-| `export-name-pattern` | Exported names in matching files follow a pattern, for example `use*` in `hooks/` | `rules: [{ files, pattern, message? }]` |
-| `no-suppressions` | No `@ts-ignore`, `@ts-expect-error`, `eslint-disable`, `oxlint-disable`, or `biome-ignore` comments | `allow?` |
+| Rule                      | Purpose                                                                                                                                                | Main options                                |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------- |
+| `no-default-export`       | Named exports only                                                                                                                                     | none, scope with `overrides`                |
+| `file-name-case`          | File naming                                                                                                                                            | `case`, `ignore?`                           |
+| `directory-case`          | Directory naming                                                                                                                                       | `case`, `ignore?`                           |
+| `forbidden-files`         | Disallow file names                                                                                                                                    | `patterns: [{ name, message? }]`            |
+| `forbidden-directories`   | Disallow directory names                                                                                                                               | `patterns: [{ name, message? }]`            |
+| `root-only-files`         | Files allowed only at an element root                                                                                                                  | `names`                                     |
+| `file-name-pattern`       | Files in a directory must match a pattern                                                                                                              | `rules: [{ directory, pattern, message? }]` |
+| `required-files`          | Files that must exist in each element or directory                                                                                                     | `files: [{ in, path, message? }]`           |
+| `companion-files`         | A file requires a companion, for example `X.tsx` requires `X.test.tsx`                                                                                 | `rules: [{ files, requires, message? }]`    |
+| `export-matches-filename` | A file exports one value named after the file; scope it with an override                                                                               | `transform?`, `allowDeprecated?`            |
+| `export-name-pattern`     | Exported names in matching files follow a pattern, for example `use*` in `hooks/`                                                                      | `rules: [{ files, pattern, message? }]`     |
+| `no-suppressions`         | No `@ts-ignore`, `@ts-expect-error`, `eslint-disable`, `oxlint-disable`, `biome-ignore`, or coverage-ignore comments; reads real comments, not strings | `directives?`, `allow?`                     |
+
+`recommended` enables `no-suppressions`.
 
 ### `@archlint/plugin-changes`
 
-| Rule | Purpose | Main options |
-|---|---|---|
-| `requires-change` | When files matching `when` change, a file matching `require` must change too | `rules: [{ when, require, hint? }]` |
-| `no-manual-edit` | Files that must be regenerated, not edited by hand | `files`, `unless?` (files whose change allows it), `hint?` |
+| Rule              | Purpose                                                                      | Main options                                                                  |
+| ----------------- | ---------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| `requires-change` | When files matching `when` change, a file matching `require` must change too | `rules: [{ when, require, hint? }]`                                           |
+| `no-manual-edit`  | Files that must be regenerated, not edited by hand                           | `rules: [{ files, unless?, hint? }]` (`unless`: files whose change allows it) |
 
 `requires-change` also covers checks such as "a changed package needs a
 changeset": `{ when: 'packages/*/src/**', require: '.changeset/*.md' }`.
@@ -797,44 +892,51 @@ changeset": `{ when: 'packages/*/src/**', require: '.changeset/*.md' }`.
 
 `@archlint/core/testing` exports:
 
-- `runRule(rule, { files, config?, options?, base?, changes? })`, which returns
-  findings. `base` is a second file map for the base ref, and `changes` can be
-  given directly for change rules.
-- `testRule(rule, { valid, invalid })`, which generates Vitest cases
+- `runRule(rule, { files, config?, options?, level?, base?, changes?, paths?, changed?, onlyNew? })`,
+  which returns findings. `base` is a second file map: the fixture becomes a
+  git repository with `base` committed, so `--new` and change rules run against
+  real git.
+- `testRule(name, rule, { valid, invalid }, { describe, it, expect })`, which
+  generates test cases. Passing the test functions keeps the helper independent
+  of the test runner (Vitest, `vite-plus/test`, or Jest).
 
-Fixtures are memory snapshots. They are written to a temporary directory so
-tests use the real parser and resolver.
+Fixtures are written to a temporary directory so tests use the real parser,
+resolver, and git. The CLI has end-to-end tests that copy the example projects
+into temporary git repositories, and a performance test (see
+[Performance](#performance)).
 
 ## Adoption in VGCS Queenbolt
 
 Queenbolt gets an `archlint.config.ts` and a local plugin for rules that are
 specific to it. Mapping from the current checks:
 
-| Current check | archlint |
-|---|---|
-| `DEFAULT_EXPORT` | `conventions/no-default-export` in an override |
-| `TYPES_FILE`, `COMPONENT_IN_INDEX` | `conventions/forbidden-files` |
-| `TESTS_DIR_NAME`, `STORIES_DIR` | `conventions/forbidden-directories` |
-| `DIRECTORY_CASE` | `conventions/directory-case` |
-| `NESTED_FEATURE_BARREL`, `NESTED_COMMON_BARREL`, `NESTED_MESSAGES` | `conventions/root-only-files` |
-| `UTIL_NAME` | `conventions/file-name-pattern` |
-| `UTIL_EXPORTS` | `conventions/export-matches-filename` |
-| `DEEP_FEATURE_IMPORT` | `boundaries/entry-only` |
-| `SELF_FEATURE_BARREL`, `COMMON_ROOT_IMPORT`, `API_COMMON_ROOT` | `boundaries/no-entry-import` |
-| `PRIVATE_COMMON_IMPORT` | `boundaries/public-api` |
-| `SHARED_TO_FEATURE`, `FEATURE_AGGREGATOR_IMPORT` | `boundaries/allowed-imports` |
-| `FEATURE_CYCLE`, `COMMON_CYCLE` | `boundaries/no-cycles` |
-| `UNRESOLVED_IMPORT` | `boundaries/no-unresolved` |
-| `BUCKET_NAME` | Local plugin rule |
-| `check translation` (CLI) | `changes/requires-change` |
-| Hand edits in `src/generated/` | `changes/no-manual-edit` |
-| Imports of `@dealerrelations/ui-components` | `boundaries/restricted-packages` |
+| Current check                                                      | archlint                                       |
+| ------------------------------------------------------------------ | ---------------------------------------------- |
+| `DEFAULT_EXPORT`                                                   | `conventions/no-default-export` in an override |
+| `TYPES_FILE`, `COMPONENT_IN_INDEX`                                 | `conventions/forbidden-files`                  |
+| `TESTS_DIR_NAME`, `STORIES_DIR`                                    | `conventions/forbidden-directories`            |
+| `DIRECTORY_CASE`                                                   | `conventions/directory-case`                   |
+| `NESTED_FEATURE_BARREL`, `NESTED_COMMON_BARREL`, `NESTED_MESSAGES` | `conventions/root-only-files`                  |
+| `UTIL_NAME`                                                        | `conventions/file-name-pattern`                |
+| `UTIL_EXPORTS`                                                     | `conventions/export-matches-filename`          |
+| `DEEP_FEATURE_IMPORT`                                              | `boundaries/entry-only`                        |
+| `SELF_FEATURE_BARREL`, `COMMON_ROOT_IMPORT`, `API_COMMON_ROOT`     | `boundaries/no-entry-import`                   |
+| `PRIVATE_COMMON_IMPORT`                                            | `boundaries/public-api`                        |
+| `SHARED_TO_FEATURE`, `FEATURE_AGGREGATOR_IMPORT`                   | `boundaries/allowed-imports`                   |
+| `FEATURE_CYCLE`, `COMMON_CYCLE`                                    | `boundaries/no-cycles`                         |
+| `UNRESOLVED_IMPORT`                                                | `boundaries/no-unresolved`                     |
+| `BUCKET_NAME`                                                      | Local plugin rule                              |
+| `check translation` (CLI)                                          | `changes/requires-change`                      |
+| Hand edits in `src/generated/`                                     | `changes/no-manual-edit`                       |
+| Imports of `@dealerrelations/ui-components`                        | `boundaries/restricted-packages`               |
 
 Adoption is done when archlint reports the same findings as
 `pnpm check:architecture` on Queenbolt, and the existing script and its skill
 references are replaced.
 
 ## Milestones
+
+Milestones 1 to 7 are done. 8 and 9 are open.
 
 1. **Scaffold:** pnpm workspace, Vite+ (`vp check`, `vp test`, `vp pack`,
    `vp run`, `vp staged`), Changesets, CI.
@@ -862,3 +964,7 @@ references are replaced.
 - Whether `no-cycles` should also support file-level cycles inside an element
 - Whether `archlint/config-changed` should be able to fail a run, or only be
   reported
+- A dedicated `archlint hook` command, if the agent hook examples turn out to be
+  hard to get right per agent
+- `stale-config` checks element patterns and overrides; glob options inside
+  rule options are not checked yet
