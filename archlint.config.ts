@@ -39,11 +39,73 @@ export default defineConfig({
     ],
     'boundaries/entry-only': ['error', { elements: 'package' }],
     'boundaries/no-orphans': ['error', { roots: ['packages/archlint/src/cli/index.ts'] }],
+    'boundaries/restricted-packages': [
+      'error',
+      {
+        packages: [
+          {
+            name: 'node:{fs,fs/promises,child_process,http,https,http2,net,dgram,dns,os,process,readline,worker_threads,cluster,timers,timers/promises}',
+            from: { files: 'packages/*/src/**/utils/**' },
+            message: 'Utils are pure functions.',
+            hint: 'Move code that touches files, processes, the network, or timers to a service.',
+          },
+          {
+            name: '{c12,jiti,oxc-resolver,tinyglobby,axios,ky,undici,node-fetch}',
+            from: { files: 'packages/*/src/**/utils/**' },
+            message: 'Utils are pure functions.',
+            hint: 'Move code that loads files or calls the network to a service.',
+          },
+        ],
+      },
+    ],
+    'boundaries/restricted-globals': [
+      'error',
+      {
+        globals: [
+          'fetch',
+          'XMLHttpRequest',
+          'WebSocket',
+          'process',
+          'console',
+          'require',
+          'Date.now',
+          'Math.random',
+          'crypto',
+          'performance',
+          'setTimeout',
+          'setInterval',
+          'setImmediate',
+          'localStorage',
+          'sessionStorage',
+          'document',
+          'window',
+          'navigator',
+        ].map((name) => ({
+          name,
+          from: { files: 'packages/*/src/**/utils/**' },
+          message: 'Utils are pure functions.',
+          hint: 'Pass the value in as an argument, or move the code to a service.',
+        })),
+      },
+    ],
     'conventions/directory-case': ['error', { case: 'kebab' }],
     'conventions/file-name-case': ['error', { case: 'camel', ignore: ['index.*', '.*', '*.md'] }],
     'conventions/file-name-pattern': [
       'error',
-      { rules: [{ directory: 'utils', pattern: '*Util.ts' }] },
+      {
+        rules: [
+          {
+            directory: 'utils',
+            pattern: '*Util.ts',
+            message: 'Utils are pure functions in files named *Util.ts.',
+          },
+          {
+            directory: 'services',
+            pattern: '*Service.ts',
+            message: 'Services hold logic with side effects, in files named *Service.ts.',
+          },
+        ],
+      },
     ],
     'conventions/forbidden-directories': [
       'error',
@@ -70,8 +132,8 @@ export default defineConfig({
       rules: { 'conventions/no-default-export': 'error' },
     },
     {
-      description: 'Util files export one object named after the file.',
-      files: ['packages/*/src/**/utils/*Util.ts'],
+      description: 'Utils and services export one object named after the file.',
+      files: ['packages/*/src/**/utils/*Util.ts', 'packages/*/src/**/services/*Service.ts'],
       rules: { 'conventions/export-matches-filename': 'error' },
     },
   ],

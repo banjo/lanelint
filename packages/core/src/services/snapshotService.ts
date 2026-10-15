@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { join } from 'pathe';
 import { glob } from 'tinyglobby';
+import { DEFAULT_IGNORE } from '../constants/defaults.ts';
 import type { Change } from '../models/changes.ts';
 import { GlobUtil } from '../utils/globUtil.ts';
 
@@ -14,8 +15,6 @@ export interface Snapshot {
   read(path: string): Promise<string | undefined>;
   readSync(path: string): string | undefined;
 }
-
-export const DEFAULT_IGNORE = ['**/node_modules/**', '**/.git/**'];
 
 export interface FileFilter {
   readonly include: readonly string[];
@@ -117,7 +116,7 @@ const createAtRef = (
   };
 };
 
-export const SnapshotUtil = {
+export const SnapshotService = {
   basePathsOf,
   createAtRef,
   createWorkingTree,

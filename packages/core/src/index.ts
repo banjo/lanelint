@@ -6,7 +6,6 @@ export {
   type RuleDefinition,
 } from './api/defineRule.ts';
 export {
-  DEFAULT_TESTS,
   resolveConfig,
   type ResolveConfigOptions,
   type ResolvedConfig,
@@ -20,6 +19,12 @@ export {
   type RuleDescription,
   type RuleGroupDescription,
 } from './describe/describeProject.ts';
+export {
+  DEFAULT_ENTRIES,
+  DEFAULT_IGNORE,
+  DEFAULT_TESTS,
+  SOURCE_EXTENSIONS,
+} from './constants/defaults.ts';
 export { check, type CheckOptions, type CheckResult } from './engine/check.ts';
 export { ConfigError, UsageError } from './errors.ts';
 export type { Change, ChangeSet, ChangeStatus } from './models/changes.ts';
@@ -45,6 +50,7 @@ export type {
   ModuleExport,
   ModuleImport,
   ModuleInfo,
+  Node as AstNode,
   Program,
 } from './models/module.ts';
 export type {
@@ -65,4 +71,5 @@ export type {
   RuleMeta,
   Visitors,
 } from './models/rule.ts';
+export { AstUtil, type AstVisitor } from './utils/astUtil.ts';
 export { GlobUtil } from './utils/globUtil.ts';

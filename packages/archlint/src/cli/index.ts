@@ -2,13 +2,13 @@
 import { stripVTControlCharacters } from 'node:util';
 import { defineCommand, runCommand, runMain, showUsage } from 'citty';
 import { logger, setLogLevel } from './logger.ts';
-import { CliUtil } from './utils/cliUtil.ts';
-import { PackageUtil } from './utils/packageUtil.ts';
+import { EXIT_CODES } from './constants/exitCodes.ts';
+import { PackageService } from './services/packageService.ts';
 
 const main = defineCommand({
   meta: {
     name: 'archlint',
-    version: PackageUtil.version(),
+    version: PackageService.version(),
     description: 'Fast, structure-agnostic architecture checks for TypeScript projects.',
   },
   args: {
@@ -39,7 +39,7 @@ if (wantsHelp || wantsVersion) {
   await runMain(main);
 } else if (!rawArgs.length) {
   await showUsage(main);
-  process.exitCode = CliUtil.exit.setup;
+  process.exitCode = EXIT_CODES.setup;
 } else {
   // citty exits with 1 on invalid arguments, which archlint reserves for findings.
   try {
@@ -47,6 +47,6 @@ if (wantsHelp || wantsVersion) {
   } catch (error) {
     logger.error(stripVTControlCharacters(error instanceof Error ? error.message : String(error)));
     logger.error('Run archlint --help for usage.');
-    process.exitCode = CliUtil.exit.setup;
+    process.exitCode = EXIT_CODES.setup;
   }
 }

@@ -3,8 +3,10 @@ import { defineCommand } from 'citty';
 import { formatCompact } from '../../../reporters/compactReporter.ts';
 import { formatJson } from '../../../reporters/jsonReporter.ts';
 import { logger } from '../../logger.ts';
-import { CliUtil } from '../../utils/cliUtil.ts';
-import { ConfigUtil } from '../../utils/configUtil.ts';
+import { EXIT_CODES } from '../../constants/exitCodes.ts';
+import { CommandService } from '../../services/commandService.ts';
+import { ArgsUtil } from '../../utils/argsUtil.ts';
+import { ConfigService } from '../../services/configService.ts';
 
 export const check = defineCommand({
   meta: {
@@ -50,13 +52,13 @@ export const check = defineCommand({
     },
   },
   run: ({ args, rawArgs }) =>
-    CliUtil.run(async () => {
+    CommandService.run(async () => {
       const cwd = process.cwd();
-      const config = await ConfigUtil.load({ cwd, config: args.config });
+      const config = await ConfigService.load({ cwd, config: args.config });
       logger.debug(`Config ${config.configFile ?? '(inline)'}, root ${config.root}`);
       const base = args.base ?? 'HEAD';
       const failOn = args['fail-on'] as FailOn | undefined;
-      const maxFindings = CliUtil.positiveInteger(args['max-findings'], 'max-findings', 50);
+      const maxFindings = ArgsUtil.positiveInteger(args['max-findings'], 'max-findings', 50);
       const result = await runCheck({
         config,
         paths: args._,
@@ -64,13 +66,13 @@ export const check = defineCommand({
         changed: args.changed,
         base,
         onlyNew: args.new,
-        rules: CliUtil.repeated(rawArgs, 'rule'),
+        rules: ArgsUtil.repeated(rawArgs, 'rule'),
         failOn,
       });
       const options = { maxFindings, onlyNew: !!args.new, base };
       console.log(
         args.format === 'json' ? formatJson(result, options) : formatCompact(result, options),
       );
-      return result.failed ? CliUtil.exit.findings : CliUtil.exit.ok;
+      return result.failed ? EXIT_CODES.findings : EXIT_CODES.ok;
     }),
 });

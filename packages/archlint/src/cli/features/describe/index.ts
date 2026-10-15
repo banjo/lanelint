@@ -2,8 +2,9 @@ import { relative, resolve } from 'node:path';
 import { describeProject, UsageError } from '@archlint/core';
 import { defineCommand } from 'citty';
 import { formatMarkdown } from '../../../reporters/markdownReporter.ts';
-import { CliUtil } from '../../utils/cliUtil.ts';
-import { ConfigUtil } from '../../utils/configUtil.ts';
+import { EXIT_CODES } from '../../constants/exitCodes.ts';
+import { CommandService } from '../../services/commandService.ts';
+import { ConfigService } from '../../services/configService.ts';
 
 export const describe = defineCommand({
   meta: {
@@ -28,9 +29,9 @@ export const describe = defineCommand({
     },
   },
   run: ({ args }) =>
-    CliUtil.run(async () => {
+    CommandService.run(async () => {
       const cwd = process.cwd();
-      const config = await ConfigUtil.load({ cwd, config: args.config });
+      const config = await ConfigService.load({ cwd, config: args.config });
       let path: string | undefined;
       if (args.path !== undefined) {
         path = relative(config.root, resolve(cwd, args.path)).split('\\').join('/');
@@ -42,6 +43,6 @@ export const describe = defineCommand({
       console.log(
         args.format === 'json' ? JSON.stringify(description, null, 2) : formatMarkdown(description),
       );
-      return CliUtil.exit.ok;
+      return EXIT_CODES.ok;
     }),
 });

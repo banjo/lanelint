@@ -72,7 +72,7 @@ config problem.
 
 | Package                        | Rules                                                                                                                                                                                                                                                 |
 | ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `@archlint/plugin-boundaries`  | `allowed-imports`, `entry-only`, `no-entry-import`, `public-api`, `no-cycles`, `no-unresolved`, `restricted-packages`, `no-undeclared-dependency`, `no-orphans`                                                                                       |
+| `@archlint/plugin-boundaries`  | `allowed-imports`, `entry-only`, `no-entry-import`, `public-api`, `no-cycles`, `no-unresolved`, `restricted-packages`, `restricted-globals`, `no-undeclared-dependency`, `no-orphans`                                                                 |
 | `@archlint/plugin-conventions` | `no-default-export`, `file-name-case`, `directory-case`, `forbidden-files`, `forbidden-directories`, `root-only-files`, `file-name-pattern`, `required-files`, `companion-files`, `export-matches-filename`, `export-name-pattern`, `no-suppressions` |
 | `@archlint/plugin-changes`     | `requires-change`, `no-manual-edit`                                                                                                                                                                                                                   |
 

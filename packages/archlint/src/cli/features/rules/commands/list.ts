@@ -1,8 +1,9 @@
 import type { ResolvedConfig } from '@archlint/core';
 import { defineCommand } from 'citty';
 import { color } from '../../../logger.ts';
-import { CliUtil } from '../../../utils/cliUtil.ts';
-import { ConfigUtil } from '../../../utils/configUtil.ts';
+import { EXIT_CODES } from '../../../constants/exitCodes.ts';
+import { CommandService } from '../../../services/commandService.ts';
+import { ConfigService } from '../../../services/configService.ts';
 
 const levelsOf = (config: ResolvedConfig, id: string) => {
   const levels = new Set<string>();
@@ -27,8 +28,8 @@ export const list = defineCommand({
     },
   },
   run: ({ args }) =>
-    CliUtil.run(async () => {
-      const config = await ConfigUtil.load({ cwd: process.cwd(), config: args.config });
+    CommandService.run(async () => {
+      const config = await ConfigService.load({ cwd: process.cwd(), config: args.config });
       const ids = [...new Set(config.instances.map((instance) => instance.ruleId))].sort();
       const width = Math.max(...ids.map((id) => id.length));
       for (const id of ids) {
@@ -41,6 +42,6 @@ export const list = defineCommand({
           `${base.padEnd(5)} ${id.padEnd(width)}  ${rule?.meta.description ?? ''}${scope}`,
         );
       }
-      return CliUtil.exit.ok;
+      return EXIT_CODES.ok;
     }),
 });

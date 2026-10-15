@@ -10,8 +10,9 @@ import type {
 } from '../models/config.ts';
 import type { FailOn, Level, Location } from '../models/finding.ts';
 import type { AnyRule } from '../models/rule.ts';
+import { DEFAULT_TESTS } from '../constants/defaults.ts';
 import { ConfigError } from '../errors.ts';
-import { ElementUtil, type CompiledElement } from '../project/elements.ts';
+import { ElementUtil, type CompiledElement } from '../utils/elementUtil.ts';
 import { createCorePlugin, CORE_PLUGIN_NAME } from '../rules/corePlugin.ts';
 import { GlobUtil } from '../utils/globUtil.ts';
 
@@ -74,8 +75,6 @@ export interface ResolveConfigOptions {
   /** Absolute path of the config file. */
   readonly configFile?: string;
 }
-
-export const DEFAULT_TESTS = ['**/*.{test,spec}.*', '**/__tests__/**', '**/tests/**'];
 
 const LEVELS: readonly Level[] = ['off', 'warn', 'error'];
 

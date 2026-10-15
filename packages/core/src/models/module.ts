@@ -1,7 +1,7 @@
-import type { Comment, Program } from 'oxc-parser';
+import type { Comment, Node, Program } from 'oxc-parser';
 import type { ProjectFile } from './project.ts';
 
-export type { Comment, Program };
+export type { Comment, Node, Program };
 
 export type ImportSyntax = 'import' | 'export' | 'dynamic' | 'require';
 

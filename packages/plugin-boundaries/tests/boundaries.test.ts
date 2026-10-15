@@ -9,6 +9,7 @@ import {
   noUndeclaredDependency,
   noUnresolved,
   publicApi,
+  restrictedGlobals,
   restrictedPackages,
 } from '../src/index.ts';
 
@@ -313,6 +314,30 @@ testRule(
           { path: 'a.ts', line: 2, message: 'Do not import old-ui-kit.' },
         ],
       },
+      {
+        name: 'node builtins, only in some files',
+        options: {
+          packages: [
+            {
+              name: 'node:{fs,child_process}',
+              from: { files: '**/utils/**' },
+              message: 'Utils are pure functions.',
+            },
+          ],
+        },
+        files: {
+          'src/utils/pathUtil.ts':
+            "import { readFileSync } from 'fs';\nimport { join } from 'node:path';",
+          'src/services/fileService.ts': "import { readFileSync } from 'node:fs';",
+        },
+        findings: [
+          {
+            path: 'src/utils/pathUtil.ts',
+            line: 1,
+            message: 'Do not import node:fs. Utils are pure functions.',
+          },
+        ],
+      },
     ],
   },
   framework,
@@ -396,6 +421,76 @@ testRule(
           {
             path: 'src/features/a/unused.ts',
             message: 'Nothing imports src/features/a/unused.ts.',
+          },
+        ],
+      },
+    ],
+  },
+  framework,
+);
+
+testRule(
+  'boundaries/restricted-globals',
+  restrictedGlobals,
+  {
+    valid: [
+      {
+        name: 'local names, properties, types, and other files',
+        options: {
+          globals: [
+            { name: 'fetch', from: { files: '**/utils/**' } },
+            { name: 'Date.now', from: { files: '**/utils/**' } },
+          ],
+        },
+        files: {
+          'src/utils/a.ts': [
+            'export const load = (fetch: () => string) => fetch();',
+            'const client = { fetch: 1 };',
+            'export const value = client.fetch;',
+            'export type Loader = typeof fetch;',
+            'const Date = { now: () => 0 };',
+            'export const time = Date.now();',
+          ].join('\n'),
+          'src/services/b.ts': 'export const load = () => fetch("/api");',
+        },
+      },
+    ],
+    invalid: [
+      {
+        options: {
+          globals: [
+            {
+              name: 'fetch',
+              message: 'Utils are pure functions.',
+              hint: 'Call fetch from a service.',
+            },
+            { name: 'process' },
+            { name: 'Date.now' },
+            { name: 'Math.random' },
+          ],
+        },
+        files: {
+          'src/utils/a.ts': [
+            'export const load = () => fetch("/api");',
+            'export const env = process.env.NODE_ENV;',
+            'export const stamp = () => [Date.now(), Math.random()];',
+            'export const other = globalThis.fetch;',
+          ].join('\n'),
+        },
+        findings: [
+          {
+            path: 'src/utils/a.ts',
+            line: 1,
+            message: 'Do not use fetch. Utils are pure functions.',
+            hint: 'Call fetch from a service.',
+          },
+          { path: 'src/utils/a.ts', line: 2, message: 'Do not use process.' },
+          { path: 'src/utils/a.ts', line: 3, message: 'Do not use Date.now.' },
+          { path: 'src/utils/a.ts', line: 3, message: 'Do not use Math.random.' },
+          {
+            path: 'src/utils/a.ts',
+            line: 4,
+            message: 'Do not use fetch. Utils are pure functions.',
           },
         ],
       },

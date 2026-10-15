@@ -1,7 +1,8 @@
 import { UsageError } from '@archlint/core';
 import { defineCommand } from 'citty';
-import { CliUtil } from '../../../utils/cliUtil.ts';
-import { ConfigUtil } from '../../../utils/configUtil.ts';
+import { EXIT_CODES } from '../../../constants/exitCodes.ts';
+import { CommandService } from '../../../services/commandService.ts';
+import { ConfigService } from '../../../services/configService.ts';
 
 export const explain = defineCommand({
   meta: {
@@ -20,8 +21,8 @@ export const explain = defineCommand({
     },
   },
   run: ({ args }) =>
-    CliUtil.run(async () => {
-      const config = await ConfigUtil.load({ cwd: process.cwd(), config: args.config });
+    CommandService.run(async () => {
+      const config = await ConfigService.load({ cwd: process.cwd(), config: args.config });
       const rule = config.rules.get(args.id);
       if (!rule) {
         throw new UsageError(
@@ -54,6 +55,6 @@ export const explain = defineCommand({
         lines.push('', rule.meta.docs);
       }
       console.log(lines.join('\n').trimEnd());
-      return CliUtil.exit.ok;
+      return EXIT_CODES.ok;
     }),
 });

@@ -5,7 +5,7 @@ import { SelectorListSchema } from '../models/optionSchemas.ts';
 import { SelectorUtil } from '../utils/selectorUtil.ts';
 
 const RestrictionSchema = v.object({
-  /** Package name or glob, for example `@mui/material` or `lodash*`. */
+  /** Package name or glob, for example `@mui/material`, `lodash*`, or `node:fs`. */
   name: v.string(),
   importNames: v.optional(v.array(v.string())),
   allowTypeImports: v.optional(v.boolean(), false),
@@ -22,6 +22,7 @@ export const restrictedPackages = defineRule({
       'Restrictions keep code on the libraries the project has chosen, for example the design',
       'system instead of a component library it wraps, or away from a library being phased out.',
       'A restriction can cover a whole package, some names from it, or only some elements.',
+      'Node builtins are matched as `node:<name>`, for example to keep `node:fs` out of pure code.',
       '',
       'To fix a finding, use the alternative named in the message.',
     ].join('\n'),
@@ -40,10 +41,12 @@ export const restrictedPackages = defineRule({
   create: (context) => ({
     import(edge) {
       const name =
-        edge.target.type === 'external'
-          ? edge.target.package
-          : EdgeUtil.packageNameOf(edge.specifier);
-      if (!name || edge.target.type === 'builtin') {
+        edge.target.type === 'builtin'
+          ? `node:${edge.target.module}`
+          : edge.target.type === 'external'
+            ? edge.target.package
+            : EdgeUtil.packageNameOf(edge.specifier);
+      if (!name) {
         return;
       }
       for (const restriction of context.options.packages) {

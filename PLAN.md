@@ -736,10 +736,14 @@ packages/archlint/
           commands/
             list.ts         # archlint rules list
             explain.ts      # archlint rules explain <id>
+      constants/
+        exitCodes.ts        # 0 ok, 1 findings, 2 usage or config problem
+      services/
+        commandService.ts   # runs a command, sets the exit code, reports setup errors
+        configService.ts    # finds the nearest config and loads it with c12
+        packageService.ts   # version
       utils/
-        cliUtil.ts          # exit codes, error handling, repeatable flags
-        configUtil.ts       # finds the nearest config and loads it with c12
-        packageUtil.ts      # version
+        argsUtil.ts         # repeatable flags and number flags
     reporters/
       compactReporter.ts
       jsonReporter.ts
@@ -748,6 +752,18 @@ packages/archlint/
   skills/
     archlint/SKILL.md
 ```
+
+Code in every package follows the same split, and `archlint.config.ts` enforces it:
+
+- **utils** (`utils/*Util.ts`) are pure functions. They must not import modules
+  with side effects such as `node:fs`, `node:child_process`, or `oxc-resolver`,
+  and must not use globals with side effects such as `fetch`, `process`,
+  `console`, `Date.now`, or `Math.random`.
+- **services** (`services/*Service.ts`) hold logic with side effects: the file
+  system, git, module resolution, config loading, caches, and exit codes.
+- **constants** hold shared defaults, such as `SOURCE_EXTENSIONS` and
+  `DEFAULT_IGNORE` in core.
+- Each util and service file exports one object named after the file.
 
 Commands:
 
@@ -845,17 +861,18 @@ values or path globs (for files outside elements, such as an aggregator
 files are skipped unless `includeTests` is set, and most rules can skip
 type-only imports with `ignoreTypeImports`.
 
-| Rule                       | Purpose                                                                                         | Main options                                                                       |
-| -------------------------- | ----------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
-| `allowed-imports`          | Which elements may import which                                                                 | `rules: [{ from, allow?, disallow?, message? }]`, `default: 'allow' \| 'disallow'` |
-| `entry-only`               | Imports from outside an element must target its entry files                                     | `elements`                                                                         |
-| `no-entry-import`          | These imports must target files, not entry files (including imports of the element's own entry) | `rules: [{ from, to: selector \| 'self' }]`                                        |
-| `public-api`               | An imported file must be reachable from the target element's entry through re-exports           | `elements`, `from?`, `exceptions?: [{ from?, to: glob }]`                          |
-| `no-cycles`                | No dependency cycles between elements, anchored at the changed import                           | `elements?` (all by default)                                                       |
-| `no-unresolved`            | Imports must resolve                                                                            | `ignore?`                                                                          |
-| `restricted-packages`      | Packages or named imports that must not be used, optionally per element                         | `packages: [{ name, importNames?, allowTypeImports?, from?, message?, hint? }]`    |
-| `no-undeclared-dependency` | External and workspace imports must be declared in the nearest `package.json`                   | `allowDev?: glob[]`, `ignore?`                                                     |
-| `no-orphans`               | Source files that only tests import, unless they are entries, config files, or listed roots     | `roots: glob[]`                                                                    |
+| Rule                       | Purpose                                                                                                            | Main options                                                                       |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------- |
+| `allowed-imports`          | Which elements may import which                                                                                    | `rules: [{ from, allow?, disallow?, message? }]`, `default: 'allow' \| 'disallow'` |
+| `entry-only`               | Imports from outside an element must target its entry files                                                        | `elements`                                                                         |
+| `no-entry-import`          | These imports must target files, not entry files (including imports of the element's own entry)                    | `rules: [{ from, to: selector \| 'self' }]`                                        |
+| `public-api`               | An imported file must be reachable from the target element's entry through re-exports                              | `elements`, `from?`, `exceptions?: [{ from?, to: glob }]`                          |
+| `no-cycles`                | No dependency cycles between elements, anchored at the changed import                                              | `elements?` (all by default)                                                       |
+| `no-unresolved`            | Imports must resolve                                                                                               | `ignore?`                                                                          |
+| `restricted-packages`      | Packages or named imports that must not be used, optionally per element                                            | `packages: [{ name, importNames?, allowTypeImports?, from?, message?, hint? }]`    |
+| `restricted-globals`       | Globals or members of globals that must not be used, such as `fetch` or `Date.now`, optionally per element or file | `globals: [{ name, from?, message?, hint? }]`                                      |
+| `no-undeclared-dependency` | External and workspace imports must be declared in the nearest `package.json`                                      | `allowDev?: glob[]`, `ignore?`                                                     |
+| `no-orphans`               | Source files that only tests import, unless they are entries, config files, or listed roots                        | `roots: glob[]`                                                                    |
 
 `recommended` enables `no-cycles`, `no-unresolved`, and `no-undeclared-dependency`.
 

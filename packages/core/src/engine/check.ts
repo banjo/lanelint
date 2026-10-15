@@ -2,13 +2,13 @@ import { existsSync } from 'node:fs';
 import { isAbsolute, normalize, relative, resolve } from 'pathe';
 import type { ResolvedConfig } from '../config/resolveConfig.ts';
 import { UsageError } from '../errors.ts';
-import { GitUtil } from '../git/gitUtil.ts';
+import { GitService } from '../services/gitService.ts';
 import type { Change } from '../models/changes.ts';
 import type { FailOn, Finding } from '../models/finding.ts';
-import { ParseUtil } from '../project/parse.ts';
+import { ParseService } from '../services/parseService.ts';
 import { createProject } from '../project/project.ts';
-import { ResolveUtil } from '../project/resolve.ts';
-import { SnapshotUtil, type Snapshot } from '../project/snapshot.ts';
+import { ResolveService } from '../services/resolveService.ts';
+import { SnapshotService, type Snapshot } from '../services/snapshotService.ts';
 import type { ChangeState } from './changeSet.ts';
 import { runRules } from './runRules.ts';
 import { createScope } from './scope.ts';
@@ -82,12 +82,12 @@ export async function check(options: CheckOptions): Promise<CheckResult> {
 
   // Git and the file listing do not depend on each other, so they run concurrently.
   const loadGit = async () => {
-    const repo = await GitUtil.repository(root, base);
-    const changes = options.changes ?? (repo ? await GitUtil.changes(root, repo) : []);
+    const repo = await GitService.repository(root, base);
+    const changes = options.changes ?? (repo ? await GitService.changes(root, repo) : []);
     return { repo, state: { available: !!repo || !!options.changes, changes } };
   };
   const [working, git] = await Promise.all([
-    SnapshotUtil.createWorkingTree(root, filter),
+    SnapshotService.createWorkingTree(root, filter),
     loadGit(),
   ]);
   if ((options.onlyNew || (options.changed && !options.changes)) && !git.repo) {
@@ -101,8 +101,8 @@ export async function check(options: CheckOptions): Promise<CheckResult> {
       )
     : undefined;
 
-  const parseCache = ParseUtil.createCache();
-  const resolver = ResolveUtil.create();
+  const parseCache = ParseService.createCache();
+  const resolver = ResolveService.create();
   const run = async (snapshot: Snapshot, changes: ChangeState) => {
     const project = createProject({
       snapshot,
@@ -129,8 +129,8 @@ export async function check(options: CheckOptions): Promise<CheckResult> {
   let findings = current.findings;
   if (options.onlyNew && git.repo) {
     const list = git.state.changes;
-    const contents = await GitUtil.readAtRef(root, git.repo, SnapshotUtil.basePathsOf(list));
-    const atBase = SnapshotUtil.createAtRef(working, filter, list, contents);
+    const contents = await GitService.readAtRef(root, git.repo, SnapshotService.basePathsOf(list));
+    const atBase = SnapshotService.createAtRef(working, filter, list, contents);
     // At the base ref nothing has changed yet, so change rules report nothing there.
     const previous = await run(atBase, { available: true, changes: [] });
     const known = new Set(previous.findings.map((finding) => finding.identity));

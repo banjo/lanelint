@@ -1,6 +1,7 @@
 import { isBuiltin } from 'node:module';
 import { dirname } from 'pathe';
 import { ResolverFactory } from 'oxc-resolver';
+import { SOURCE_EXTENSIONS } from '../constants/defaults.ts';
 
 export type Resolution = { readonly builtin: true } | { readonly path: string } | undefined;
 
@@ -10,8 +11,6 @@ export interface Resolver {
 }
 
 const BUILTIN = { builtin: true } as const;
-
-export const SOURCE_EXTENSIONS = ['.ts', '.tsx', '.mts', '.cts', '.js', '.jsx', '.mjs', '.cjs'];
 
 const create = (): Resolver => {
   const options = {
@@ -56,6 +55,6 @@ const create = (): Resolver => {
   };
 };
 
-export const ResolveUtil = {
+export const ResolveService = {
   create,
 };

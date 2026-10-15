@@ -1,11 +1,11 @@
 import type { ResolvedConfig, ResolvedEntry } from '../config/resolveConfig.ts';
-import { LocationUtil } from '../engine/location.ts';
+import { LocationUtil } from '../utils/locationUtil.ts';
 import type { Severity } from '../models/finding.ts';
 import type { ElementInfo } from '../models/project.ts';
-import { ParseUtil } from '../project/parse.ts';
+import { ParseService } from '../services/parseService.ts';
 import { createProject } from '../project/project.ts';
-import { ResolveUtil } from '../project/resolve.ts';
-import { SnapshotUtil } from '../project/snapshot.ts';
+import { ResolveService } from '../services/resolveService.ts';
+import { SnapshotService } from '../services/snapshotService.ts';
 import { CORE_PLUGIN_NAME } from '../rules/corePlugin.ts';
 
 export interface ElementDescription {
@@ -84,7 +84,7 @@ export async function describeProject(
   config: ResolvedConfig,
   options: { readonly path?: string } = {},
 ): Promise<ProjectDescription> {
-  const snapshot = await SnapshotUtil.createWorkingTree(config.root, {
+  const snapshot = await SnapshotService.createWorkingTree(config.root, {
     include: config.include,
     ignore: config.ignore,
   });
@@ -94,8 +94,8 @@ export async function describeProject(
     elements: config.elements,
     tests: config.tests,
     configFile: config.configFile,
-    parseCache: ParseUtil.createCache(),
-    resolver: ResolveUtil.create(),
+    parseCache: ParseService.createCache(),
+    resolver: ResolveService.create(),
   });
 
   const elements = config.elements.map((compiled) => ({

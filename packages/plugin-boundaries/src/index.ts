@@ -7,6 +7,7 @@ import { noOrphans } from './rules/noOrphans.ts';
 import { noUndeclaredDependency } from './rules/noUndeclaredDependency.ts';
 import { noUnresolved } from './rules/noUnresolved.ts';
 import { publicApi } from './rules/publicApi.ts';
+import { restrictedGlobals } from './rules/restrictedGlobals.ts';
 import { restrictedPackages } from './rules/restrictedPackages.ts';
 
 export {
@@ -18,6 +19,7 @@ export {
   noUndeclaredDependency,
   noUnresolved,
   publicApi,
+  restrictedGlobals,
   restrictedPackages,
 };
 export type { Selector } from './models/optionSchemas.ts';
@@ -33,6 +35,7 @@ const boundaries = definePlugin({
     'no-undeclared-dependency': noUndeclaredDependency,
     'no-unresolved': noUnresolved,
     'public-api': publicApi,
+    'restricted-globals': restrictedGlobals,
     'restricted-packages': restrictedPackages,
   },
   configs: {

@@ -1,4 +1,5 @@
 import type { ElementDefinition } from '../models/config.ts';
+import { DEFAULT_ENTRIES } from '../constants/defaults.ts';
 import { ConfigError } from '../errors.ts';
 
 type Segment =
@@ -17,15 +18,6 @@ export interface ElementMatch {
   readonly root: string;
   readonly captures: Readonly<Record<string, string>>;
 }
-
-export const DEFAULT_ENTRIES = [
-  'index.ts',
-  'index.tsx',
-  'index.mts',
-  'index.js',
-  'index.jsx',
-  'index.mjs',
-];
 
 const compileOne = (definition: ElementDefinition): CompiledElement => {
   const parts = definition.pattern.replace(/^\.?\/+|\/+$/g, '').split('/');

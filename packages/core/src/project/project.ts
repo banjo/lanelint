@@ -8,11 +8,12 @@ import type {
   ProjectFile,
 } from '../models/project.ts';
 import type { Graph, ProjectApi } from '../models/rule.ts';
+import { DEFAULT_IGNORE, SOURCE_EXTENSIONS } from '../constants/defaults.ts';
 import { GlobUtil } from '../utils/globUtil.ts';
-import { ElementUtil, type CompiledElement, type ElementMatch } from './elements.ts';
-import type { ParseCache, ParsedFile, ParseError } from './parse.ts';
-import { SOURCE_EXTENSIONS, type Resolver } from './resolve.ts';
-import { DEFAULT_IGNORE, type FileFilter, type Snapshot } from './snapshot.ts';
+import { ElementUtil, type CompiledElement, type ElementMatch } from '../utils/elementUtil.ts';
+import type { ParseCache, ParsedFile, ParseError } from '../services/parseService.ts';
+import type { Resolver } from '../services/resolveService.ts';
+import type { FileFilter, Snapshot } from '../services/snapshotService.ts';
 
 export interface ProjectOptions {
   readonly snapshot: Snapshot;

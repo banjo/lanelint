@@ -21,6 +21,6 @@ const version = (): string => {
   return '0.0.0';
 };
 
-export const PackageUtil = {
+export const PackageService = {
   version,
 };

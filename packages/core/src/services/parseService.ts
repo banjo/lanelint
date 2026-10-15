@@ -226,6 +226,6 @@ const createCache = (): ParseCache => {
   };
 };
 
-export const ParseUtil = {
+export const ParseService = {
   createCache,
 };

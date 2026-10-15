@@ -6,7 +6,7 @@ import type { RuleContext, Visitors } from '../models/rule.ts';
 import type { ProjectModel } from '../project/project.ts';
 import { CORE_PLUGIN_NAME } from '../rules/corePlugin.ts';
 import { createChangeSet, type ChangeState } from './changeSet.ts';
-import { LocationUtil } from './location.ts';
+import { LocationUtil } from '../utils/locationUtil.ts';
 import type { Scope } from './scope.ts';
 
 export interface RunRulesOptions {

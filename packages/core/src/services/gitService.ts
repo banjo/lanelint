@@ -160,7 +160,7 @@ const readAtRef = async (
   return contents;
 };
 
-export const GitUtil = {
+export const GitService = {
   changes,
   readAtRef,
   repository,

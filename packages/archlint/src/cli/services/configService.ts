@@ -64,7 +64,7 @@ const load = async (options: { cwd: string; config?: string }): Promise<Resolved
   return resolveConfig(loaded, { directory, configFile });
 };
 
-export const ConfigUtil = {
+export const ConfigService = {
   find,
   load,
 };
