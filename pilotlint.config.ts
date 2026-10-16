@@ -89,7 +89,10 @@ export default defineConfig({
       },
     ],
     'conventions/directory-case': ['error', { case: 'kebab' }],
-    'conventions/file-name-case': ['error', { case: 'camel', ignore: ['index.*', '.*', '*.md'] }],
+    'conventions/file-name-case': [
+      'error',
+      { case: 'camel', ignore: ['index.*', '.*', '*.md', 'LICENSE'] },
+    ],
     'conventions/file-name-pattern': [
       'error',
       {

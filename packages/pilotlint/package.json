@@ -1,6 +1,6 @@
 {
   "name": "pilotlint",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Keeps coding agents on course. A fast architecture linter for TypeScript projects.",
   "keywords": [
     "agents",
@@ -12,7 +12,17 @@
     "linter",
     "typescript"
   ],
+  "homepage": "https://github.com/banjo/pilotlint#readme",
+  "bugs": {
+    "url": "https://github.com/banjo/pilotlint/issues"
+  },
   "license": "MIT",
+  "author": "Anton Ödman",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/banjo/pilotlint.git",
+    "directory": "packages/pilotlint"
+  },
   "bin": {
     "pilotlint": "./src/cli/index.ts"
   },
