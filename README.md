@@ -16,7 +16,32 @@ src/features/calendar/hooks/useSlots.ts:1 error boundaries/entry-only Import src
 1 error, 0 warnings in 1 file, new since HEAD (92 ms)
 ```
 
-**[Get started →](docs/getting-started.md)**
+## Let your agent set it up
+
+Copy this prompt into your coding agent, in your own repository:
+
+```text
+Set up pilotlint (https://github.com/banjo/pilotlint) in this repository, so you and other
+agents get feedback when a change breaks the project structure.
+
+1. Read these docs first:
+   https://raw.githubusercontent.com/banjo/pilotlint/main/docs/getting-started.md
+   https://raw.githubusercontent.com/banjo/pilotlint/main/docs/configuration.md
+   https://raw.githubusercontent.com/banjo/pilotlint/main/docs/rules/README.md
+   https://raw.githubusercontent.com/banjo/pilotlint/main/docs/agents.md
+2. Install pilotlint, @pilotlint/plugin-boundaries, and @pilotlint/plugin-conventions as dev
+   dependencies with this project's package manager.
+3. Study the project and write pilotlint.config.ts that describes its structure as it is
+   today: elements for the main parts, with a description each, which parts may import which,
+   and the naming conventions the code already follows.
+4. Run `npx pilotlint check`. When existing code breaks a rule many times, set that rule to
+   'warn' instead of changing the code.
+5. Copy node_modules/pilotlint/skills/pilotlint/SKILL.md into this repository's skills
+   directory for agents.
+6. Do not change any other code. Show me the config and explain each rule, so I can review it.
+```
+
+Prefer to do it yourself? **[Get started →](docs/getting-started.md)**
 
 ## The problem
 

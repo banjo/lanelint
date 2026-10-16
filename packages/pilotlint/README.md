@@ -24,6 +24,12 @@ src/features/calendar/hooks/useSlots.ts:1 error boundaries/entry-only Import src
 This package has the CLI, `defineConfig`, and the agent skill. Read
 [why pilotlint](https://github.com/banjo/pilotlint#why-pilotlint) for more.
 
+## Let your agent set it up
+
+Copy the [setup prompt](https://github.com/banjo/pilotlint#let-your-agent-set-it-up) into your
+coding agent. It installs pilotlint, writes a config that matches your project, and adds the
+agent skill.
+
 ## Install
 
 ```bash
