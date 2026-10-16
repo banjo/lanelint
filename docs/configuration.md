@@ -95,8 +95,8 @@ rules: {
 
 - Levels are `'off'`, `'warn'`, and `'error'`.
 - A level without options keeps the options set earlier, for example in `extends`.
-- Rule ids are `<plugin>/<rule>`. `defineConfig` knows the rules of the plugins in `plugins`,
-  so unknown ids and wrong options are type errors in your editor.
+- Rule ids are `<plugin>/<rule>`. `defineConfig` knows the rules of the plugins in `plugins`
+  and `extends`, so unknown ids and wrong options are type errors in your editor.
 - See [rules/](rules/README.md) for every rule and its options.
 
 ## Overrides
@@ -150,11 +150,12 @@ extends: [boundaries.configs.recommended, conventions.configs.recommended],
 | `boundaries.configs.recommended`  | `no-cycles`, `no-unresolved`, and `no-undeclared-dependency` |
 | `conventions.configs.recommended` | `no-suppressions`                                            |
 
-List the plugins of these configs in `plugins` too, so `defineConfig` knows their rules.
-`elements` in the config replace the elements of fragments. Without them, the last fragment
-with `elements` is used.
+A plugin's configs bring the plugin with them, so a plugin used in `extends` does not need
+to be in `plugins` too. `elements` in the config replace the elements of fragments. Without
+them, the last fragment with `elements` is used.
 
-To share a config between projects, publish a fragment made with `defineConfigFragment`:
+To share a config between projects, publish a fragment made with `defineConfigFragment`. It
+checks the fragment's rules against its plugins, and configs that extend it know them too:
 
 ```ts
 import boundaries from '@pilotlint/plugin-boundaries';

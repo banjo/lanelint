@@ -1,4 +1,10 @@
-import type { AnyPlugin, PilotlintConfig, ConfigFragment, Plugin } from '../models/config.ts';
+import type {
+  AnyPlugin,
+  ConfigFragment,
+  PilotlintConfig,
+  Plugin,
+  TypedConfigFragment,
+} from '../models/config.ts';
 import type { AnyRule } from '../models/rule.ts';
 
 type Configs = Readonly<Record<string, Omit<ConfigFragment, 'plugins'>>>;
@@ -22,12 +28,13 @@ export function definePlugin<
 >(
   definition: PluginDefinition<Name, Rules, PluginConfigs>,
 ): Plugin<Name, Rules, keyof PluginConfigs & string> {
-  const configs: Record<string, ConfigFragment> = {};
-  const plugin: Plugin<Name, Rules, keyof PluginConfigs & string> = {
+  type Self = Plugin<Name, Rules, keyof PluginConfigs & string>;
+  const configs: Record<string, ConfigFragment<readonly [Self]>> = {};
+  const plugin: Self = {
     name: definition.name,
     description: definition.description,
     rules: definition.rules,
-    configs: configs as Record<keyof PluginConfigs & string, ConfigFragment>,
+    configs: configs as Record<keyof PluginConfigs & string, ConfigFragment<readonly [Self]>>,
   };
   for (const [name, config] of Object.entries(definition.configs ?? {})) {
     configs[name] = { ...config, plugins: [plugin] };
@@ -35,14 +42,17 @@ export function definePlugin<
   return plugin;
 }
 
-/** Typed pilotlint config. Rule ids and options are checked against `plugins`. */
-export function defineConfig<const Plugins extends readonly AnyPlugin[] = readonly []>(
-  config: PilotlintConfig<Plugins>,
-): PilotlintConfig<Plugins> {
+/** Typed pilotlint config. Rule ids and options are checked against `plugins` and `extends`. */
+export function defineConfig<
+  const Plugins extends readonly AnyPlugin[] = readonly [],
+  const Extends extends readonly ConfigFragment[] = readonly [],
+>(config: PilotlintConfig<Plugins, Extends>): PilotlintConfig<Plugins, Extends> {
   return config;
 }
 
 /** Typed shareable config, for packages that publish configs without rules. */
-export function defineConfigFragment(fragment: ConfigFragment): ConfigFragment {
+export function defineConfigFragment<const Plugins extends readonly AnyPlugin[] = readonly []>(
+  fragment: TypedConfigFragment<Plugins>,
+): ConfigFragment<Plugins> {
   return fragment;
 }

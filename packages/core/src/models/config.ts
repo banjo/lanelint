@@ -39,14 +39,17 @@ export interface Plugin<
   /** One sentence about the plugin, shown by `pilotlint rules docs`. */
   readonly description?: string;
   readonly rules: Rules;
-  readonly configs: Readonly<Record<ConfigName, ConfigFragment>>;
+  /** Configs for `extends`. Each one carries the plugin, so its rules are known to `defineConfig`. */
+  readonly configs: Readonly<
+    Record<ConfigName, ConfigFragment<readonly [Plugin<Name, Rules, ConfigName>]>>
+  >;
 }
 
 export type AnyPlugin = Plugin<string, Readonly<Record<string, AnyRule>>, string>;
 
 /** A shareable piece of config, for example a plugin's `recommended` config. */
-export interface ConfigFragment {
-  readonly plugins?: readonly AnyPlugin[];
+export interface ConfigFragment<Plugins extends readonly AnyPlugin[] = readonly AnyPlugin[]> {
+  readonly plugins?: Plugins;
   readonly elements?: readonly ElementDefinition[];
   readonly rules?: RulesConfig;
   readonly overrides?: readonly OverrideConfig[];
@@ -73,10 +76,29 @@ export type CoreRuleId =
 
 type CoreRuleEntries = { [Key in CoreRuleId]?: RuleEntry<never> };
 
-export type RulesFor<Plugins extends readonly AnyPlugin[]> = CoreRuleEntries &
-  UnionToIntersection<PluginRuleEntries<Plugins[number]>>;
+/** Rule entries for a union of plugins, with typed ids and options. */
+export type RulesOf<P extends AnyPlugin> = CoreRuleEntries &
+  UnionToIntersection<PluginRuleEntries<P>>;
 
-export interface PilotlintConfig<Plugins extends readonly AnyPlugin[] = readonly AnyPlugin[]> {
+export type RulesFor<Plugins extends readonly AnyPlugin[]> = RulesOf<Plugins[number]>;
+
+/** The plugins of a config fragment. A fragment without a known type allows every rule. */
+export type FragmentPlugins<Fragment> =
+  Fragment extends ConfigFragment<infer Plugins> ? Plugins[number] : never;
+
+/** A config fragment whose rules are checked against its plugins, as made by `defineConfigFragment`. */
+export interface TypedConfigFragment<Plugins extends readonly AnyPlugin[]> extends Omit<
+  ConfigFragment<Plugins>,
+  'rules' | 'overrides'
+> {
+  readonly rules?: RulesOf<Plugins[number]>;
+  readonly overrides?: readonly OverrideConfig<RulesOf<Plugins[number]>>[];
+}
+
+export interface PilotlintConfig<
+  Plugins extends readonly AnyPlugin[] = readonly AnyPlugin[],
+  Extends extends readonly ConfigFragment[] = readonly ConfigFragment[],
+> {
   /** Project root. Defaults to the directory of the config file. */
   readonly root?: string;
   /** Globs of files that belong to the project. Defaults to every file. */
@@ -87,7 +109,10 @@ export interface PilotlintConfig<Plugins extends readonly AnyPlugin[] = readonly
   readonly failOn?: FailOn;
   readonly elements?: readonly ElementDefinition[];
   readonly plugins?: Plugins;
-  readonly extends?: readonly ConfigFragment[];
-  readonly rules?: RulesFor<Plugins>;
-  readonly overrides?: readonly OverrideConfig<RulesFor<Plugins>>[];
+  /** Shared configs. Their plugins are registered, and their rules are known to `defineConfig`. */
+  readonly extends?: Extends;
+  readonly rules?: RulesOf<Plugins[number] | FragmentPlugins<Extends[number]>>;
+  readonly overrides?: readonly OverrideConfig<
+    RulesOf<Plugins[number] | FragmentPlugins<Extends[number]>>
+  >[];
 }

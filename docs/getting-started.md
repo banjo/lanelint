@@ -34,8 +34,8 @@ export default defineConfig({
 });
 ```
 
-`defineConfig` knows the rules of the plugins you list, so your editor completes rule ids
-and checks their options.
+`defineConfig` knows the rules of the plugins in `plugins` and `extends`, so your editor
+completes rule ids and checks their options.
 
 ## Run a check
 

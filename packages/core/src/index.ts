@@ -40,6 +40,8 @@ export type {
   RuleEntry,
   RulesConfig,
   RulesFor,
+  RulesOf,
+  TypedConfigFragment,
 } from './models/config.ts';
 export type { FailOn, Finding, Level, Location, LocationKind, Severity } from './models/finding.ts';
 export type {
