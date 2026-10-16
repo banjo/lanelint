@@ -84,4 +84,5 @@ pnpm docs:rules              # update docs/rules
 pnpm changeset               # describe a change for the changelog
 ```
 
-[PLAN.md](PLAN.md) has the design and the decisions behind it.
+[PLAN.md](PLAN.md) has the design and the decisions behind it, and [RELEASE.md](RELEASE.md)
+describes how to release new versions to npm.
