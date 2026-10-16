@@ -49,9 +49,6 @@ TypeScript extension are source files: pilotlint parses them to find imports and
 `tests` decides which files are test files. Rules that skip test files have an
 `includeTests` option to check them too.
 
-pilotlint only reads and parses what the active rules need. A config with only naming rules
-never reads the contents of a file.
-
 ## Imports
 
 pilotlint resolves every import with the nearest `tsconfig.json`, including `paths`. An
@@ -65,6 +62,26 @@ import is one of:
 
 An import of a workspace package resolves to the package's source, so boundaries between
 packages in a monorepo work before anything is built.
+
+## What pilotlint reads
+
+pilotlint does as little work as the active rules allow. It builds what it knows about the
+project in steps, and only takes a step when a rule needs it:
+
+| Step        | What it gives rules                        | Needed by rules about                |
+| ----------- | ------------------------------------------ | ------------------------------------ |
+| Paths       | Files, directories, elements, and packages | Names, placement, and required files |
+| Text        | The contents of a file                     | Text in files                        |
+| Module info | Imports and exports, without a full AST    | Imports and exports                  |
+| Full AST    | The ESTree program and comments            | Code, such as globals in use         |
+
+A config with only naming rules never reads a file. A check of a few changed files parses
+those files and the files their rules need, not the whole project.
+
+Parsing and import resolution use [Oxc](https://oxc.rs), written in Rust. On a project with
+1,053 files, Oxc collected every import in 60 ms, where the TypeScript compiler API took
+260 ms. Comments come almost for free with module info, so a rule such as `no-suppressions`
+never builds a full AST.
 
 ## Findings
 

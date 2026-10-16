@@ -3,6 +3,27 @@
 Rules that only one project needs live in that project as a local plugin. Rules for many
 projects go in a published plugin. Both are written the same way.
 
+## Coming from ESLint
+
+The rule API follows ESLint where it fits, so most of what you know carries over:
+
+| ESLint                                    | pilotlint                                                                     |
+| ----------------------------------------- | ----------------------------------------------------------------------------- |
+| `meta.docs.description`                   | `meta.description`                                                            |
+| `meta.schema` (JSON Schema)               | `options` (any Standard Schema, such as Zod or Valibot)                       |
+| `create(context)` with AST node visitors  | `create(context)` with `file`, `import`, `ast`, `project`, and other visitors |
+| `context.report({ node, message })`       | `context.report({ at, message, hint })`                                       |
+| `context.options`                         | `context.options`, validated and typed                                        |
+| A plugin with `rules` and `configs`       | `definePlugin({ name, rules, configs })`                                      |
+| `'off'`, `'warn'`, `'error'`              | The same                                                                      |
+| Config objects with `files` and `ignores` | `overrides` with `files`, `ignore`, and `elements`                            |
+| `RuleTester` with `valid` and `invalid`   | `testRule` with `valid` and `invalid`                                         |
+| ESTree AST                                | The same ESTree AST, with TypeScript nodes, from Oxc                          |
+| `// eslint-disable` comments              | None, on purpose: only the config can turn a rule off                         |
+
+The difference is the scope. An ESLint rule sees one file. A pilotlint rule can also see
+directories, elements, the resolved import graph, and the files that changed since a git ref.
+
 ## A local plugin
 
 ```ts
