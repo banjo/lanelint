@@ -1,4 +1,4 @@
-import { definePlugin } from '@archlint/core';
+import { definePlugin } from '@pilotlint/core';
 import { exportMatchesFilename, exportNamePattern } from './rules/exports.ts';
 import { forbiddenDirectories, forbiddenFiles } from './rules/forbidden.ts';
 import { directoryCase, fileNameCase } from './rules/nameCase.ts';

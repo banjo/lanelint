@@ -1,4 +1,4 @@
-import { defineRule, GlobUtil } from '@archlint/core';
+import { defineRule, GlobUtil } from '@pilotlint/core';
 import * as v from 'valibot';
 import { NamePatternSchema } from '../models/optionSchemas.ts';
 

@@ -1,7 +1,7 @@
 {
-  "name": "@archlint/plugin-changes",
+  "name": "@pilotlint/plugin-changes",
   "version": "0.0.0",
-  "description": "archlint rules for files that must or must not change together.",
+  "description": "pilotlint rules for files that must or must not change together.",
   "license": "MIT",
   "files": [
     "dist"
@@ -29,13 +29,13 @@
     "valibot": "catalog:"
   },
   "devDependencies": {
-    "@archlint/core": "workspace:*",
+    "@pilotlint/core": "workspace:*",
     "@types/node": "catalog:",
     "typescript": "catalog:",
     "vite-plus": "catalog:"
   },
   "peerDependencies": {
-    "@archlint/core": "workspace:^"
+    "@pilotlint/core": "workspace:^"
   },
   "engines": {
     "node": ">=22.18.0"

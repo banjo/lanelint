@@ -1,4 +1,4 @@
-import { definePlugin } from '@archlint/core';
+import { definePlugin } from '@pilotlint/core';
 import { noManualEdit, requiresChange } from './rules/changes.ts';
 
 export { noManualEdit, requiresChange };

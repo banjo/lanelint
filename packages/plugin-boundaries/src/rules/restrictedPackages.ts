@@ -1,4 +1,4 @@
-import { defineRule, GlobUtil } from '@archlint/core';
+import { defineRule, GlobUtil } from '@pilotlint/core';
 import * as v from 'valibot';
 import { EdgeUtil } from '../utils/edgeUtil.ts';
 import { SelectorListSchema } from '../models/optionSchemas.ts';

@@ -30,7 +30,7 @@ export { ConfigError, UsageError } from './errors.ts';
 export type { Change, ChangeSet, ChangeStatus } from './models/changes.ts';
 export type {
   AnyPlugin,
-  ArchlintConfig,
+  PilotlintConfig,
   ConfigFragment,
   CoreRuleId,
   ElementDefinition,

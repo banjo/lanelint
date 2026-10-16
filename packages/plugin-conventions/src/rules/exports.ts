@@ -1,4 +1,4 @@
-import { defineRule, GlobUtil, type AstInfo, type ModuleExport } from '@archlint/core';
+import { defineRule, GlobUtil, type AstInfo, type ModuleExport } from '@pilotlint/core';
 import * as v from 'valibot';
 import { CaseUtil } from '../utils/caseUtil.ts';
 

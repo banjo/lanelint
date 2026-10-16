@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vite-plus/test';
-import { testRule } from '@archlint/core/testing';
+import { testRule } from '@pilotlint/core/testing';
 import {
   allowedImports,
   entryOnly,

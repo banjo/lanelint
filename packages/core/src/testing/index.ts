@@ -6,7 +6,7 @@ import { definePlugin } from '../api/definePlugin.ts';
 import { resolveConfig } from '../config/resolveConfig.ts';
 import { check } from '../engine/check.ts';
 import type { Change } from '../models/changes.ts';
-import type { ArchlintConfig } from '../models/config.ts';
+import type { PilotlintConfig } from '../models/config.ts';
 import type { Finding, Level } from '../models/finding.ts';
 import type { AnyRule } from '../models/rule.ts';
 
@@ -19,7 +19,7 @@ export interface RuleCase {
   readonly options?: unknown;
   readonly level?: Exclude<Level, 'off'>;
   /** Config other than plugins and rules, for example elements. */
-  readonly config?: Omit<ArchlintConfig, 'plugins' | 'rules' | 'extends' | 'root'>;
+  readonly config?: Omit<PilotlintConfig, 'plugins' | 'rules' | 'extends' | 'root'>;
   /** Files at the base ref. When set, the fixture is a git repository with these files committed. */
   readonly base?: Files;
   readonly changes?: readonly Change[];
@@ -52,7 +52,7 @@ const write = (root: string, files: Files) => {
 
 /** Writes a fixture to a temporary directory, runs one rule on it, and returns its findings. */
 export async function runRule(rule: AnyRule, testCase: RuleCase): Promise<Finding[]> {
-  const root = realpathSync(mkdtempSync(join(tmpdir(), 'archlint-')));
+  const root = realpathSync(mkdtempSync(join(tmpdir(), 'pilotlint-')));
   try {
     if (testCase.base) {
       write(root, testCase.base);
@@ -60,9 +60,9 @@ export async function runRule(rule: AnyRule, testCase: RuleCase): Promise<Findin
       git(root, ['add', '-A']);
       git(root, [
         '-c',
-        'user.name=archlint',
+        'user.name=pilotlint',
         '-c',
-        'user.email=archlint@example.com',
+        'user.email=pilotlint@example.com',
         'commit',
         '--quiet',
         '--allow-empty',
@@ -83,10 +83,10 @@ export async function runRule(rule: AnyRule, testCase: RuleCase): Promise<Findin
         ...testCase.config,
         plugins: [plugin],
         rules: {
-          'archlint/stale-config': 'off',
+          'pilotlint/stale-config': 'off',
           'test/rule': testCase.options === undefined ? level : [level, testCase.options],
         },
-      } as ArchlintConfig,
+      } as PilotlintConfig,
       { directory: root },
     );
     const result = await check({

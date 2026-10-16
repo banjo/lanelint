@@ -1,21 +1,21 @@
 {
-  "name": "archlint-monorepo",
+  "name": "pilotlint-monorepo",
   "version": "0.0.0",
   "private": true,
   "type": "module",
   "scripts": {
-    "ready": "vp check && vp run -r test && vp run archlint",
-    "archlint": "archlint check",
+    "ready": "vp check && vp run -r test && vp run pilotlint",
+    "pilotlint": "pilotlint check",
     "changeset": "changeset",
     "prepare": "vp config"
   },
   "devDependencies": {
-    "@archlint/plugin-boundaries": "workspace:*",
-    "@archlint/plugin-changes": "workspace:*",
-    "@archlint/plugin-conventions": "workspace:*",
     "@changesets/cli": "catalog:",
+    "@pilotlint/plugin-boundaries": "workspace:*",
+    "@pilotlint/plugin-changes": "workspace:*",
+    "@pilotlint/plugin-conventions": "workspace:*",
     "@types/node": "catalog:",
-    "archlint": "workspace:*",
+    "pilotlint": "workspace:*",
     "typescript": "catalog:",
     "vite-plus": "catalog:"
   },

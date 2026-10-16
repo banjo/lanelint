@@ -1,7 +1,7 @@
-# archlint plan
+# pilotlint plan
 
-`archlint` is a working name. The unscoped npm name is taken by an abandoned
-package, so the final name is decided before the first release.
+pilotlint keeps coding agents on course. The npm name `pilotlint` and the
+`@pilotlint` scope were free when the name was chosen (October 2026).
 
 ## Status
 
@@ -26,11 +26,11 @@ list of the problems it introduced.
   `no-default-export`) are still in scope. One command and one config cover
   everything an agent must follow about structure.
 - **Prevent, verify, enforce.** The agent learns the structure before writing
-  (`archlint describe`), checks its work after each change (`archlint check`),
+  (`pilotlint describe`), checks its work after each change (`pilotlint check`),
   and commit hooks and CI catch anything that slips through.
 - **Show the agent what it caused.** In a codebase with existing findings, the
   agent sees only the findings its change introduced.
-- **No way around the rules from inside the code.** archlint has no inline
+- **No way around the rules from inside the code.** pilotlint has no inline
   suppression comments, and config changes are always reported.
 - **Fast enough to run after every change.** Work is done lazily and limited to
   what the active rules need.
@@ -66,12 +66,12 @@ plugins with `configs`, `overrides`) so it feels familiar.
 
 ### Verification scope: structure only
 
-archlint checks structure: files, directories, dependencies, exports, and
+pilotlint checks structure: files, directories, dependencies, exports, and
 changes that belong together. Type checks, lint, and tests stay with the tools
 built for them (for example `vp check` and the project's test runner). The
 agent skill tells the agent which commands to run and in what order. Running
 other tools and merging their output would duplicate `vp check` and turn
-archlint into a different product.
+pilotlint into a different product.
 
 ### Elements with captured path segments
 
@@ -96,7 +96,7 @@ Plugins are split by the question they answer:
   git.
 
 Rules that a linter also has are included on purpose, because one config should
-describe the whole structure. archlint can also scope them per element.
+describe the whole structure. pilotlint can also scope them per element.
 Project-specific rules belong in each project's local plugin.
 
 ### Oxc for parsing and resolution
@@ -107,7 +107,7 @@ public rule API, so this choice is made before v1 and not changed later.
 ### Vite+ for development
 
 Vite+ (VoidZero, MIT) replaces Turborepo, Biome, and separate tool configs. It
-is a dev dependency only, so users of archlint are not affected by it.
+is a dev dependency only, so users of pilotlint are not affected by it.
 
 VoidZero joined Cloudflare in June 2026. Both companies have stated that Vite,
 Vitest, Rolldown, Oxc, and Vite+ stay MIT-licensed, vendor-neutral, and led by
@@ -115,7 +115,7 @@ the same team. The Cloudflare connection concerns app hosting on Workers and
 does not affect a CLI library.
 
 The real dependency on VoidZero is `oxc-parser` and `oxc-resolver` in the
-published packages. Both are MIT and only called from `@archlint/core`, so they
+published packages. Both are MIT and only called from `@pilotlint/core`, so they
 can be pinned, forked, or replaced in one place.
 
 ### API decisions made before v1
@@ -137,19 +137,19 @@ These would be breaking changes later, so they are part of the first version:
 Monorepo using pnpm workspaces and Vite+.
 
 ```
-archlint/
+pilotlint/
   packages/
-    core/                 @archlint/core
-    archlint/             archlint (CLI and main entry point)
-    plugin-boundaries/    @archlint/plugin-boundaries
-    plugin-conventions/   @archlint/plugin-conventions
-    plugin-changes/       @archlint/plugin-changes
+    core/                 @pilotlint/core
+    pilotlint/             pilotlint (CLI and main entry point)
+    plugin-boundaries/    @pilotlint/plugin-boundaries
+    plugin-conventions/   @pilotlint/plugin-conventions
+    plugin-changes/       @pilotlint/plugin-changes
   examples/
     feature-folders/      end-to-end fixture with feature and common folders
     monorepo/             end-to-end fixture with packages/*
   .changeset/             Changesets config and pending changesets
   .github/workflows/      CI with voidzero-dev/setup-vp
-  archlint.config.ts      archlint checks its own repo
+  pilotlint.config.ts      pilotlint checks its own repo
   tsconfig.base.json      shared compiler options
   vite.config.ts          Vite+ config: lint, fmt, test, pack, run, staged
   pnpm-workspace.yaml     workspaces and the version catalog
@@ -196,33 +196,33 @@ dependencies are kept at their latest versions.
 | Glob matching for `overrides`, `ignore`, and rule options | `picomatch`             | core              |
 | Options schema types                                      | `@standard-schema/spec` | core (types only) |
 | Running git                                               | `node:child_process`    | core              |
-| CLI commands                                              | `citty` (unjs)          | archlint          |
-| Config loading                                            | `c12` (unjs)            | archlint          |
-| TypeScript config files with extensionless imports        | `jiti` (unjs)           | archlint          |
+| CLI commands                                              | `citty` (unjs)          | pilotlint         |
+| Config loading                                            | `c12` (unjs)            | pilotlint         |
+| TypeScript config files with extensionless imports        | `jiti` (unjs)           | pilotlint         |
 | Rule options                                              | `valibot`               | plugins           |
-| Colors                                                    | `node:util` `styleText` | archlint          |
+| Colors                                                    | `node:util` `styleText` | pilotlint         |
 
 All packages are ESM only and target the current Node LTS.
 
 ## Packages
 
-| Package                        | Contents                                                                                                                                                                                                                      | Used by                                        |
-| ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
-| `@archlint/core`               | Engine, snapshots, project model, elements, parsing and resolution, git changes, config resolution, `defineRule`, `definePlugin`, `defineConfig`, types. `@archlint/core/testing` exports the rule test helpers. No CLI code. | Plugin authors (as a peer dependency), the CLI |
-| `archlint`                     | citty CLI, config loading, reporters, agent skill. Re-exports `defineConfig` and the public types from core so users install one package.                                                                                     | Everyone using the tool                        |
-| `@archlint/plugin-boundaries`  | Rules about dependencies between elements and on packages                                                                                                                                                                     | Any project                                    |
-| `@archlint/plugin-conventions` | Rules about names, placement, required files, export shape, and suppression comments                                                                                                                                          | Any project                                    |
-| `@archlint/plugin-changes`     | Rules about files that must or must not change                                                                                                                                                                                | Projects in git                                |
+| Package                         | Contents                                                                                                                                                                                                                       | Used by                                        |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------- |
+| `@pilotlint/core`               | Engine, snapshots, project model, elements, parsing and resolution, git changes, config resolution, `defineRule`, `definePlugin`, `defineConfig`, types. `@pilotlint/core/testing` exports the rule test helpers. No CLI code. | Plugin authors (as a peer dependency), the CLI |
+| `pilotlint`                     | citty CLI, config loading, reporters, agent skill. Re-exports `defineConfig` and the public types from core so users install one package.                                                                                      | Everyone using the tool                        |
+| `@pilotlint/plugin-boundaries`  | Rules about dependencies between elements and on packages                                                                                                                                                                      | Any project                                    |
+| `@pilotlint/plugin-conventions` | Rules about names, placement, required files, export shape, and suppression comments                                                                                                                                           | Any project                                    |
+| `@pilotlint/plugin-changes`     | Rules about files that must or must not change                                                                                                                                                                                 | Projects in git                                |
 
 Project-specific rules do not live in this repo. For example, the VGCS
 Queenbolt rules live in Queenbolt as a local plugin.
 
 ### Naming conventions
 
-- Official plugins: `@archlint/plugin-<name>`
-- Community plugins: `archlint-plugin-<name>` or `@scope/archlint-plugin-<name>`
-- Shareable configs without rules: `archlint-config-<name>`
-- Plugins declare `@archlint/core` as a peer dependency
+- Official plugins: `@pilotlint/plugin-<name>`
+- Community plugins: `pilotlint-plugin-<name>` or `@scope/pilotlint-plugin-<name>`
+- Shareable configs without rules: `pilotlint-config-<name>`
+- Plugins declare `@pilotlint/core` as a peer dependency
 
 ## Core concepts
 
@@ -306,10 +306,10 @@ and its declared dependencies. Rules such as `no-undeclared-dependency` use it.
 `added`, `modified`, `deleted`, or `renamed`. The base is `HEAD` by default
 (including staged and untracked files) and can be set with `--base <ref>`, for
 example `--base origin/main` in CI. Outside a git repository, `ctx.changes` is
-unavailable, and rules that read it report one `archlint/no-git` finding
+unavailable, and rules that read it report one `pilotlint/no-git` finding
 instead. Reading `ctx.changes.available` never counts as needing git.
 
-Spawning git is the largest fixed cost of a small run, so archlint asks git
+Spawning git is the largest fixed cost of a small run, so pilotlint asks git
 once for the repository prefix and base commit (`git rev-parse`) and once for
 the changes (`git status` against `HEAD`, or `git diff` plus `git ls-files`
 against other refs). Both run while the file listing is built.
@@ -348,7 +348,7 @@ Pattern rules:
   directory. Order matters, so more specific patterns go first.
 - `entry` lists the element's public entry files, relative to its root. It is
   used by `entry-only`, `public-api`, and `no-orphans`.
-- `description` is shown by `archlint describe`.
+- `description` is shown by `pilotlint describe`.
 
 Each element, and each file and directory inside one, gets:
 
@@ -386,14 +386,14 @@ possible later additions. They are not part of v1.
 ### Rules
 
 ```ts
-import { defineRule } from '@archlint/core';
+import { defineRule } from '@pilotlint/core';
 import * as v from 'valibot';
 
 export const entryOnly = defineRule({
   meta: {
     description: 'Import other elements through their entry files.',
     severity: 'error',
-    docs: 'Longer explanation shown by `archlint rules explain`, including how to fix a finding.',
+    docs: 'Longer explanation shown by `pilotlint rules explain`, including how to fix a finding.',
   },
   options: v.object({ elements: v.array(v.string()) }),
   describe: (options) =>
@@ -417,12 +417,12 @@ export const entryOnly = defineRule({
 ```
 
 - `meta.severity` is the default level set by the rule author: `'warn'` or `'error'`.
-- `meta.docs` is Markdown shown by `archlint rules explain <id>`. Rule-specific
+- `meta.docs` is Markdown shown by `pilotlint rules explain <id>`. Rule-specific
   knowledge lives here, so the agent skill stays generic.
 - `options` is any Standard Schema validator (Zod, Valibot, ArkType). The
   inferred type types `ctx.options` and the rule's options in the config.
 - `describe(options)` returns one or more sentences about what the rule
-  enforces with these options. `archlint describe` uses it. Without it,
+  enforces with these options. `pilotlint describe` uses it. Without it,
   `meta.description` is used.
 - `elementTypes(options)` lists the element types the options reference, so a
   config that uses an undefined type fails with exit code 2.
@@ -518,18 +518,18 @@ export const typesFile = defineFileRule({
 
 ### Core findings
 
-Core reports some findings itself, under the `archlint/` prefix. They are
-configured like any rule, except that `archlint/config-changed` cannot be
+Core reports some findings itself, under the `pilotlint/` prefix. They are
+configured like any rule, except that `pilotlint/config-changed` cannot be
 turned off.
 
-| Id                        | Default | Reported when                                                |
-| ------------------------- | ------- | ------------------------------------------------------------ |
-| `archlint/config-changed` | `warn`  | The archlint config file differs from the base ref           |
-| `archlint/stale-config`   | `warn`  | An element pattern, override, or glob option matches nothing |
-| `archlint/no-git`         | `warn`  | A rule needs git and there is no repository                  |
-| `archlint/parse-error`    | `error` | A source file cannot be parsed                               |
+| Id                         | Default | Reported when                                                |
+| -------------------------- | ------- | ------------------------------------------------------------ |
+| `pilotlint/config-changed` | `warn`  | The pilotlint config file differs from the base ref          |
+| `pilotlint/stale-config`   | `warn`  | An element pattern, override, or glob option matches nothing |
+| `pilotlint/no-git`         | `warn`  | A rule needs git and there is no repository                  |
+| `pilotlint/parse-error`    | `error` | A source file cannot be parsed                               |
 
-`archlint/config-changed` makes config changes visible. The skill tells the
+`pilotlint/config-changed` makes config changes visible. The skill tells the
 agent to stop and ask a human, and code review is the final guard.
 
 ### Plugins and configs
@@ -550,14 +550,14 @@ plugin automatically when used in `extends`. Local rules use the same shape:
 
 ### Config
 
-`archlint.config.ts` in the project root:
+`pilotlint.config.ts` in the project root:
 
 ```ts
-import { defineConfig } from 'archlint';
-import boundaries from '@archlint/plugin-boundaries';
-import changes from '@archlint/plugin-changes';
-import conventions from '@archlint/plugin-conventions';
-import local from './archlint/plugin';
+import { defineConfig } from 'pilotlint';
+import boundaries from '@pilotlint/plugin-boundaries';
+import changes from '@pilotlint/plugin-changes';
+import conventions from '@pilotlint/plugin-conventions';
+import local from './pilotlint/plugin';
 
 export default defineConfig({
   include: ['src/**'],
@@ -665,7 +665,7 @@ extensions.
 Risks and mitigations:
 
 - oxc is at 0.x and changes often. Pin exact versions and keep all oxc calls
-  inside `@archlint/core`. The ESTree shape is stable across versions.
+  inside `@pilotlint/core`. The ESTree shape is stable across versions.
 - Native binaries per platform. oxc ships a wasm fallback.
 - JSDoc tags such as `@deprecated` are not attached to nodes. Core provides
   `leadingComments(offset)` on the AST to match comments to declarations.
@@ -681,9 +681,9 @@ comments, such as `no-suppressions`, therefore never build the program.
 
 Targets on a project with about 1,000 files, warm file cache:
 
-- `archlint check --changed` without project rules: under 300 ms
-- `archlint check` with all rules: under 1 s
-- `archlint check --changed --new`: under 1.5 s
+- `pilotlint check --changed` without project rules: under 300 ms
+- `pilotlint check` with all rules: under 1 s
+- `pilotlint check --changed --new`: under 1.5 s
 
 How:
 
@@ -699,7 +699,7 @@ How:
 - Files are read concurrently.
 - Each run prints its duration, and a test fails if a generated project of
   about 1,000 files misses the budgets. CI raises them by a factor with
-  `ARCHLINT_BUDGET_FACTOR` because shared runners are slower.
+  `PILOTLINT_BUDGET_FACTOR` because shared runners are slower.
 
 Measured on the generated project (1,015 files, engine time, on a machine where
 each git process takes about 40 ms):
@@ -721,21 +721,21 @@ files remains the bottleneck.
 Built with citty and organized like the Queenbolt CLI:
 
 ```
-packages/archlint/
+packages/pilotlint/
   src/
     cli/
       index.ts              # lazy subCommands, --debug, exit code 2 for bad arguments
       logger.ts
       features/
         check/
-          index.ts          # archlint check
+          index.ts          # pilotlint check
         describe/
-          index.ts          # archlint describe
+          index.ts          # pilotlint describe
         rules/
           index.ts          # command group
           commands/
-            list.ts         # archlint rules list
-            explain.ts      # archlint rules explain <id>
+            list.ts         # pilotlint rules list
+            explain.ts      # pilotlint rules explain <id>
       constants/
         exitCodes.ts        # 0 ok, 1 findings, 2 usage or config problem
       services/
@@ -750,10 +750,10 @@ packages/archlint/
       markdownReporter.ts   # used by describe
     index.ts                # re-exports defineConfig and public types
   skills/
-    archlint/SKILL.md
+    pilotlint/SKILL.md
 ```
 
-Code in every package follows the same split, and `archlint.config.ts` enforces it:
+Code in every package follows the same split, and `pilotlint.config.ts` enforces it:
 
 - **utils** (`utils/*Util.ts`) are pure functions. They must not import modules
   with side effects such as `node:fs`, `node:child_process`, or `oxc-resolver`,
@@ -768,16 +768,16 @@ Code in every package follows the same split, and `archlint.config.ts` enforces 
 Commands:
 
 ```bash
-archlint check [paths...]          # report findings in these files or directories
-archlint check --changed           # files changed against the base ref
-archlint check --changed --new     # only findings that are not at the base ref
-archlint check --base origin/main --new
-archlint check --rule boundaries/no-cycles
-archlint check --fail-on never --format json
-archlint describe                  # the structure as Markdown
-archlint describe src/features/calendar   # what applies to this path
-archlint rules list                # active rules, level, and source plugin or config
-archlint rules explain <rule-id>   # description and docs for one rule
+pilotlint check [paths...]          # report findings in these files or directories
+pilotlint check --changed           # files changed against the base ref
+pilotlint check --changed --new     # only findings that are not at the base ref
+pilotlint check --base origin/main --new
+pilotlint check --rule boundaries/no-cycles
+pilotlint check --fail-on never --format json
+pilotlint describe                  # the structure as Markdown
+pilotlint describe src/features/calendar   # what applies to this path
+pilotlint rules list                # active rules, level, and source plugin or config
+pilotlint rules explain <rule-id>   # description and docs for one rule
 ```
 
 Flags on `check`:
@@ -811,7 +811,7 @@ rule so the agent can narrow the next run with `--rule` or a path.
 
 ## Describe
 
-`archlint describe` turns the config into Markdown for the agent to read before
+`pilotlint describe` turns the config into Markdown for the agent to read before
 it writes code:
 
 - Each element type with its pattern, entry files, description, and the
@@ -821,7 +821,7 @@ it writes code:
 - The conventions that apply, grouped by override and its description
 - The changes that must happen together
 
-`archlint describe <path>` shows only what applies to that path, for example a
+`pilotlint describe <path>` shows only what applies to that path, for example a
 new file the agent is about to create. The config is the single source for both
 the checks and the description, so the documentation cannot drift from what is
 enforced.
@@ -830,30 +830,30 @@ enforced.
 
 Three layers, so the agent does not have to remember everything:
 
-1. **Skill.** `packages/archlint/skills/archlint/SKILL.md` ships with the
+1. **Skill.** `packages/pilotlint/skills/pilotlint/SKILL.md` ships with the
    package. It tells the agent to:
-   1. Run `archlint describe <path>` before creating files in an unfamiliar
+   1. Run `pilotlint describe <path>` before creating files in an unfamiliar
       area.
-   2. Run `archlint check --changed --new` after every change.
-   3. Run `archlint rules explain <id>` for any finding it does not understand.
+   2. Run `pilotlint check --changed --new` after every change.
+   3. Run `pilotlint rules explain <id>` for any finding it does not understand.
    4. Fix the code instead of disabling rules, editing the config, or adding
       suppression comments.
-   5. Stop and ask a human on `archlint/config-changed`.
+   5. Stop and ask a human on `pilotlint/config-changed`.
    6. Treat exit code 2 as a setup problem to report.
-   7. Run the project's type check, lint, and tests as well, since archlint only
+   7. Run the project's type check, lint, and tests as well, since pilotlint only
       checks structure.
-2. **Agent hooks.** Documented examples run `archlint check --new <file>` after
-   each edit in OpenCode and Claude Code. A dedicated `archlint hook` command is
+2. **Agent hooks.** Documented examples run `pilotlint check --new <file>` after
+   each edit in OpenCode and Claude Code. A dedicated `pilotlint hook` command is
    added only if the wrappers get complicated.
-3. **Commit hooks and CI.** `archlint check --changed --new` in `vp staged` or
-   another pre-commit tool, and `archlint check --base origin/main --new` in CI.
+3. **Commit hooks and CI.** `pilotlint check --changed --new` in `vp staged` or
+   another pre-commit tool, and `pilotlint check --base origin/main --new` in CI.
 
 Rule-specific guidance comes from each rule's `meta.docs`, `describe`, and
 `hint`, so the skill does not change when plugins are added.
 
 ## Official plugins in v1
 
-### `@archlint/plugin-boundaries`
+### `@pilotlint/plugin-boundaries`
 
 Selectors are element types, or `{ type?, captures?, files? }` to match captured
 values or path globs (for files outside elements, such as an aggregator
@@ -876,7 +876,7 @@ type-only imports with `ignoreTypeImports`.
 
 `recommended` enables `no-cycles`, `no-unresolved`, and `no-undeclared-dependency`.
 
-### `@archlint/plugin-conventions`
+### `@pilotlint/plugin-conventions`
 
 | Rule                      | Purpose                                                                                                                                                | Main options                                |
 | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------- |
@@ -895,7 +895,7 @@ type-only imports with `ignoreTypeImports`.
 
 `recommended` enables `no-suppressions`.
 
-### `@archlint/plugin-changes`
+### `@pilotlint/plugin-changes`
 
 | Rule              | Purpose                                                                      | Main options                                                                  |
 | ----------------- | ---------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
@@ -907,7 +907,7 @@ changeset": `{ when: 'packages/*/src/**', require: '.changeset/*.md' }`.
 
 ## Testing
 
-`@archlint/core/testing` exports:
+`@pilotlint/core/testing` exports:
 
 - `runRule(rule, { files, config?, options?, level?, base?, changes?, paths?, changed?, onlyNew? })`,
   which returns findings. `base` is a second file map: the fixture becomes a
@@ -924,10 +924,10 @@ into temporary git repositories, and a performance test (see
 
 ## Adoption in VGCS Queenbolt
 
-Queenbolt gets an `archlint.config.ts` and a local plugin for rules that are
+Queenbolt gets an `pilotlint.config.ts` and a local plugin for rules that are
 specific to it. Mapping from the current checks:
 
-| Current check                                                      | archlint                                       |
+| Current check                                                      | pilotlint                                      |
 | ------------------------------------------------------------------ | ---------------------------------------------- |
 | `DEFAULT_EXPORT`                                                   | `conventions/no-default-export` in an override |
 | `TYPES_FILE`, `COMPONENT_IN_INDEX`                                 | `conventions/forbidden-files`                  |
@@ -947,7 +947,7 @@ specific to it. Mapping from the current checks:
 | Hand edits in `src/generated/`                                     | `changes/no-manual-edit`                       |
 | Imports of `@dealerrelations/ui-components`                        | `boundaries/restricted-packages`               |
 
-Adoption is done when archlint reports the same findings as
+Adoption is done when pilotlint reports the same findings as
 `pnpm check:architecture` on Queenbolt, and the existing script and its skill
 references are replaced.
 
@@ -973,15 +973,14 @@ Milestones 1 to 7 are done. 8 and 9 are open.
 
 ## Open questions
 
-- Final package name and npm scope, and whether to publish publicly or to an
-  internal registry
+- Whether to publish publicly or to an internal registry
 - Whether files should belong to more than one element (tags)
 - Capture templates in selectors, for example "a slice may only import lower
   layers"
 - Whether `no-cycles` should also support file-level cycles inside an element
-- Whether `archlint/config-changed` should be able to fail a run, or only be
+- Whether `pilotlint/config-changed` should be able to fail a run, or only be
   reported
-- A dedicated `archlint hook` command, if the agent hook examples turn out to be
+- A dedicated `pilotlint hook` command, if the agent hook examples turn out to be
   hard to get right per agent
 - `stale-config` checks element patterns and overrides; glob options inside
   rule options are not checked yet

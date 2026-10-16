@@ -1,4 +1,4 @@
-import type { ImportEdge, ProjectFile } from '@archlint/core';
+import type { ImportEdge, ProjectFile } from '@pilotlint/core';
 
 const VALID_PACKAGE = /^(?:@[a-z0-9~][\w.~-]*\/)?[a-z0-9~][\w.~-]*$/i;
 

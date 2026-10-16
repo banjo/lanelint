@@ -1,7 +1,7 @@
 {
-  "name": "@archlint/plugin-conventions",
+  "name": "@pilotlint/plugin-conventions",
   "version": "0.0.0",
-  "description": "archlint rules for file and directory names, placement, required files, and exports.",
+  "description": "pilotlint rules for file and directory names, placement, required files, and exports.",
   "license": "MIT",
   "files": [
     "dist"
@@ -29,13 +29,13 @@
     "valibot": "catalog:"
   },
   "devDependencies": {
-    "@archlint/core": "workspace:*",
+    "@pilotlint/core": "workspace:*",
     "@types/node": "catalog:",
     "typescript": "catalog:",
     "vite-plus": "catalog:"
   },
   "peerDependencies": {
-    "@archlint/core": "workspace:^"
+    "@pilotlint/core": "workspace:^"
   },
   "engines": {
     "node": ">=22.18.0"

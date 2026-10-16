@@ -1,4 +1,4 @@
-import { GlobUtil, type ElementInfo, type ProjectFile } from '@archlint/core';
+import { GlobUtil, type ElementInfo, type ProjectFile } from '@pilotlint/core';
 import type { Selector } from '../models/optionSchemas.ts';
 
 interface Target {

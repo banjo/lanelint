@@ -85,7 +85,7 @@ export interface RuleMeta {
   readonly description: string;
   /** Default level, used when the config enables the rule without a level. */
   readonly severity: Severity;
-  /** Markdown shown by `archlint rules explain`. */
+  /** Markdown shown by `pilotlint rules explain`. */
   readonly docs?: string;
 }
 
@@ -93,7 +93,7 @@ export interface Rule<Options = unknown, Input = unknown> {
   readonly meta: RuleMeta;
   readonly options?: StandardSchemaV1<Input, Options>;
   // Methods rather than function properties, so any rule is assignable to `AnyRule`.
-  /** What the rule enforces with these options, for `archlint describe`. */
+  /** What the rule enforces with these options, for `pilotlint describe`. */
   describe?(options: Options): string | readonly string[];
   /** Element types referenced by these options, validated against the config. */
   elementTypes?(options: Options): readonly string[];

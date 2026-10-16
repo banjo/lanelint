@@ -4,7 +4,7 @@ import {
   type ImportEdge,
   type ProjectApi,
   type ProjectFile,
-} from '@archlint/core';
+} from '@pilotlint/core';
 import * as v from 'valibot';
 import { EdgeUtil } from '../utils/edgeUtil.ts';
 import { GlobListSchema, SelectorListSchema } from '../models/optionSchemas.ts';

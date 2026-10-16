@@ -179,7 +179,7 @@ export async function runRules(options: RunRulesOptions): Promise<Finding[]> {
       noGit,
       { kind: 'project', path: '' },
       `${[...needGit].sort().join(', ')} need git, but ${project.root} is not in a git repository.`,
-      { hint: 'Run archlint inside a git repository, or turn these rules off.', key: 'no-git' },
+      { hint: 'Run pilotlint inside a git repository, or turn these rules off.', key: 'no-git' },
     );
   }
   return findings;

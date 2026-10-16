@@ -64,17 +64,17 @@ type UnionToIntersection<U> = (U extends unknown ? (value: U) => void : never) e
   : never;
 
 export type CoreRuleId =
-  | 'archlint/config-changed'
-  | 'archlint/stale-config'
-  | 'archlint/no-git'
-  | 'archlint/parse-error';
+  | 'pilotlint/config-changed'
+  | 'pilotlint/stale-config'
+  | 'pilotlint/no-git'
+  | 'pilotlint/parse-error';
 
 type CoreRuleEntries = { [Key in CoreRuleId]?: RuleEntry<never> };
 
 export type RulesFor<Plugins extends readonly AnyPlugin[]> = CoreRuleEntries &
   UnionToIntersection<PluginRuleEntries<Plugins[number]>>;
 
-export interface ArchlintConfig<Plugins extends readonly AnyPlugin[] = readonly AnyPlugin[]> {
+export interface PilotlintConfig<Plugins extends readonly AnyPlugin[] = readonly AnyPlugin[]> {
   /** Project root. Defaults to the directory of the config file. */
   readonly root?: string;
   /** Globs of files that belong to the project. Defaults to every file. */

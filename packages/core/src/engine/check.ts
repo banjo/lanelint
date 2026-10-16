@@ -74,7 +74,7 @@ export async function check(options: CheckOptions): Promise<CheckResult> {
   for (const id of ruleFilter ?? []) {
     if (!config.rules.has(id)) {
       throw new UsageError(
-        `Unknown rule "${id}". Run archlint rules list to see the active rules.`,
+        `Unknown rule "${id}". Run pilotlint rules list to see the active rules.`,
       );
     }
   }

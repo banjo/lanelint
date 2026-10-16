@@ -4,11 +4,11 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "archlint": "archlint check"
+    "pilotlint": "pilotlint check"
   },
   "devDependencies": {
-    "@archlint/plugin-boundaries": "workspace:*",
-    "@archlint/plugin-conventions": "workspace:*",
-    "archlint": "workspace:*"
+    "@pilotlint/plugin-boundaries": "workspace:*",
+    "@pilotlint/plugin-conventions": "workspace:*",
+    "pilotlint": "workspace:*"
   }
 }

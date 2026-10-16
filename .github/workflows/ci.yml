@@ -11,7 +11,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7.0.1
         with:
-          # archlint compares with the base branch, so it needs the history.
+          # pilotlint compares with the base branch, so it needs the history.
           fetch-depth: 0
 
       - uses: voidzero-dev/setup-vp@v1.21.2
@@ -24,7 +24,7 @@ jobs:
       - run: vp run -r test
         env:
           # Shared runners are slower than a laptop; the budgets still catch regressions.
-          ARCHLINT_BUDGET_FACTOR: '2'
+          PILOTLINT_BUDGET_FACTOR: '2'
 
-      - name: archlint
-        run: vp exec archlint check ${{ github.event_name == 'pull_request' && format('--base origin/{0} --new', github.base_ref) || '' }}
+      - name: pilotlint
+        run: vp exec pilotlint check ${{ github.event_name == 'pull_request' && format('--base origin/{0} --new', github.base_ref) || '' }}

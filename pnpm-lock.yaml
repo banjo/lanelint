@@ -242,13 +242,13 @@ importers:
 
   .:
     devDependencies:
-      '@archlint/plugin-boundaries':
+      '@pilotlint/plugin-boundaries':
         specifier: workspace:*
         version: link:packages/plugin-boundaries
-      '@archlint/plugin-changes':
+      '@pilotlint/plugin-changes':
         specifier: workspace:*
         version: link:packages/plugin-changes
-      '@archlint/plugin-conventions':
+      '@pilotlint/plugin-conventions':
         specifier: workspace:*
         version: link:packages/plugin-conventions
       '@changesets/cli':
@@ -257,9 +257,9 @@ importers:
       '@types/node':
         specifier: 'catalog:'
         version: 24.19.2
-      archlint:
+      pilotlint:
         specifier: workspace:*
-        version: link:packages/archlint
+        version: link:packages/pilotlint
       typescript:
         specifier: 'catalog:'
         version: 7.0.2
@@ -269,34 +269,34 @@ importers:
 
   examples/feature-folders:
     devDependencies:
-      '@archlint/plugin-boundaries':
+      '@pilotlint/plugin-boundaries':
         specifier: workspace:*
         version: link:../../packages/plugin-boundaries
-      '@archlint/plugin-changes':
+      '@pilotlint/plugin-changes':
         specifier: workspace:*
         version: link:../../packages/plugin-changes
-      '@archlint/plugin-conventions':
+      '@pilotlint/plugin-conventions':
         specifier: workspace:*
         version: link:../../packages/plugin-conventions
-      archlint:
+      pilotlint:
         specifier: workspace:*
-        version: link:../../packages/archlint
+        version: link:../../packages/pilotlint
 
   examples/monorepo:
     devDependencies:
-      '@archlint/plugin-boundaries':
+      '@pilotlint/plugin-boundaries':
         specifier: workspace:*
         version: link:../../packages/plugin-boundaries
-      '@archlint/plugin-conventions':
+      '@pilotlint/plugin-conventions':
         specifier: workspace:*
         version: link:../../packages/plugin-conventions
-      archlint:
+      pilotlint:
         specifier: workspace:*
-        version: link:../../packages/archlint
+        version: link:../../packages/pilotlint
 
-  packages/archlint:
+  packages/pilotlint:
     dependencies:
-      '@archlint/core':
+      '@pilotlint/core':
         specifier: workspace:*
         version: link:../core
       c12:
@@ -309,13 +309,13 @@ importers:
         specifier: 'catalog:'
         version: 2.7.0
     devDependencies:
-      '@archlint/plugin-boundaries':
+      '@pilotlint/plugin-boundaries':
         specifier: workspace:*
         version: link:../plugin-boundaries
-      '@archlint/plugin-changes':
+      '@pilotlint/plugin-changes':
         specifier: workspace:*
         version: link:../plugin-changes
-      '@archlint/plugin-conventions':
+      '@pilotlint/plugin-conventions':
         specifier: workspace:*
         version: link:../plugin-conventions
       '@types/node':
@@ -371,7 +371,7 @@ importers:
         specifier: 'catalog:'
         version: 1.5.0(typescript@7.0.2)
     devDependencies:
-      '@archlint/core':
+      '@pilotlint/core':
         specifier: workspace:*
         version: link:../core
       '@types/node':
@@ -390,7 +390,7 @@ importers:
         specifier: 'catalog:'
         version: 1.5.0(typescript@7.0.2)
     devDependencies:
-      '@archlint/core':
+      '@pilotlint/core':
         specifier: workspace:*
         version: link:../core
       '@types/node':
@@ -409,7 +409,7 @@ importers:
         specifier: 'catalog:'
         version: 1.5.0(typescript@7.0.2)
     devDependencies:
-      '@archlint/core':
+      '@pilotlint/core':
         specifier: workspace:*
         version: link:../core
       '@types/node':

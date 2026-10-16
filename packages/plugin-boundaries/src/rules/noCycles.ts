@@ -1,4 +1,4 @@
-import { defineRule, type ImportEdge } from '@archlint/core';
+import { defineRule, type ImportEdge } from '@pilotlint/core';
 import * as v from 'valibot';
 import { EdgeUtil } from '../utils/edgeUtil.ts';
 import { SelectorListSchema } from '../models/optionSchemas.ts';

@@ -1,4 +1,4 @@
-import type { AnyPlugin, ArchlintConfig, ConfigFragment, Plugin } from '../models/config.ts';
+import type { AnyPlugin, PilotlintConfig, ConfigFragment, Plugin } from '../models/config.ts';
 import type { AnyRule } from '../models/rule.ts';
 
 type Configs = Readonly<Record<string, Omit<ConfigFragment, 'plugins'>>>;
@@ -33,10 +33,10 @@ export function definePlugin<
   return plugin;
 }
 
-/** Typed archlint config. Rule ids and options are checked against `plugins`. */
+/** Typed pilotlint config. Rule ids and options are checked against `plugins`. */
 export function defineConfig<const Plugins extends readonly AnyPlugin[] = readonly []>(
-  config: ArchlintConfig<Plugins>,
-): ArchlintConfig<Plugins> {
+  config: PilotlintConfig<Plugins>,
+): PilotlintConfig<Plugins> {
   return config;
 }
 

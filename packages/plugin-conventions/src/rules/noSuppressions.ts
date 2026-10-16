@@ -1,4 +1,4 @@
-import { defineRule } from '@archlint/core';
+import { defineRule } from '@pilotlint/core';
 import * as v from 'valibot';
 
 export const DEFAULT_DIRECTIVES = [

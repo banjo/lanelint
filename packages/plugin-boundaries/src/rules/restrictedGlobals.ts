@@ -1,4 +1,4 @@
-import { AstUtil, defineRule, type AstNode } from '@archlint/core';
+import { AstUtil, defineRule, type AstNode } from '@pilotlint/core';
 import * as v from 'valibot';
 import { SelectorListSchema } from '../models/optionSchemas.ts';
 import { SelectorUtil } from '../utils/selectorUtil.ts';

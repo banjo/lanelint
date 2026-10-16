@@ -1,4 +1,4 @@
-import { defineRule, GlobUtil, type ProjectApi } from '@archlint/core';
+import { defineRule, GlobUtil, type ProjectApi } from '@pilotlint/core';
 import { normalize } from 'node:path/posix';
 import * as v from 'valibot';
 

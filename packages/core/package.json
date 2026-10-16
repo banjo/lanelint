@@ -1,7 +1,7 @@
 {
-  "name": "@archlint/core",
+  "name": "@pilotlint/core",
   "version": "0.0.0",
-  "description": "Engine, project model, and rule API for archlint.",
+  "description": "Engine, project model, and rule API for pilotlint.",
   "license": "MIT",
   "files": [
     "dist"

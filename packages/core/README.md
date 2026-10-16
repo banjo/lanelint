@@ -1,14 +1,14 @@
-# @archlint/core
+# @pilotlint/core
 
-The engine, project model, and rule API behind [archlint](../../README.md).
+The engine, project model, and rule API behind [pilotlint](../../README.md).
 
-Most projects install `archlint` instead, which re-exports `defineConfig`, `defineRule`, and
-`definePlugin`. Plugin authors depend on `@archlint/core` as a peer dependency and test rules
-with `@archlint/core/testing`:
+Most projects install `pilotlint` instead, which re-exports `defineConfig`, `defineRule`, and
+`definePlugin`. Plugin authors depend on `@pilotlint/core` as a peer dependency and test rules
+with `@pilotlint/core/testing`:
 
 ```ts
 import { describe, expect, it } from 'vitest';
-import { testRule } from '@archlint/core/testing';
+import { testRule } from '@pilotlint/core/testing';
 import { myRule } from '../src/myRule.ts';
 
 testRule(

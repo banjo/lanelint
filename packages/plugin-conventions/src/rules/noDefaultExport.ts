@@ -1,4 +1,4 @@
-import { defineRule } from '@archlint/core';
+import { defineRule } from '@pilotlint/core';
 
 export const noDefaultExport = defineRule({
   meta: {

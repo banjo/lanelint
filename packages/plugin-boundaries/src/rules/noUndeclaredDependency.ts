@@ -1,4 +1,4 @@
-import { defineRule, GlobUtil, type PackageInfo } from '@archlint/core';
+import { defineRule, GlobUtil, type PackageInfo } from '@pilotlint/core';
 import * as v from 'valibot';
 import { EdgeUtil } from '../utils/edgeUtil.ts';
 

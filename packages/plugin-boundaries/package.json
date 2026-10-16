@@ -1,7 +1,7 @@
 {
-  "name": "@archlint/plugin-boundaries",
+  "name": "@pilotlint/plugin-boundaries",
   "version": "0.0.0",
-  "description": "archlint rules for dependencies between elements and on packages.",
+  "description": "pilotlint rules for dependencies between elements and on packages.",
   "license": "MIT",
   "files": [
     "dist"
@@ -29,13 +29,13 @@
     "valibot": "catalog:"
   },
   "devDependencies": {
-    "@archlint/core": "workspace:*",
+    "@pilotlint/core": "workspace:*",
     "@types/node": "catalog:",
     "typescript": "catalog:",
     "vite-plus": "catalog:"
   },
   "peerDependencies": {
-    "@archlint/core": "workspace:^"
+    "@pilotlint/core": "workspace:^"
   },
   "engines": {
     "node": ">=22.18.0"

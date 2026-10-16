@@ -1,4 +1,4 @@
-import { defineRule, GlobUtil } from '@archlint/core';
+import { defineRule, GlobUtil } from '@pilotlint/core';
 import * as v from 'valibot';
 
 const GlobListSchema = v.pipe(
