@@ -7,7 +7,7 @@ export default defineConfig({
   fmt: {
     singleQuote: true,
     printWidth: 100,
-    ignorePatterns: ['**/dist/**', 'pnpm-lock.yaml', '.changeset/*.md'],
+    ignorePatterns: ['**/dist/**', 'pnpm-lock.yaml', '.changeset/*.md', 'docs/rules/**'],
   },
   lint: {
     ignorePatterns: ['**/dist/**'],

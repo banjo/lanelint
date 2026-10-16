@@ -36,6 +36,8 @@ export interface Plugin<
   ConfigName extends string = string,
 > {
   readonly name: Name;
+  /** One sentence about the plugin, shown by `pilotlint rules docs`. */
+  readonly description?: string;
   readonly rules: Rules;
   readonly configs: Readonly<Record<ConfigName, ConfigFragment>>;
 }

@@ -1,4 +1,5 @@
 import { defineRule, GlobUtil } from '@pilotlint/core';
+import { toStandardJsonSchema } from '@valibot/to-json-schema';
 import * as v from 'valibot';
 
 export const noOrphans = defineRule({
@@ -14,8 +15,22 @@ export const noOrphans = defineRule({
       'To fix a finding, delete the file if it is unused, import it where it is needed, or add it',
       'to `roots` if it is an entry point.',
     ].join('\n'),
+    example: ['warn', { roots: ['src/main.ts', 'scripts/**'] }],
   },
-  options: v.optional(v.object({ roots: v.optional(v.array(v.string()), []) }), {}),
+  options: toStandardJsonSchema(
+    v.optional(
+      v.object({
+        roots: v.optional(
+          v.pipe(
+            v.array(v.string()),
+            v.description('Globs of entry points, such as `src/main.ts`, that nothing imports.'),
+          ),
+          [],
+        ),
+      }),
+      {},
+    ),
+  ),
   create: (context) => ({
     async project(project) {
       const roots = ['**/*.config.*', '**/*.d.ts', '**/*.d.mts', ...context.options.roots];

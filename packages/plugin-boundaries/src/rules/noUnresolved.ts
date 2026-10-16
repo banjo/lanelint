@@ -1,4 +1,5 @@
 import { defineRule, GlobUtil } from '@pilotlint/core';
+import { toStandardJsonSchema } from '@valibot/to-json-schema';
 import * as v from 'valibot';
 
 export const noUnresolved = defineRule({
@@ -12,8 +13,24 @@ export const noUnresolved = defineRule({
       '',
       'To fix a finding, correct the path, or install the missing package.',
     ].join('\n'),
+    example: ['error', { ignore: ['virtual:*', '*.svg?react'] }],
   },
-  options: v.optional(v.object({ ignore: v.optional(v.array(v.string()), []) }), {}),
+  options: toStandardJsonSchema(
+    v.optional(
+      v.object({
+        ignore: v.optional(
+          v.pipe(
+            v.array(v.string()),
+            v.description(
+              'Globs of import specifiers that are never reported, such as `virtual:*`.',
+            ),
+          ),
+          [],
+        ),
+      }),
+      {},
+    ),
+  ),
   create: (context) => ({
     import(edge) {
       if (

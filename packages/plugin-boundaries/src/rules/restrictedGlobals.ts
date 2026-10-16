@@ -1,6 +1,7 @@
 import { AstUtil, defineRule, type AstNode } from '@pilotlint/core';
+import { toStandardJsonSchema } from '@valibot/to-json-schema';
 import * as v from 'valibot';
-import { SelectorListSchema } from '../models/optionSchemas.ts';
+import { HintSchema, ReasonSchema, SelectorListSchema } from '../models/optionSchemas.ts';
 import { SelectorUtil } from '../utils/selectorUtil.ts';
 
 /** Objects whose properties are globals, as in `globalThis.fetch`. */
@@ -19,14 +20,19 @@ const TYPE_ONLY = new Set([
 ]);
 
 const RestrictionSchema = v.object({
-  /** A global such as `fetch` or `process`, or a member such as `Date.now`. */
   name: v.pipe(
     v.string(),
     v.regex(/^[A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*)?$/, 'Use a name such as fetch or Date.now.'),
+    v.description('A global such as `fetch` or `process`, or a member such as `Date.now`.'),
   ),
-  from: v.optional(SelectorListSchema),
-  message: v.optional(v.string()),
-  hint: v.optional(v.string()),
+  from: v.optional(
+    v.pipe(
+      SelectorListSchema,
+      v.description('Files the restriction applies to. Defaults to every file.'),
+    ),
+  ),
+  message: v.optional(ReasonSchema),
+  hint: v.optional(HintSchema),
 });
 
 /** Whether an identifier is read as a value, rather than used as a property name or label. */
@@ -66,8 +72,21 @@ export const restrictedGlobals = defineRule({
       '',
       'To fix a finding, pass the value in, or move the code to a place where it is allowed.',
     ].join('\n'),
+    example: [
+      'error',
+      {
+        globals: [
+          { name: 'fetch', from: { files: '**/utils/**' }, message: 'Utils are pure functions.' },
+          { name: 'Date.now', from: { files: '**/utils/**' }, hint: 'Pass the time in.' },
+        ],
+      },
+    ],
   },
-  options: v.object({ globals: v.array(RestrictionSchema) }),
+  options: toStandardJsonSchema(
+    v.object({
+      globals: v.pipe(v.array(RestrictionSchema), v.description('The restricted globals.')),
+    }),
+  ),
   describe: (options) =>
     options.globals.map((restriction) => {
       const where = restriction.from ? ` in ${SelectorUtil.describe(restriction.from)}` : '';

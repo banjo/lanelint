@@ -89,6 +89,12 @@ export function createCorePlugin(getConfig: () => ResolvedConfig) {
     meta: {
       description: 'Reports rules that need git when the project is not in a git repository.',
       severity: 'warn',
+      docs: [
+        'Change rules and `--new` compare the working tree with a git ref. Outside a git',
+        'repository they cannot run, and this finding says which rules were skipped.',
+        '',
+        'To fix a finding, run pilotlint inside the git repository, or turn the change rules off.',
+      ].join('\n'),
     },
     create: () => ({}),
   });
@@ -104,6 +110,7 @@ export function createCorePlugin(getConfig: () => ResolvedConfig) {
 
   return definePlugin({
     name: CORE_PLUGIN_NAME,
+    description: 'Core rules that report problems with the config and the project setup.',
     rules: {
       'config-changed': configChanged,
       'stale-config': staleConfig,

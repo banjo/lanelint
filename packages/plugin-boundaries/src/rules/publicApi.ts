@@ -5,9 +5,10 @@ import {
   type ProjectApi,
   type ProjectFile,
 } from '@pilotlint/core';
+import { toStandardJsonSchema } from '@valibot/to-json-schema';
 import * as v from 'valibot';
 import { EdgeUtil } from '../utils/edgeUtil.ts';
-import { GlobListSchema, SelectorListSchema } from '../models/optionSchemas.ts';
+import { GlobListSchema, IncludeTestsSchema, SelectorListSchema } from '../models/optionSchemas.ts';
 import { SelectorUtil } from '../utils/selectorUtil.ts';
 
 /** Files reachable from an element's entry files through re-exports. */
@@ -41,16 +42,46 @@ export const publicApi = defineRule({
       'To fix a finding, export the file from the element entry (or a barrel it re-exports), or',
       'import something that is already public.',
     ].join('\n'),
+    example: [
+      'error',
+      {
+        elements: 'common',
+        exceptions: [{ from: 'feature', to: 'src/common/*/models/**' }],
+      },
+    ],
   },
-  options: v.object({
-    elements: SelectorListSchema,
-    from: v.optional(SelectorListSchema),
-    exceptions: v.optional(
-      v.array(v.object({ from: v.optional(SelectorListSchema), to: GlobListSchema })),
-      [],
-    ),
-    includeTests: v.optional(v.boolean(), false),
-  }),
+  options: toStandardJsonSchema(
+    v.object({
+      elements: v.pipe(
+        SelectorListSchema,
+        v.description('Elements whose imported files must be part of their public API.'),
+      ),
+      from: v.optional(
+        v.pipe(
+          SelectorListSchema,
+          v.description('Files whose imports are checked. Defaults to files outside the element.'),
+        ),
+      ),
+      exceptions: v.optional(
+        v.pipe(
+          v.array(
+            v.object({
+              from: v.optional(
+                v.pipe(SelectorListSchema, v.description('Importing files. Defaults to any file.')),
+              ),
+              to: v.pipe(
+                GlobListSchema,
+                v.description('Globs of files that may be imported anyway.'),
+              ),
+            }),
+          ),
+          v.description('Imports that are allowed even though the file is not public.'),
+        ),
+        [],
+      ),
+      includeTests: IncludeTestsSchema,
+    }),
+  ),
   describe: (options) =>
     `${options.from ? `${SelectorUtil.describe(options.from)} imports files` : 'Files'} in a ${SelectorUtil.describe(options.elements)} element ${options.from ? '' : 'are imported from outside '}only when its entry files export them.`,
   elementTypes: (options) => [

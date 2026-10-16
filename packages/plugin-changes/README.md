@@ -1,6 +1,6 @@
 # @pilotlint/plugin-changes
 
-Rules about files that must or must not change together, based on git: `requires-change` and `no-manual-edit`.
+Rules about files that must or must not change together, compared with a git ref.
 
 ```ts
 import changes from '@pilotlint/plugin-changes';
@@ -11,5 +11,5 @@ export default defineConfig({
 });
 ```
 
-Run `pilotlint rules explain changes/<rule>` for the options and docs of each rule. See the
-[repository README](../../README.md) for more.
+See the [rules and their options](../../docs/rules/changes.md), or run
+`pilotlint rules explain changes/<rule>`.

@@ -1,5 +1,7 @@
 import { defineRule, GlobUtil, type AstInfo, type ModuleExport } from '@pilotlint/core';
+import { toStandardJsonSchema } from '@valibot/to-json-schema';
 import * as v from 'valibot';
+import { MessageSchema } from '../models/optionSchemas.ts';
 import { CaseUtil } from '../utils/caseUtil.ts';
 
 const isDeprecated = (ast: AstInfo, entry: ModuleExport) =>
@@ -21,13 +23,27 @@ export const exportMatchesFilename = defineRule({
       '',
       'To fix a finding, move the other exports into the main export, or into their own files.',
     ].join('\n'),
+    example: ['error', { transform: 'pascal', allowDeprecated: true }],
   },
-  options: v.optional(
-    v.object({
-      transform: v.optional(v.picklist(['pascal', 'camel', 'none']), 'pascal'),
-      allowDeprecated: v.optional(v.boolean(), false),
-    }),
-    {},
+  options: toStandardJsonSchema(
+    v.optional(
+      v.object({
+        transform: v.optional(
+          v.pipe(
+            v.picklist(['pascal', 'camel', 'none']),
+            v.description(
+              'How the file name becomes the export name: `dateUtil.ts` exports `DateUtil` with `pascal`.',
+            ),
+          ),
+          'pascal',
+        ),
+        allowDeprecated: v.optional(
+          v.pipe(v.boolean(), v.description('Allow other exports marked `@deprecated`.')),
+          false,
+        ),
+      }),
+      {},
+    ),
   ),
   describe: (options) =>
     `Each file exports one value named after the file${options.transform === 'none' ? '' : ` in ${options.transform} case`}.`,
@@ -67,16 +83,28 @@ export const exportNamePattern = defineRule({
       'For example, exports from files in `hooks/` start with `use`. Patterns are globs matched',
       'against each exported value name. Type exports and default exports are ignored.',
     ].join('\n'),
+    example: ['error', { rules: [{ files: '**/hooks/*.ts', pattern: 'use*' }] }],
   },
-  options: v.object({
-    rules: v.array(
-      v.object({
-        files: v.union([v.string(), v.array(v.string())]),
-        pattern: v.string(),
-        message: v.optional(v.string()),
-      }),
-    ),
-  }),
+  options: toStandardJsonSchema(
+    v.object({
+      rules: v.pipe(
+        v.array(
+          v.object({
+            files: v.pipe(
+              v.union([v.string(), v.array(v.string())]),
+              v.description('Globs of files whose exports are checked.'),
+            ),
+            pattern: v.pipe(
+              v.string(),
+              v.description('Glob that each exported value name must match, such as `use*`.'),
+            ),
+            message: v.optional(MessageSchema),
+          }),
+        ),
+        v.description('Name rules, each for a set of files.'),
+      ),
+    }),
+  ),
   describe: (options) =>
     options.rules.map(
       (rule) => `Exports from ${GlobUtil.toList(rule.files).join(', ')} are named ${rule.pattern}.`,

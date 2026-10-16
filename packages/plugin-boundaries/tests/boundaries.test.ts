@@ -62,7 +62,7 @@ testRule(
           {
             path: 'src/hooks/useA.ts',
             line: 2,
-            message: 'the shared src/hooks must not import the feature src/features/a.',
+            message: 'The shared src/hooks must not import the feature src/features/a.',
           },
         ],
       },

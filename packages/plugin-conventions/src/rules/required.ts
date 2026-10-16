@@ -1,6 +1,8 @@
 import { defineRule, GlobUtil, type ProjectApi } from '@pilotlint/core';
 import { normalize } from 'node:path/posix';
+import { toStandardJsonSchema } from '@valibot/to-json-schema';
 import * as v from 'valibot';
+import { HintSchema, MessageSchema } from '../models/optionSchemas.ts';
 
 const isGlob = (path: string) => /[*?{}[\]]/.test(path);
 
@@ -24,17 +26,44 @@ export const requiredFiles = defineRule({
       '',
       'To fix a finding, create the file.',
     ].join('\n'),
+    example: [
+      'error',
+      {
+        files: [
+          { in: 'feature', path: 'index.{ts,tsx}' },
+          { in: { directories: 'src/**/components/*' }, path: '*.stories.tsx' },
+        ],
+      },
+    ],
   },
-  options: v.object({
-    files: v.array(
-      v.object({
-        in: v.union([v.string(), v.object({ directories: v.string() })]),
-        path: v.string(),
-        message: v.optional(v.string()),
-        hint: v.optional(v.string()),
-      }),
-    ),
-  }),
+  options: toStandardJsonSchema(
+    v.object({
+      files: v.pipe(
+        v.array(
+          v.object({
+            in: v.pipe(
+              v.union([
+                v.string(),
+                v.object({
+                  directories: v.pipe(v.string(), v.description('Glob of directory paths.')),
+                }),
+              ]),
+              v.description('An element type, or `{ directories }` for matching directories.'),
+            ),
+            path: v.pipe(
+              v.string(),
+              v.description(
+                'File that must exist, relative to the element or directory. May be a glob.',
+              ),
+            ),
+            message: v.optional(MessageSchema),
+            hint: v.optional(HintSchema),
+          }),
+        ),
+        v.description('Required files.'),
+      ),
+    }),
+  ),
   describe: (options) =>
     options.files.map(
       (entry) =>
@@ -85,17 +114,34 @@ export const companionFiles = defineRule({
       '',
       'To fix a finding, create the companion file.',
     ].join('\n'),
+    example: [
+      'error',
+      { rules: [{ files: 'src/**/components/*.tsx', requires: '{stem}.test.tsx' }] },
+    ],
   },
-  options: v.object({
-    rules: v.array(
-      v.object({
-        files: v.union([v.string(), v.array(v.string())]),
-        requires: v.string(),
-        message: v.optional(v.string()),
-        hint: v.optional(v.string()),
-      }),
-    ),
-  }),
+  options: toStandardJsonSchema(
+    v.object({
+      rules: v.pipe(
+        v.array(
+          v.object({
+            files: v.pipe(
+              v.union([v.string(), v.array(v.string())]),
+              v.description('Globs of files that need a companion.'),
+            ),
+            requires: v.pipe(
+              v.string(),
+              v.description(
+                'Path of the companion, relative to the file, with `{stem}` and `{name}`.',
+              ),
+            ),
+            message: v.optional(MessageSchema),
+            hint: v.optional(HintSchema),
+          }),
+        ),
+        v.description('Companion rules.'),
+      ),
+    }),
+  ),
   describe: (options) =>
     options.rules.map(
       (rule) =>

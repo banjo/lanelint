@@ -1,9 +1,19 @@
 import { defineRule, GlobUtil } from '@pilotlint/core';
+import { toStandardJsonSchema } from '@valibot/to-json-schema';
 import * as v from 'valibot';
 
-const GlobListSchema = v.pipe(
-  v.union([v.string(), v.array(v.string())]),
-  v.transform((value) => (typeof value === 'string' ? [value] : value)),
+const globList = (description: string) =>
+  v.pipe(
+    v.union([v.string(), v.array(v.string())]),
+    v.description(description),
+    v.transform((value) => (typeof value === 'string' ? [value] : value)),
+  );
+
+const MessageSchema = v.pipe(v.string(), v.description('Replaces the finding message.'));
+
+const HintSchema = v.pipe(
+  v.string(),
+  v.description('Shown under the finding as the next step, such as the command to run.'),
 );
 
 const list = (paths: readonly string[]) =>
@@ -22,17 +32,34 @@ export const requiresChange = defineRule({
       '',
       'To fix a finding, make the required change, usually by running the command in the hint.',
     ].join('\n'),
+    example: [
+      'error',
+      {
+        rules: [
+          {
+            when: 'src/**/messages.ts',
+            require: 'src/translations/en.json',
+            hint: 'Run pnpm extract-intl.',
+          },
+        ],
+      },
+    ],
   },
-  options: v.object({
-    rules: v.array(
-      v.object({
-        when: GlobListSchema,
-        require: GlobListSchema,
-        message: v.optional(v.string()),
-        hint: v.optional(v.string()),
-      }),
-    ),
-  }),
+  options: toStandardJsonSchema(
+    v.object({
+      rules: v.pipe(
+        v.array(
+          v.object({
+            when: globList('Globs of files whose change triggers the rule.'),
+            require: globList('Globs of files of which at least one must change too.'),
+            message: v.optional(MessageSchema),
+            hint: v.optional(HintSchema),
+          }),
+        ),
+        v.description('Files that change together.'),
+      ),
+    }),
+  ),
   describe: (options) =>
     options.rules.map(
       (rule) =>
@@ -70,17 +97,38 @@ export const noManualEdit = defineRule({
       '',
       'To fix a finding, revert the edit and run the generator instead.',
     ].join('\n'),
+    example: [
+      'error',
+      {
+        rules: [
+          {
+            files: 'src/generated/**',
+            unless: 'schema.graphql',
+            hint: 'Run pnpm codegen.',
+          },
+        ],
+      },
+    ],
   },
-  options: v.object({
-    rules: v.array(
-      v.object({
-        files: GlobListSchema,
-        unless: v.optional(GlobListSchema),
-        message: v.optional(v.string()),
-        hint: v.optional(v.string()),
-      }),
-    ),
-  }),
+  options: toStandardJsonSchema(
+    v.object({
+      rules: v.pipe(
+        v.array(
+          v.object({
+            files: globList('Globs of generated files.'),
+            unless: v.optional(
+              globList(
+                'Globs of generator inputs. Edits are allowed when one of them changed too.',
+              ),
+            ),
+            message: v.optional(MessageSchema),
+            hint: v.optional(HintSchema),
+          }),
+        ),
+        v.description('Generated files.'),
+      ),
+    }),
+  ),
   describe: (options) =>
     options.rules.map(
       (rule) =>

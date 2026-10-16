@@ -57,6 +57,8 @@ export interface ResolvedConfig {
   readonly failOn: FailOn;
   readonly elementDefinitions: readonly ElementDefinition[];
   readonly elements: readonly CompiledElement[];
+  /** Every plugin, starting with the core plugin. */
+  readonly plugins: readonly AnyPlugin[];
   readonly rules: ReadonlyMap<string, AnyRule>;
   readonly base: ReadonlyMap<string, ResolvedEntry>;
   readonly overrides: readonly ResolvedOverride[];
@@ -340,6 +342,7 @@ export async function resolveConfig(
     failOn: config.failOn ?? 'error',
     elementDefinitions,
     elements,
+    plugins: [corePlugin, ...plugins.values()],
     rules,
     base: resolvedBase,
     overrides,

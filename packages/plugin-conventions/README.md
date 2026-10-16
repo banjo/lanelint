@@ -1,6 +1,6 @@
 # @pilotlint/plugin-conventions
 
-Rules about names, placement, required files, and exports: `no-default-export`, `file-name-case`, `directory-case`, `forbidden-files`, `forbidden-directories`, `root-only-files`, `file-name-pattern`, `required-files`, `companion-files`, `export-matches-filename`, `export-name-pattern`, and `no-suppressions`.
+Rules about file and directory names, placement, required files, exports, and suppression comments.
 
 ```ts
 import conventions from '@pilotlint/plugin-conventions';
@@ -11,5 +11,5 @@ export default defineConfig({
 });
 ```
 
-Run `pilotlint rules explain conventions/<rule>` for the options and docs of each rule. See the
-[repository README](../../README.md) for more.
+See the [rules and their options](../../docs/rules/conventions.md), or run
+`pilotlint rules explain conventions/<rule>`.

@@ -16,3 +16,14 @@ export const DEFAULT_ENTRIES = [
 
 /** Test files when the config has no `tests`. */
 export const DEFAULT_TESTS = ['**/*.{test,spec}.*', '**/__tests__/**', '**/tests/**'];
+
+/**
+ * Options passed to Standard JSON Schema converters by vendor, so options are documented even
+ * when a schema has checks or transforms that JSON Schema cannot express.
+ */
+export const JSON_SCHEMA_LIBRARY_OPTIONS: Readonly<
+  Record<string, Readonly<Record<string, unknown>> | undefined>
+> = {
+  valibot: { typeMode: 'ignore', errorMode: 'ignore' },
+  zod: { unrepresentable: 'any' },
+};

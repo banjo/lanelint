@@ -1,6 +1,6 @@
 # @pilotlint/plugin-boundaries
 
-Rules about dependencies between elements and on packages: `allowed-imports`, `entry-only`, `no-entry-import`, `public-api`, `no-cycles`, `no-unresolved`, `restricted-packages`, `restricted-globals`, `no-undeclared-dependency`, and `no-orphans`.
+Rules about imports between elements, packages, and globals.
 
 ```ts
 import boundaries from '@pilotlint/plugin-boundaries';
@@ -11,5 +11,5 @@ export default defineConfig({
 });
 ```
 
-Run `pilotlint rules explain boundaries/<rule>` for the options and docs of each rule. See the
-[repository README](../../README.md) for more.
+See the [rules and their options](../../docs/rules/boundaries.md), or run
+`pilotlint rules explain boundaries/<rule>`.

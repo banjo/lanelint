@@ -1,7 +1,12 @@
 import { defineRule, type ImportEdge } from '@pilotlint/core';
+import { toStandardJsonSchema } from '@valibot/to-json-schema';
 import * as v from 'valibot';
 import { EdgeUtil } from '../utils/edgeUtil.ts';
-import { SelectorListSchema } from '../models/optionSchemas.ts';
+import {
+  IgnoreTypeImportsSchema,
+  IncludeTestsSchema,
+  SelectorListSchema,
+} from '../models/optionSchemas.ts';
 import { SelectorUtil } from '../utils/selectorUtil.ts';
 
 /** The same cycle has the same signature no matter where it starts. */
@@ -22,14 +27,22 @@ export const noCycles = defineRule({
       'To fix a finding, move the shared code into an element both can depend on, or invert one',
       'of the dependencies, for example by passing a callback instead of importing.',
     ].join('\n'),
+    example: ['error', { ignoreTypeImports: true }],
   },
-  options: v.optional(
-    v.object({
-      elements: v.optional(SelectorListSchema),
-      includeTests: v.optional(v.boolean(), false),
-      ignoreTypeImports: v.optional(v.boolean(), false),
-    }),
-    {},
+  options: toStandardJsonSchema(
+    v.optional(
+      v.object({
+        elements: v.optional(
+          v.pipe(
+            SelectorListSchema,
+            v.description('Elements to check. Defaults to every element.'),
+          ),
+        ),
+        includeTests: IncludeTestsSchema,
+        ignoreTypeImports: IgnoreTypeImportsSchema,
+      }),
+      {},
+    ),
   ),
   describe: (options) =>
     options.elements

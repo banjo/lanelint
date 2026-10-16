@@ -25,6 +25,7 @@ export {
   DEFAULT_TESTS,
   SOURCE_EXTENSIONS,
 } from './constants/defaults.ts';
+export { RULE_DOCS_MARKER, renderRuleDocs, type RuleDocsFile } from './docs/ruleDocs.ts';
 export { check, type CheckOptions, type CheckResult } from './engine/check.ts';
 export { ConfigError, UsageError } from './errors.ts';
 export type { Change, ChangeSet, ChangeStatus } from './models/changes.ts';

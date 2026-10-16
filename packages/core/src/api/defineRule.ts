@@ -11,7 +11,7 @@ type InputOf<Schema> = Schema extends StandardSchemaV1
   : never;
 
 export interface RuleDefinition<Schema extends StandardSchemaV1 | undefined> {
-  readonly meta: RuleMeta;
+  readonly meta: RuleMeta<InputOf<Schema>>;
   readonly options?: Schema;
   describe?(options: OptionsOf<Schema>): string | readonly string[];
   elementTypes?(options: OptionsOf<Schema>): readonly string[];
@@ -25,7 +25,7 @@ export function defineRule<Schema extends StandardSchemaV1 | undefined = undefin
 }
 
 interface ConditionRuleDefinition<Target> {
-  readonly meta: RuleMeta;
+  readonly meta: RuleMeta<never>;
   when(target: Target): boolean;
   readonly message: string | ((target: Target) => string);
   readonly hint?: string | ((target: Target) => string);

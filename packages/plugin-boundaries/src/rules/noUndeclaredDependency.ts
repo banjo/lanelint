@@ -1,4 +1,5 @@
 import { defineRule, GlobUtil, type PackageInfo } from '@pilotlint/core';
+import { toStandardJsonSchema } from '@valibot/to-json-schema';
 import * as v from 'valibot';
 import { EdgeUtil } from '../utils/edgeUtil.ts';
 
@@ -24,13 +25,28 @@ export const noUndeclaredDependency = defineRule({
       '',
       'To fix a finding, add the package to the nearest package.json.',
     ].join('\n'),
+    example: ['error', { allowDev: ['**/*.config.*', 'scripts/**'], ignore: ['virtual:*'] }],
   },
-  options: v.optional(
-    v.object({
-      allowDev: v.optional(v.array(v.string()), ['**/*.config.*', '**/scripts/**']),
-      ignore: v.optional(v.array(v.string()), []),
-    }),
-    {},
+  options: toStandardJsonSchema(
+    v.optional(
+      v.object({
+        allowDev: v.optional(
+          v.pipe(
+            v.array(v.string()),
+            v.description('Globs of files that may import devDependencies, besides test files.'),
+          ),
+          ['**/*.config.*', '**/scripts/**'],
+        ),
+        ignore: v.optional(
+          v.pipe(
+            v.array(v.string()),
+            v.description('Package names or globs that are never reported.'),
+          ),
+          [],
+        ),
+      }),
+      {},
+    ),
   ),
   create: (context) => ({
     import(edge) {

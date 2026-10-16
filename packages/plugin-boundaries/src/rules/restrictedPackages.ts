@@ -1,17 +1,33 @@
 import { defineRule, GlobUtil } from '@pilotlint/core';
+import { toStandardJsonSchema } from '@valibot/to-json-schema';
 import * as v from 'valibot';
 import { EdgeUtil } from '../utils/edgeUtil.ts';
-import { SelectorListSchema } from '../models/optionSchemas.ts';
+import { HintSchema, ReasonSchema, SelectorListSchema } from '../models/optionSchemas.ts';
 import { SelectorUtil } from '../utils/selectorUtil.ts';
 
 const RestrictionSchema = v.object({
-  /** Package name or glob, for example `@mui/material`, `lodash*`, or `node:fs`. */
-  name: v.string(),
-  importNames: v.optional(v.array(v.string())),
-  allowTypeImports: v.optional(v.boolean(), false),
-  from: v.optional(SelectorListSchema),
-  message: v.optional(v.string()),
-  hint: v.optional(v.string()),
+  name: v.pipe(
+    v.string(),
+    v.description('Package name or glob, such as `@mui/material`, `lodash*`, or `node:fs`.'),
+  ),
+  importNames: v.optional(
+    v.pipe(
+      v.array(v.string()),
+      v.description('Only these imported names are restricted. Defaults to the whole package.'),
+    ),
+  ),
+  allowTypeImports: v.optional(
+    v.pipe(v.boolean(), v.description('Allow imports that only import types.')),
+    false,
+  ),
+  from: v.optional(
+    v.pipe(
+      SelectorListSchema,
+      v.description('Files the restriction applies to. Defaults to every file.'),
+    ),
+  ),
+  message: v.optional(ReasonSchema),
+  hint: v.optional(HintSchema),
 });
 
 export const restrictedPackages = defineRule({
@@ -26,8 +42,26 @@ export const restrictedPackages = defineRule({
       '',
       'To fix a finding, use the alternative named in the message.',
     ].join('\n'),
+    example: [
+      'error',
+      {
+        packages: [
+          {
+            name: '@mui/material',
+            importNames: ['Button'],
+            message: 'Use the design system instead.',
+            hint: 'Import Button from @acme/design-system.',
+          },
+          { name: 'node:{fs,child_process}', from: { files: '**/utils/**' } },
+        ],
+      },
+    ],
   },
-  options: v.object({ packages: v.array(RestrictionSchema) }),
+  options: toStandardJsonSchema(
+    v.object({
+      packages: v.pipe(v.array(RestrictionSchema), v.description('The restricted packages.')),
+    }),
+  ),
   describe: (options) =>
     options.packages.map((restriction) => {
       const what = restriction.importNames

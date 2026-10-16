@@ -1,4 +1,5 @@
 import { defineRule, GlobUtil } from '@pilotlint/core';
+import { toStandardJsonSchema } from '@valibot/to-json-schema';
 import * as v from 'valibot';
 import { NamePatternSchema } from '../models/optionSchemas.ts';
 
@@ -15,8 +16,16 @@ export const forbiddenFiles = defineRule({
       'Each pattern matches the file name, or the path when it contains `/`. Give each pattern',
       'a message that says what to do instead, for example where the code belongs.',
     ].join('\n'),
+    example: [
+      'error',
+      { patterns: [{ name: 'helpers.ts', message: 'Put helpers in utils/ as *Util.ts files.' }] },
+    ],
   },
-  options: v.object({ patterns: v.array(NamePatternSchema) }),
+  options: toStandardJsonSchema(
+    v.object({
+      patterns: v.pipe(v.array(NamePatternSchema), v.description('Forbidden file names.')),
+    }),
+  ),
   describe: (options) => describePatterns('files', options.patterns),
   create: (context) => ({
     file(file) {
@@ -42,8 +51,16 @@ export const forbiddenDirectories = defineRule({
       'Each pattern matches the directory name, or the path when it contains `/`. Give each',
       'pattern a message that says what to do instead.',
     ].join('\n'),
+    example: [
+      'error',
+      { patterns: [{ name: 'helpers', message: 'Put helpers in utils/ instead.' }] },
+    ],
   },
-  options: v.object({ patterns: v.array(NamePatternSchema) }),
+  options: toStandardJsonSchema(
+    v.object({
+      patterns: v.pipe(v.array(NamePatternSchema), v.description('Forbidden directory names.')),
+    }),
+  ),
   describe: (options) => describePatterns('directories', options.patterns),
   create: (context) => ({
     directory(directory) {

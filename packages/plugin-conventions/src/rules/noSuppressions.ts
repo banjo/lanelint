@@ -1,4 +1,5 @@
 import { defineRule } from '@pilotlint/core';
+import { toStandardJsonSchema } from '@valibot/to-json-schema';
 import * as v from 'valibot';
 
 export const DEFAULT_DIRECTIVES = [
@@ -28,13 +29,25 @@ export const noSuppressions = defineRule({
       '',
       'To fix a finding, fix the underlying problem and remove the comment.',
     ].join('\n'),
+    example: ['error', { allow: ['@ts-expect-error'] }],
   },
-  options: v.optional(
-    v.object({
-      directives: v.optional(v.array(v.string()), DEFAULT_DIRECTIVES),
-      allow: v.optional(v.array(v.string()), []),
-    }),
-    {},
+  options: toStandardJsonSchema(
+    v.optional(
+      v.object({
+        directives: v.optional(
+          v.pipe(v.array(v.string()), v.description('Directives to find in comments.')),
+          DEFAULT_DIRECTIVES,
+        ),
+        allow: v.optional(
+          v.pipe(
+            v.array(v.string()),
+            v.description('Directives that are allowed, such as `@ts-expect-error`.'),
+          ),
+          [],
+        ),
+      }),
+      {},
+    ),
   ),
   describe: (options) =>
     `No ${options.directives.filter((directive) => !options.allow.includes(directive)).join(', ')} comments.`,

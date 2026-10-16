@@ -6,6 +6,7 @@
   "scripts": {
     "ready": "vp check && vp run -r test && vp run pilotlint",
     "pilotlint": "pilotlint check",
+    "docs:rules": "pilotlint rules docs",
     "changeset": "changeset",
     "prepare": "vp config"
   },

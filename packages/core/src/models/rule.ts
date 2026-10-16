@@ -1,5 +1,6 @@
 import type { StandardSchemaV1 } from '@standard-schema/spec';
 import type { ChangeSet } from './changes.ts';
+import type { RuleEntry } from './config.ts';
 import type { Severity } from './finding.ts';
 import type { AstInfo, ImportEdge, ModuleInfo } from './module.ts';
 import type {
@@ -81,16 +82,18 @@ export interface RuleContext<Options> {
   isInScope(at: LocationInput): boolean;
 }
 
-export interface RuleMeta {
+export interface RuleMeta<Input = unknown> {
   readonly description: string;
   /** Default level, used when the config enables the rule without a level. */
   readonly severity: Severity;
-  /** Markdown shown by `pilotlint rules explain`. */
+  /** Markdown shown by `pilotlint rules explain` and `pilotlint rules docs`. */
   readonly docs?: string;
+  /** An example entry for the rule in the config, shown by `pilotlint rules docs`. */
+  readonly example?: RuleEntry<Input>;
 }
 
 export interface Rule<Options = unknown, Input = unknown> {
-  readonly meta: RuleMeta;
+  readonly meta: RuleMeta<Input>;
   readonly options?: StandardSchemaV1<Input, Options>;
   // Methods rather than function properties, so any rule is assignable to `AnyRule`.
   /** What the rule enforces with these options, for `pilotlint describe`. */

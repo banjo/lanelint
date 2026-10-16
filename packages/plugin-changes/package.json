@@ -26,6 +26,7 @@
     "prepublishOnly": "vp run build"
   },
   "dependencies": {
+    "@valibot/to-json-schema": "catalog:",
     "valibot": "catalog:"
   },
   "devDependencies": {

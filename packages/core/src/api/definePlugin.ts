@@ -9,6 +9,7 @@ interface PluginDefinition<
   PluginConfigs extends Configs,
 > {
   readonly name: Name;
+  readonly description?: string;
   readonly rules: Rules;
   readonly configs?: PluginConfigs;
 }
@@ -24,6 +25,7 @@ export function definePlugin<
   const configs: Record<string, ConfigFragment> = {};
   const plugin: Plugin<Name, Rules, keyof PluginConfigs & string> = {
     name: definition.name,
+    description: definition.description,
     rules: definition.rules,
     configs: configs as Record<keyof PluginConfigs & string, ConfigFragment>,
   };

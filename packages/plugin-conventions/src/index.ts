@@ -24,6 +24,8 @@ export {
 
 const conventions = definePlugin({
   name: 'conventions',
+  description:
+    'Rules about file and directory names, placement, required files, exports, and suppression comments.',
   rules: {
     'companion-files': companionFiles,
     'directory-case': directoryCase,

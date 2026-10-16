@@ -32,8 +32,9 @@ const skip = (edge: ImportEdge, options: EdgeFilter): boolean =>
   (edge.from.isTest && !options.includeTests) || (edge.typeOnly && !!options.ignoreTypeImports);
 
 /** `the feature src/features/a`, or the file path for files outside elements. */
-const nameOf = (file: ProjectFile): string =>
-  file.element ? `the ${file.element.type} ${file.element.root}` : file.path;
+/** How a file is named in a message: its element, or its path. `start` begins a sentence. */
+const nameOf = (file: ProjectFile, start = false): string =>
+  file.element ? `${start ? 'The' : 'the'} ${file.element.type} ${file.element.root}` : file.path;
 
 export const EdgeUtil = {
   internalTarget,

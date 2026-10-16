@@ -1,7 +1,8 @@
 import { defineRule } from '@pilotlint/core';
+import { toStandardJsonSchema } from '@valibot/to-json-schema';
 import * as v from 'valibot';
 import { EdgeUtil } from '../utils/edgeUtil.ts';
-import { SelectorListSchema } from '../models/optionSchemas.ts';
+import { IncludeTestsSchema, MessageSchema, SelectorListSchema } from '../models/optionSchemas.ts';
 import { SelectorUtil } from '../utils/selectorUtil.ts';
 
 export const noEntryImport = defineRule({
@@ -15,17 +16,33 @@ export const noEntryImport = defineRule({
       '',
       'To fix a finding, import the file that defines what you use.',
     ].join('\n'),
+    example: [
+      'error',
+      {
+        rules: [
+          { from: 'feature', to: 'self' },
+          { from: 'common', to: 'common', message: 'Import only the files you need.' },
+        ],
+      },
+    ],
   },
-  options: v.object({
-    rules: v.array(
-      v.object({
-        from: SelectorListSchema,
-        to: v.union([v.literal('self'), SelectorListSchema]),
-        message: v.optional(v.string()),
-      }),
-    ),
-    includeTests: v.optional(v.boolean(), false),
-  }),
+  options: toStandardJsonSchema(
+    v.object({
+      rules: v.array(
+        v.object({
+          from: v.pipe(SelectorListSchema, v.description('Files whose imports this rule checks.')),
+          to: v.pipe(
+            v.union([v.literal('self'), SelectorListSchema]),
+            v.description(
+              'Elements whose entry files must not be imported, or `self` for the element of the importing file.',
+            ),
+          ),
+          message: v.optional(MessageSchema),
+        }),
+      ),
+      includeTests: IncludeTestsSchema,
+    }),
+  ),
   describe: (options) =>
     options.rules.map((rule) =>
       rule.to === 'self'

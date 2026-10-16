@@ -1,14 +1,27 @@
 import { defineRule } from '@pilotlint/core';
+import { toStandardJsonSchema } from '@valibot/to-json-schema';
 import * as v from 'valibot';
 import { EdgeUtil } from '../utils/edgeUtil.ts';
-import { SelectorListSchema } from '../models/optionSchemas.ts';
+import {
+  IgnoreTypeImportsSchema,
+  IncludeTestsSchema,
+  MessageSchema,
+  SelectorListSchema,
+} from '../models/optionSchemas.ts';
 import { SelectorUtil } from '../utils/selectorUtil.ts';
 
 const RuleSchema = v.object({
-  from: SelectorListSchema,
-  allow: v.optional(SelectorListSchema),
-  disallow: v.optional(SelectorListSchema),
-  message: v.optional(v.string()),
+  from: v.pipe(SelectorListSchema, v.description('Files whose imports this rule checks.')),
+  allow: v.optional(
+    v.pipe(
+      SelectorListSchema,
+      v.description('The only targets these files may import, besides their own element.'),
+    ),
+  ),
+  disallow: v.optional(
+    v.pipe(SelectorListSchema, v.description('Targets these files must not import.')),
+  ),
+  message: v.optional(MessageSchema),
 });
 
 export const allowedImports = defineRule({
@@ -24,13 +37,30 @@ export const allowedImports = defineRule({
       'To fix a finding, move the shared code to a place both sides may import, or invert the',
       'dependency so the lower-level code does not know about the higher-level code.',
     ].join('\n'),
+    example: [
+      'error',
+      {
+        rules: [
+          { from: 'feature', allow: ['common', 'shared'] },
+          { from: 'common', disallow: 'feature', message: 'Common code must not know features.' },
+        ],
+      },
+    ],
   },
-  options: v.object({
-    rules: v.array(RuleSchema),
-    default: v.optional(v.picklist(['allow', 'disallow']), 'allow'),
-    includeTests: v.optional(v.boolean(), false),
-    ignoreTypeImports: v.optional(v.boolean(), false),
-  }),
+  options: toStandardJsonSchema(
+    v.object({
+      rules: v.pipe(v.array(RuleSchema), v.description('Rules, checked in order.')),
+      default: v.optional(
+        v.pipe(
+          v.picklist(['allow', 'disallow']),
+          v.description('Whether imports between elements that no rule mentions are allowed.'),
+        ),
+        'allow',
+      ),
+      includeTests: IncludeTestsSchema,
+      ignoreTypeImports: IgnoreTypeImportsSchema,
+    }),
+  ),
   describe: (options) => [
     ...options.rules.flatMap((rule) => {
       const from = SelectorUtil.describe(rule.from);
@@ -82,7 +112,8 @@ export const allowedImports = defineRule({
         context.report({
           at: edge,
           message:
-            violation.message ?? `${EdgeUtil.nameOf(from)} must not import ${EdgeUtil.nameOf(to)}.`,
+            violation.message ??
+            `${EdgeUtil.nameOf(from, true)} must not import ${EdgeUtil.nameOf(to)}.`,
           hint: 'Move the shared code to a place both may import, or invert the dependency.',
         });
       }

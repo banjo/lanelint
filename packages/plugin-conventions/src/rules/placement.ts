@@ -1,5 +1,7 @@
 import { defineRule, GlobUtil } from '@pilotlint/core';
+import { toStandardJsonSchema } from '@valibot/to-json-schema';
 import * as v from 'valibot';
+import { HintSchema, MessageSchema } from '../models/optionSchemas.ts';
 
 export const rootOnlyFiles = defineRule({
   meta: {
@@ -11,8 +13,16 @@ export const rootOnlyFiles = defineRule({
       '',
       'To fix a finding, merge the file into the one at the element root.',
     ].join('\n'),
+    example: ['error', { names: ['index.ts', 'messages.ts'] }],
   },
-  options: v.object({ names: v.array(v.string()) }),
+  options: toStandardJsonSchema(
+    v.object({
+      names: v.pipe(
+        v.array(v.string()),
+        v.description('Globs of file names that may only exist at the root of an element.'),
+      ),
+    }),
+  ),
   describe: (options) => `${options.names.join(', ')} only exist at the root of an element.`,
   create: (context) => ({
     file(file) {
@@ -41,18 +51,40 @@ export const fileNamePattern = defineRule({
       'and requires file names in it to match `pattern`, for example `*Util.ts` in `utils`.',
       'Test files are skipped unless `includeTests` is set.',
     ].join('\n'),
+    example: [
+      'error',
+      {
+        rules: [
+          { directory: 'utils', pattern: '*Util.ts' },
+          { directory: 'hooks', pattern: 'use*.ts', message: 'Hooks start with use.' },
+        ],
+      },
+    ],
   },
-  options: v.object({
-    rules: v.array(
-      v.object({
-        directory: v.string(),
-        pattern: v.string(),
-        message: v.optional(v.string()),
-        hint: v.optional(v.string()),
-      }),
-    ),
-    includeTests: v.optional(v.boolean(), false),
-  }),
+  options: toStandardJsonSchema(
+    v.object({
+      rules: v.pipe(
+        v.array(
+          v.object({
+            directory: v.pipe(
+              v.string(),
+              v.description('Name of the parent directory, or a path glob when it contains `/`.'),
+            ),
+            pattern: v.pipe(
+              v.string(),
+              v.description(
+                'Glob that file names in the directory must match, such as `*Util.ts`.',
+              ),
+            ),
+            message: v.optional(MessageSchema),
+            hint: v.optional(HintSchema),
+          }),
+        ),
+        v.description('Name rules, each for a directory.'),
+      ),
+      includeTests: v.optional(v.pipe(v.boolean(), v.description('Also check test files.')), false),
+    }),
+  ),
   describe: (options) =>
     options.rules.map((rule) => `Files in ${rule.directory}/ are named ${rule.pattern}.`),
   create: (context) => ({

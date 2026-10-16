@@ -1,7 +1,12 @@
 import { defineRule } from '@pilotlint/core';
+import { toStandardJsonSchema } from '@valibot/to-json-schema';
 import * as v from 'valibot';
 import { EdgeUtil } from '../utils/edgeUtil.ts';
-import { SelectorListSchema } from '../models/optionSchemas.ts';
+import {
+  IgnoreTypeImportsSchema,
+  IncludeTestsSchema,
+  SelectorListSchema,
+} from '../models/optionSchemas.ts';
 import { SelectorUtil } from '../utils/selectorUtil.ts';
 
 export const entryOnly = defineRule({
@@ -16,12 +21,18 @@ export const entryOnly = defineRule({
       'To fix a finding, export what you need from the entry file and import it from there.',
       'Test files are skipped unless `includeTests` is set.',
     ].join('\n'),
+    example: ['error', { elements: ['feature', 'common'] }],
   },
-  options: v.object({
-    elements: SelectorListSchema,
-    includeTests: v.optional(v.boolean(), false),
-    ignoreTypeImports: v.optional(v.boolean(), false),
-  }),
+  options: toStandardJsonSchema(
+    v.object({
+      elements: v.pipe(
+        SelectorListSchema,
+        v.description('Elements that must be imported through their entry files.'),
+      ),
+      includeTests: IncludeTestsSchema,
+      ignoreTypeImports: IgnoreTypeImportsSchema,
+    }),
+  ),
   describe: (options) =>
     `Code outside a ${SelectorUtil.describe(options.elements)} element imports it only through its entry files.`,
   elementTypes: (options) => SelectorUtil.typesOf(options.elements),

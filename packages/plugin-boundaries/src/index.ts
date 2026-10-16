@@ -26,6 +26,7 @@ export type { Selector } from './models/optionSchemas.ts';
 
 const boundaries = definePlugin({
   name: 'boundaries',
+  description: 'Rules about dependencies between elements and on packages and globals.',
   rules: {
     'allowed-imports': allowedImports,
     'entry-only': entryOnly,
