@@ -1,6 +1,6 @@
 {
   "name": "@pilotlint/core",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Engine, project model, and rule API for pilotlint.",
   "homepage": "https://github.com/banjo/pilotlint/tree/main/packages/core#readme",
   "bugs": {

@@ -1,5 +1,13 @@
 # @pilotlint/plugin-changes
 
+## 0.1.1
+
+### Patch Changes
+
+- New READMEs that explain what each package does, with examples and links to the docs.
+- Updated dependencies
+  - @pilotlint/core@0.1.1
+
 ## 0.1.0
 
 ### Minor Changes
