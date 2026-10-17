@@ -60,7 +60,7 @@ All globs use `/` as the separator, are relative to the root, and support `*`, `
   type: string;                                // element type, used by rules and overrides
   pattern: string;                             // directory pattern, such as 'src/features/:name'
   where?: Record<string, string[]>;            // allowed values per capture
-  entry?: string | string[];                   // entry files relative to the element root
+  entry?: string | string[];                   // entry files or globs, relative to the element root
   description?: string;                        // shown by pilotlint describe
 }
 ```
@@ -151,8 +151,16 @@ extends: [boundaries.configs.recommended, conventions.configs.recommended],
 | `conventions.configs.recommended` | `no-suppressions`                                            |
 
 A plugin's configs bring the plugin with them, so a plugin used in `extends` does not need
-to be in `plugins` too. `elements` in the config replace the elements of fragments. Without
-them, the last fragment with `elements` is used.
+to be in `plugins` too. Elements from fragments are added after the elements in the config,
+the last fragment first. Since a file belongs to the first element that matches, your own
+elements and later fragments win.
+
+[Presets](presets/README.md) are fragments for well-known architectures, with elements and
+import rules:
+
+```ts
+extends: [boundaries.configs.recommended, monorepo(), featureSliced({ root: 'apps/:app/src' })],
+```
 
 To share a config between projects, publish a fragment made with `defineConfigFragment`. It
 checks the fragment's rules against its plugins, and configs that extend it know them too:

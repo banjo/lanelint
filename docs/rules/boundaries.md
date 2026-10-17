@@ -27,7 +27,8 @@ Controls which elements may import which.
 Each rule matches the importing file with `from`. A target that matches `disallow` is
 reported. When a matching rule has `allow`, targets that match no `allow` list are reported.
 Otherwise `default` decides: `allow` (the default) or `disallow`. Imports inside one element
-are always allowed. Selectors are element types, or `{ type, captures, files }`.
+are allowed, except where a `disallow` selector with only `files` matches. Selectors are
+element types, or `{ type, captures, files }`.
 
 To fix a finding, move the shared code to a place both sides may import, or invert the
 dependency so the lower-level code does not know about the higher-level code.
@@ -41,6 +42,7 @@ dependency so the lower-level code does not know about the higher-level code.
     allow?: Selector[] | Selector;
     disallow?: Selector[] | Selector;
     message?: string;
+    hint?: string;
   }[];
   default?: 'allow' | 'disallow';
   includeTests?: boolean;
@@ -55,6 +57,7 @@ dependency so the lower-level code does not know about the higher-level code.
 | `rules[].allow`     | `Selector[] \| Selector` |           | The only targets these files may import, besides their own element. |
 | `rules[].disallow`  | `Selector[] \| Selector` |           | Targets these files must not import.                                |
 | `rules[].message`   | `string`                 |           | Replaces the finding message, for example to explain the rule.      |
+| `rules[].hint`      | `string`                 |           | Shown under the finding as the next step.                           |
 | `default`           | `'allow' \| 'disallow'`  | `'allow'` | Whether imports between elements that no rule mentions are allowed. |
 | `includeTests`      | `boolean`                | `false`   | Also check imports from test files.                                 |
 | `ignoreTypeImports` | `boolean`                | `false`   | Skip imports that only import types.                                |
@@ -72,6 +75,7 @@ rules: {
           from: 'common',
           disallow: 'feature',
           message: 'Common code must not know features.',
+          hint: 'Pass what the common code needs in as an argument.',
         },
       ],
     },

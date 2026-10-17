@@ -116,6 +116,9 @@ optional, with a default, when every option has one.
   Zod. The description becomes a column in the options table.
 - Give shared types a title, for example `v.title('Selector')`. Each titled type is shown by
   name and documented once at the end of the page.
+- Offer a `hint` option when the right fix depends on the project, for example which package
+  to use instead of a banned one. When the fix is always the same, write the hint in the rule
+  and leave the option out.
 
 ## Visitors
 

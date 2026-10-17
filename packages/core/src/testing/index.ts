@@ -12,20 +12,24 @@ import type { AnyRule } from '../models/rule.ts';
 
 export type Files = Readonly<Record<string, string>>;
 
-export interface RuleCase {
-  readonly name?: string;
+/** Files and git state for a run. */
+export interface RunCase {
   /** Files of the working tree, relative to the project root. */
   readonly files: Files;
-  readonly options?: unknown;
-  readonly level?: Exclude<Level, 'off'>;
-  /** Config other than plugins and rules, for example elements. */
-  readonly config?: Omit<PilotlintConfig, 'plugins' | 'rules' | 'extends' | 'root'>;
   /** Files at the base ref. When set, the fixture is a git repository with these files committed. */
   readonly base?: Files;
   readonly changes?: readonly Change[];
   readonly paths?: readonly string[];
   readonly changed?: boolean;
   readonly onlyNew?: boolean;
+}
+
+export interface RuleCase extends RunCase {
+  readonly name?: string;
+  readonly options?: unknown;
+  readonly level?: Exclude<Level, 'off'>;
+  /** Config other than plugins and rules, for example elements. */
+  readonly config?: Omit<PilotlintConfig, 'plugins' | 'rules' | 'extends' | 'root'>;
 }
 
 export interface ExpectedFinding {
@@ -50,8 +54,11 @@ const write = (root: string, files: Files) => {
   }
 };
 
-/** Writes a fixture to a temporary directory, runs one rule on it, and returns its findings. */
-export async function runRule(rule: AnyRule, testCase: RuleCase): Promise<Finding[]> {
+/**
+ * Writes a fixture to a temporary directory, checks it with a whole config, and returns all
+ * findings. Use it to test shared configs and presets.
+ */
+export async function runConfig(config: PilotlintConfig, testCase: RunCase): Promise<Finding[]> {
   const root = realpathSync(mkdtempSync(join(tmpdir(), 'pilotlint-')));
   try {
     if (testCase.base) {
@@ -76,30 +83,35 @@ export async function runRule(rule: AnyRule, testCase: RuleCase): Promise<Findin
       }
     }
     write(root, testCase.files);
-    const plugin = definePlugin({ name: 'test', rules: { rule } });
-    const level = testCase.level ?? rule.meta.severity;
-    const config = await resolveConfig(
-      {
-        ...testCase.config,
-        plugins: [plugin],
-        rules: {
-          'pilotlint/stale-config': 'off',
-          'test/rule': testCase.options === undefined ? level : [level, testCase.options],
-        },
-      } as PilotlintConfig,
-      { directory: root },
-    );
     const result = await check({
-      config,
+      config: await resolveConfig(config, { directory: root }),
       paths: testCase.paths,
       changed: testCase.changed,
       onlyNew: testCase.onlyNew,
       changes: testCase.changes,
     });
-    return result.findings.filter((finding) => finding.ruleId === 'test/rule');
+    return [...result.findings];
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
+}
+
+/** Writes a fixture to a temporary directory, runs one rule on it, and returns its findings. */
+export async function runRule(rule: AnyRule, testCase: RuleCase): Promise<Finding[]> {
+  const plugin = definePlugin({ name: 'test', rules: { rule } });
+  const level = testCase.level ?? rule.meta.severity;
+  const findings = await runConfig(
+    {
+      ...testCase.config,
+      plugins: [plugin],
+      rules: {
+        'pilotlint/stale-config': 'off',
+        'test/rule': testCase.options === undefined ? level : [level, testCase.options],
+      },
+    } as PilotlintConfig,
+    testCase,
+  );
+  return findings.filter((finding) => finding.ruleId === 'test/rule');
 }
 
 interface TestFramework {

@@ -76,6 +76,7 @@ testRule(
               from: 'feature',
               disallow: { files: 'src/features/index.ts' },
               message: 'Import the feature, not the aggregator.',
+              hint: 'Import src/features/<name>/index.ts.',
             },
           ],
         },
@@ -91,6 +92,30 @@ testRule(
             path: 'src/features/a/index.ts',
             line: 2,
             message: 'Import the feature, not the aggregator.',
+            hint: 'Import src/features/<name>/index.ts.',
+          },
+        ],
+      },
+      {
+        name: 'file selectors inside one element',
+        config,
+        options: {
+          rules: [
+            { from: 'feature', disallow: 'feature' },
+            { from: { files: '**/ui/**' }, disallow: { files: '**/db/**' } },
+          ],
+        },
+        files: {
+          'src/features/a/ui/page.ts':
+            "import { query } from '../db/query.ts';\nimport { b } from '../model/b.ts';",
+          'src/features/a/db/query.ts': 'export const query = 1;',
+          'src/features/a/model/b.ts': 'export const b = 1;',
+        },
+        findings: [
+          {
+            path: 'src/features/a/ui/page.ts',
+            line: 1,
+            message: 'src/features/a/ui/page.ts must not import src/features/a/db/query.ts.',
           },
         ],
       },

@@ -37,6 +37,18 @@ export default defineConfig({
 `defineConfig` knows the rules of the plugins in `plugins` and `extends`, so your editor
 completes rule ids and checks their options.
 
+If your project follows Feature-Sliced Design, Bulletproof React, a monorepo layout, Clean
+Architecture, or a layered backend, a [preset](presets/README.md) writes the elements and
+import rules for you:
+
+```ts
+import { featureSliced } from '@pilotlint/presets';
+
+export default defineConfig({
+  extends: [boundaries.configs.recommended, featureSliced()],
+});
+```
+
 ## Run a check
 
 ```bash

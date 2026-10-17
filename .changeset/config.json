@@ -3,7 +3,7 @@
   "baseBranch": "main",
   "access": "public",
   "ignore": [],
-  "fixed": [],
+  "fixed": [["pilotlint", "@pilotlint/*"]],
   "linked": [],
   "format": "auto",
   "updateInternalDependencies": "patch",

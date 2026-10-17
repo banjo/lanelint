@@ -3,6 +3,7 @@ import { toStandardJsonSchema } from '@valibot/to-json-schema';
 import * as v from 'valibot';
 import { EdgeUtil } from '../utils/edgeUtil.ts';
 import {
+  HintSchema,
   IgnoreTypeImportsSchema,
   IncludeTestsSchema,
   MessageSchema,
@@ -22,7 +23,10 @@ const RuleSchema = v.object({
     v.pipe(SelectorListSchema, v.description('Targets these files must not import.')),
   ),
   message: v.optional(MessageSchema),
+  hint: v.optional(HintSchema),
 });
+
+const DEFAULT_HINT = 'Move the shared code to a place both may import, or invert the dependency.';
 
 export const allowedImports = defineRule({
   meta: {
@@ -32,7 +36,8 @@ export const allowedImports = defineRule({
       'Each rule matches the importing file with `from`. A target that matches `disallow` is',
       'reported. When a matching rule has `allow`, targets that match no `allow` list are reported.',
       'Otherwise `default` decides: `allow` (the default) or `disallow`. Imports inside one element',
-      'are always allowed. Selectors are element types, or `{ type, captures, files }`.',
+      'are allowed, except where a `disallow` selector with only `files` matches. Selectors are',
+      'element types, or `{ type, captures, files }`.',
       '',
       'To fix a finding, move the shared code to a place both sides may import, or invert the',
       'dependency so the lower-level code does not know about the higher-level code.',
@@ -42,7 +47,12 @@ export const allowedImports = defineRule({
       {
         rules: [
           { from: 'feature', allow: ['common', 'shared'] },
-          { from: 'common', disallow: 'feature', message: 'Common code must not know features.' },
+          {
+            from: 'common',
+            disallow: 'feature',
+            message: 'Common code must not know features.',
+            hint: 'Pass what the common code needs in as an argument.',
+          },
         ],
       },
     ],
@@ -88,12 +98,25 @@ export const allowedImports = defineRule({
       if (!to || EdgeUtil.skip(edge, context.options)) {
         return;
       }
-      if (from.element?.id === to.element?.id && (from.element || to.element)) {
-        return;
-      }
       const matching = context.options.rules.filter((rule) =>
         SelectorUtil.matches(rule.from, from),
       );
+      // Inside one element, only disallow selectors that match files, not elements, apply.
+      if (from.element?.id === to.element?.id && (from.element || to.element)) {
+        const denied = matching.find(
+          (rule) =>
+            rule.disallow &&
+            SelectorUtil.matches(rule.disallow.filter(SelectorUtil.isFilesOnly), to),
+        );
+        if (denied) {
+          context.report({
+            at: edge,
+            message: denied.message ?? `${from.path} must not import ${to.path}.`,
+            hint: denied.hint ?? DEFAULT_HINT,
+          });
+        }
+        return;
+      }
       const denied = matching.find(
         (rule) => rule.disallow && SelectorUtil.matches(rule.disallow, to),
       );
@@ -106,7 +129,7 @@ export const allowedImports = defineRule({
             ? undefined
             : allowLists[0]
           : context.options.default === 'disallow' && (from.element || to.element)
-            ? { message: undefined }
+            ? { message: undefined, hint: undefined }
             : undefined);
       if (violation) {
         context.report({
@@ -114,7 +137,7 @@ export const allowedImports = defineRule({
           message:
             violation.message ??
             `${EdgeUtil.nameOf(from, true)} must not import ${EdgeUtil.nameOf(to)}.`,
-          hint: 'Move the shared code to a place both may import, or invert the dependency.',
+          hint: violation.hint ?? DEFAULT_HINT,
         });
       }
     },

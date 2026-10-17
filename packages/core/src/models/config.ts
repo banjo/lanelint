@@ -7,7 +7,7 @@ export interface ElementDefinition {
   readonly pattern: string;
   /** Allowed values per capture. */
   readonly where?: Readonly<Record<string, readonly string[]>>;
-  /** Entry files relative to the element root. Defaults to `index` with any source extension. */
+  /** Entry files or globs, relative to the element root. Defaults to `index` with any source extension. */
   readonly entry?: string | readonly string[];
   readonly description?: string;
 }

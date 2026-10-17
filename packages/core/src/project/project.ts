@@ -109,11 +109,27 @@ export function createProject(options: ProjectOptions): ProjectModel {
     root: match.root,
     captures: match.captures,
     relativePath,
-    isEntry: isFile && match.element.entries.includes(relativePath),
+    isEntry: isFile && GlobUtil.matches(relativePath, match.element.entries),
   });
-  const elementAt = (path: string): ElementInfo | undefined => {
+  const fileElementAt = (path: string): ElementInfo | undefined => {
     const match = matchDirectory(parentOf(path));
     return match && infoOf(match, path.slice(match.root.length + 1), true);
+  };
+  const directoryElementAt = (path: string): ElementInfo | undefined => {
+    const match = matchDirectory(path);
+    return (
+      match && infoOf(match, path === match.root ? '' : path.slice(match.root.length + 1), false)
+    );
+  };
+  /** A path that does not exist is a directory when its name has no extension. */
+  const elementAt = (path: string): ElementInfo | undefined => {
+    const file = files.get(path);
+    if (file) {
+      return file.element;
+    }
+    return directories.has(path) || !extensionOf(basename(path))
+      ? directoryElementAt(path)
+      : fileElementAt(path);
   };
 
   const files = new Map<string, ProjectFile>();
@@ -122,15 +138,13 @@ export function createProject(options: ProjectOptions): ProjectModel {
     if (!path || directories.has(path)) {
       return;
     }
-    const match = matchDirectory(path);
     directories.set(path, {
       kind: 'directory',
       path,
       absolutePath: join(root, path),
       name: basename(path),
       parent: parentOf(path) || undefined,
-      element:
-        match && infoOf(match, path === match.root ? '' : path.slice(match.root.length + 1), false),
+      element: directoryElementAt(path),
     });
     addDirectory(parentOf(path));
   };
@@ -148,7 +162,7 @@ export function createProject(options: ProjectOptions): ProjectModel {
       directory,
       isSource: SOURCE_EXTENSIONS.includes(extension),
       isTest: isTest(path),
-      element: elementAt(path),
+      element: fileElementAt(path),
     });
     addDirectory(directory);
   }

@@ -73,6 +73,9 @@ Bump types while the version is below 1.0:
 
 Commit the changeset together with the change.
 
+All packages share one version: they are a `fixed` group in `.changeset/config.json`, so a
+changeset for one package bumps them all.
+
 ## 2. Check that main is ready
 
 ```bash

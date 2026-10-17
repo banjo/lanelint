@@ -19,9 +19,9 @@ elements: [
   `src/utils`.
 - A file belongs to the first element whose pattern matches its directory or a parent of it,
   so put specific patterns before general ones.
-- `entry` lists the element's entry files, relative to its root. The default is `index.ts`,
-  `index.tsx`, `index.js`, and the other source extensions. Rules such as `entry-only` and
-  `public-api` use them.
+- `entry` lists the element's entry files, relative to its root, as paths or globs such as
+  `src/index.{ts,tsx}`. The default is `index.ts`, `index.tsx`, `index.js`, and the other
+  source extensions. Rules such as `entry-only` and `public-api` use them.
 - `description` is shown by `pilotlint describe`, so agents know what belongs where.
 
 Every file inside `src/features/calendar` belongs to the element `src/features/calendar` of

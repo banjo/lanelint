@@ -54,8 +54,16 @@ const typesOf = (selectors: readonly Selector[] | undefined): string[] =>
     typeof selector === 'string' ? [selector] : selector.type ? [selector.type] : [],
   );
 
+/** True for selectors that match files by glob only, not elements. */
+const isFilesOnly = (selector: Selector): boolean =>
+  typeof selector !== 'string' &&
+  !!selector.files &&
+  selector.type === undefined &&
+  selector.captures === undefined;
+
 export const SelectorUtil = {
   describe,
+  isFilesOnly,
   matches,
   typesOf,
 };

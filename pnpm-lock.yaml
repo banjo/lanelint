@@ -434,6 +434,24 @@ importers:
         specifier: 'catalog:'
         version: 1.1.0(@types/node@24.19.2)(@vitest/ui@5.0.3)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.1)
 
+  packages/presets:
+    devDependencies:
+      '@pilotlint/core':
+        specifier: workspace:*
+        version: link:../core
+      '@pilotlint/plugin-boundaries':
+        specifier: workspace:*
+        version: link:../plugin-boundaries
+      '@types/node':
+        specifier: 'catalog:'
+        version: 24.19.2
+      typescript:
+        specifier: 'catalog:'
+        version: 7.0.2
+      vite-plus:
+        specifier: 'catalog:'
+        version: 1.1.0(@types/node@24.19.2)(@vitest/ui@5.0.3)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.1)
+
 packages:
 
   '@babel/code-frame@7.29.7':

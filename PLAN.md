@@ -144,6 +144,7 @@ pilotlint/
     plugin-boundaries/    @pilotlint/plugin-boundaries
     plugin-conventions/   @pilotlint/plugin-conventions
     plugin-changes/       @pilotlint/plugin-changes
+    presets/              @pilotlint/presets
   examples/
     feature-folders/      end-to-end fixture with feature and common folders
     monorepo/             end-to-end fixture with packages/*
@@ -213,6 +214,7 @@ All packages are ESM only and target the current Node LTS.
 | `@pilotlint/plugin-boundaries`  | Rules about dependencies between elements and on packages                                                                                                                                                                      | Any project                                    |
 | `@pilotlint/plugin-conventions` | Rules about names, placement, required files, export shape, and suppression comments                                                                                                                                           | Any project                                    |
 | `@pilotlint/plugin-changes`     | Rules about files that must or must not change                                                                                                                                                                                 | Projects in git                                |
+| `@pilotlint/presets`            | Config fragments for well-known architectures: Feature-Sliced Design, Bulletproof React, monorepo, Clean Architecture, layered backend. Functions with options; structure only, no naming rules. Peer depends on boundaries.   | Projects with a known architecture             |
 
 Project-specific rules do not live in this repo. For example, the VGCS
 Queenbolt rules live in Queenbolt as a local plugin.
@@ -223,6 +225,8 @@ Queenbolt rules live in Queenbolt as a local plugin.
 - Community plugins: `pilotlint-plugin-<name>` or `@scope/pilotlint-plugin-<name>`
 - Shareable configs without rules: `pilotlint-config-<name>`
 - Plugins declare `@pilotlint/core` as a peer dependency
+- Presets declare the plugins they configure as peer dependencies, so a project and its
+  presets share one instance of each plugin
 
 ## Core concepts
 

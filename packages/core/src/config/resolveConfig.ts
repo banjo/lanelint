@@ -233,10 +233,10 @@ export async function resolveConfig(
     rules: entriesOf(override.rules),
   }));
 
-  const elementDefinitions =
-    config.elements ??
-    [...fragments].reverse().find((fragment) => fragment.elements)?.elements ??
-    [];
+  const elementDefinitions = [
+    ...(config.elements ?? []),
+    ...[...fragments].reverse().flatMap((fragment) => fragment.elements ?? []),
+  ];
   let elements: CompiledElement[] = [];
   try {
     elements = ElementUtil.compile(elementDefinitions);

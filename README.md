@@ -28,12 +28,14 @@ agents get feedback when a change breaks the project structure.
    https://raw.githubusercontent.com/banjo/pilotlint/main/docs/getting-started.md
    https://raw.githubusercontent.com/banjo/pilotlint/main/docs/configuration.md
    https://raw.githubusercontent.com/banjo/pilotlint/main/docs/rules/README.md
+   https://raw.githubusercontent.com/banjo/pilotlint/main/docs/presets/README.md
    https://raw.githubusercontent.com/banjo/pilotlint/main/docs/agents.md
 2. Install pilotlint, @pilotlint/plugin-boundaries, and @pilotlint/plugin-conventions as dev
    dependencies with this project's package manager.
 3. Study the project and write pilotlint.config.ts that describes its structure as it is
    today: elements for the main parts, with a description each, which parts may import which,
-   and the naming conventions the code already follows.
+   and the naming conventions the code already follows. If the project follows an
+   architecture that has a preset, install @pilotlint/presets and start from that preset.
 4. Run `npx pilotlint check`. When existing code breaks a rule many times, set that rule to
    'warn' instead of changing the code.
 5. Copy node_modules/pilotlint/skills/pilotlint/SKILL.md into this repository's skills
@@ -104,6 +106,8 @@ export default defineConfig({
   [Rules →](docs/rules/conventions.md)
 - **Changes:** files that must change together, such as translations with their messages, and
   generated files that must not be edited by hand. [Rules →](docs/rules/changes.md)
+- **Presets:** Feature-Sliced Design, Bulletproof React, monorepos, Clean Architecture, and
+  layered backends, each in one line. [Presets →](docs/presets/README.md)
 - **Your own rules:** a local plugin for what only your project needs.
   [Writing rules →](docs/writing-rules.md)
 
@@ -140,7 +144,14 @@ CLI, so it runs beside ESLint, Oxlint, or Biome without replacing them.
 npm install -D pilotlint @pilotlint/plugin-boundaries @pilotlint/plugin-conventions
 ```
 
-Add a `pilotlint.config.ts` like the one above, then:
+Add a `pilotlint.config.ts` like the one above. If your project follows a well-known
+architecture, start from a [preset](docs/presets/README.md) instead:
+
+```ts
+extends: [boundaries.configs.recommended, featureSliced()],
+```
+
+Then run:
 
 ```bash
 npx pilotlint check
@@ -156,6 +167,7 @@ hook that runs pilotlint after each edit. [Set up your agent →](docs/agents.md
 - [Configuration](docs/configuration.md): every field of the config
 - [CLI](docs/cli.md): commands, flags, and exit codes
 - [Rules](docs/rules/README.md): what each rule checks, with its options
+- [Presets](docs/presets/README.md): ready-made configs for well-known architectures
 - [Agents](docs/agents.md): the skill and hooks for coding agents
 - [Writing rules](docs/writing-rules.md): local plugins and publishing your own
 
@@ -167,6 +179,7 @@ hook that runs pilotlint after each edit. [Set up your agent →](docs/agents.md
 | [`@pilotlint/plugin-boundaries`](packages/plugin-boundaries)   | [![npm](https://img.shields.io/npm/v/@pilotlint/plugin-boundaries)](https://www.npmjs.com/package/@pilotlint/plugin-boundaries)   | Imports between parts, packages, and globals  |
 | [`@pilotlint/plugin-conventions`](packages/plugin-conventions) | [![npm](https://img.shields.io/npm/v/@pilotlint/plugin-conventions)](https://www.npmjs.com/package/@pilotlint/plugin-conventions) | Names, placement, required files, and exports |
 | [`@pilotlint/plugin-changes`](packages/plugin-changes)         | [![npm](https://img.shields.io/npm/v/@pilotlint/plugin-changes)](https://www.npmjs.com/package/@pilotlint/plugin-changes)         | Files that must change together               |
+| [`@pilotlint/presets`](packages/presets)                       | [![npm](https://img.shields.io/npm/v/@pilotlint/presets)](https://www.npmjs.com/package/@pilotlint/presets)                       | Presets for well-known architectures          |
 | [`@pilotlint/core`](packages/core)                             | [![npm](https://img.shields.io/npm/v/@pilotlint/core)](https://www.npmjs.com/package/@pilotlint/core)                             | The engine and rule API, for plugin authors   |
 
 ## Development

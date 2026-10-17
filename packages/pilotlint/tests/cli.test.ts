@@ -150,6 +150,14 @@ describe('pilotlint describe', () => {
     );
     expect(path.stdout).toContain('`conventions/no-default-export`');
   });
+
+  it('places a directory that does not exist yet in its element', () => {
+    const project = fixture('feature-folders');
+    const result = project.run('describe', 'src/features/billing');
+    expect(result.stdout).toContain('This path does not exist yet.');
+    expect(result.stdout).toContain('Part of the **feature** element `src/features/billing`.');
+    expect(result.stdout).toContain('`conventions/no-default-export`');
+  });
 });
 
 describe('pilotlint rules', () => {

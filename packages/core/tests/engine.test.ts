@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vite-plus/test';
 import * as v from 'valibot';
+import { definePlugin } from '../src/api/definePlugin.ts';
 import { defineRule } from '../src/api/defineRule.ts';
 import type { ImportEdge, ModuleInfo } from '../src/models/module.ts';
-import { runRule } from '../src/testing/index.ts';
+import { runConfig, runRule } from '../src/testing/index.ts';
 
 const reportFiles = defineRule({
   meta: { description: 'Reports every file.', severity: 'warn' },
@@ -259,6 +260,43 @@ describe('config', () => {
         config: { overrides: [{ elements: ['nope'], rules: {} }] },
       }),
     ).rejects.toThrow(/element type "nope", which is not defined/);
+  });
+
+  it('adds elements from extends after the config elements, the last fragment first', async () => {
+    const plugin = definePlugin({ name: 'files', rules: { report: reportFiles } });
+    const findings = await runConfig(
+      {
+        plugins: [plugin],
+        extends: [
+          { elements: [{ type: 'package', pattern: 'packages/:name' }] },
+          {
+            elements: [
+              { type: 'slice', pattern: 'packages/:name/src/:layer/:slice', entry: '@x/*.ts' },
+            ],
+          },
+        ],
+        elements: [{ type: 'own', pattern: 'packages/tools' }],
+        rules: { 'files/report': 'warn' },
+      },
+      {
+        files: {
+          'packages/tools/a.ts': '',
+          'packages/web/a.ts': '',
+          'packages/web/src/entities/song/@x/artist.ts': '',
+          'packages/web/src/entities/song/index.ts': '',
+        },
+      },
+    );
+    expect(
+      findings
+        .filter((finding) => finding.ruleId === 'files/report')
+        .map((finding) => finding.message.split(' ').at(-1)),
+    ).toEqual([
+      'own:packages/tools:a.ts:false',
+      'package:packages/web:a.ts:false',
+      'slice:packages/web/src/entities/song:@x/artist.ts:true',
+      'slice:packages/web/src/entities/song:index.ts:false',
+    ]);
   });
 });
 

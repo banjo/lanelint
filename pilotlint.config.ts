@@ -34,6 +34,12 @@ export default defineConfig({
             allow: { type: 'package', captures: { name: 'core' } },
             message: 'Plugins depend only on @pilotlint/core.',
           },
+          {
+            from: { type: 'package', captures: { name: 'presets' } },
+            allow: { type: 'package', captures: { name: ['core', 'plugin-boundaries'] } },
+            message:
+              'Presets depend only on @pilotlint/core and the official plugins they configure.',
+          },
         ],
       },
     ],
