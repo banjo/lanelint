@@ -1,5 +1,12 @@
 # @pilotlint/core
 
+## 0.2.3
+
+### Patch Changes
+
+- f5b3819: Faster startup and resolution. pilotlint keeps what each import resolved to between runs, in `node_modules/.cache/pilotlint/resolutions.json`, until a file is added or removed, or a tsconfig, package.json, lockfile, or `node_modules` changes. `stats` counts these as `resolutionsFromCache`. The CLI loads the config with jiti directly instead of through c12, loads oxc-parser only when a file needs parsing, and enables Node's compile cache.
+- 7f62411: In a git repository, pilotlint asks git for the project files instead of walking the directories, so files that git ignores are left out without listing them in `ignore`. Changes against `HEAD` come from `git diff` and the same list of untracked files, so git scans the working tree once per run. Set `gitignore: false` in the config to walk the directories instead. Outside git, pilotlint always walks them.
+
 ## 0.2.2
 
 ### Patch Changes

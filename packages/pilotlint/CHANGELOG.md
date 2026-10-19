@@ -1,5 +1,15 @@
 # pilotlint
 
+## 0.2.3
+
+### Patch Changes
+
+- f5b3819: Faster startup and resolution. pilotlint keeps what each import resolved to between runs, in `node_modules/.cache/pilotlint/resolutions.json`, until a file is added or removed, or a tsconfig, package.json, lockfile, or `node_modules` changes. `stats` counts these as `resolutionsFromCache`. The CLI loads the config with jiti directly instead of through c12, loads oxc-parser only when a file needs parsing, and enables Node's compile cache.
+- 6a8525c: The README shows a before-and-after example of a folder structure and a util file, and explains why pilotlint is its own tool rather than an ESLint plugin.
+- Updated dependencies [f5b3819]
+- Updated dependencies [7f62411]
+  - @pilotlint/core@0.2.3
+
 ## 0.2.2
 
 ### Patch Changes

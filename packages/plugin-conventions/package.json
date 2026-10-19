@@ -1,6 +1,6 @@
 {
   "name": "@pilotlint/plugin-conventions",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "pilotlint rules for file and directory names, placement, required files, and exports.",
   "homepage": "https://github.com/banjo/pilotlint/tree/main/packages/plugin-conventions#readme",
   "bugs": {

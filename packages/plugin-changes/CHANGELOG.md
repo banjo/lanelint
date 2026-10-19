@@ -1,5 +1,13 @@
 # @pilotlint/plugin-changes
 
+## 0.2.3
+
+### Patch Changes
+
+- Updated dependencies [f5b3819]
+- Updated dependencies [7f62411]
+  - @pilotlint/core@0.2.3
+
 ## 0.2.2
 
 ### Patch Changes

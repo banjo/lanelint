@@ -1,6 +1,6 @@
 {
   "name": "@pilotlint/presets",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "pilotlint presets for well-known architectures: Feature-Sliced Design, Bulletproof React, monorepos, Clean Architecture, and layered backends.",
   "homepage": "https://github.com/banjo/pilotlint/tree/main/packages/presets#readme",
   "bugs": {
