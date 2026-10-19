@@ -128,3 +128,40 @@ describe('cache between runs', () => {
     );
   });
 });
+
+describe('rules on part of the project', () => {
+  let fixture: Fixture;
+
+  beforeAll(() => {
+    fixture = createFixture('feature-folders', {
+      ...project,
+      'scoped.config.ts': `import boundaries from '@pilotlint/plugin-boundaries';
+import conventions from '@pilotlint/plugin-conventions';
+import { defineConfig } from 'pilotlint';
+
+export default defineConfig({
+  elements: [{ type: 'domain', pattern: 'src/common/:name' }],
+  plugins: [boundaries, conventions],
+  rules: { 'boundaries/no-cycles': 'error' },
+  overrides: [
+    { files: ['src/common/domain-0/**'], rules: { 'conventions/no-suppressions': 'error' } },
+  ],
+});
+`,
+    });
+    cachedStatsOf(fixture, '--config', 'scoped.config.ts');
+  });
+
+  afterAll(() => fixture.remove());
+
+  it('reads only the files an AST rule is on, when the rest comes from the cache', () => {
+    const domainFiles = Object.keys(project).filter((path) =>
+      path.startsWith('src/common/domain-0/'),
+    ).length;
+    const stats = cachedStatsOf(fixture, '--config', 'scoped.config.ts');
+    expect(stats.filesParsed).toBe(0);
+    // The files of domain-0, and the config, which pilotlint/config-changed reads.
+    expect(stats.filesRead).toBeGreaterThanOrEqual(domainFiles);
+    expect(stats.filesRead).toBeLessThanOrEqual(domainFiles + 1);
+  });
+});

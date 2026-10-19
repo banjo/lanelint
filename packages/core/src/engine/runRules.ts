@@ -85,17 +85,20 @@ export async function runRules(options: RunRulesOptions): Promise<Finding[]> {
   const fileLocation = (file: ProjectFile): Location => ({ kind: 'file', path: file.path });
 
   const textRules = using('text');
-  const sourceRules = [...using('module'), ...using('import'), ...using('ast')];
+  const astRules = using('ast');
+  const sourceRules = [...using('module'), ...using('import'), ...astRules];
   const sources = scope.files.filter((file) => file.isSource);
-  // Module and import rules can use cached module info; AST and text rules need the files.
-  const needed = using('ast').length ? sources : sources.filter((file) => project.needsText(file));
-  await project.preload([
-    ...new Set(
-      [...(textRules.length ? scope.files : []), ...(sourceRules.length ? needed : [])].map(
-        (file) => file.path,
-      ),
-    ),
-  ]);
+  // Module and import rules can use cached module info; AST and text rules need the files, but
+  // only where they are on, which overrides may limit to a few files.
+  const textFiles = textRules.length
+    ? scope.files.filter((file) => appliesTo(textRules, fileLocation(file)).length)
+    : [];
+  const needed = sourceRules.length
+    ? sources.filter(
+        (file) => project.needsText(file) || appliesTo(astRules, fileLocation(file)).length,
+      )
+    : [];
+  await project.preload([...new Set([...textFiles, ...needed].map((file) => file.path))]);
 
   const fileRules = using('file');
   for (const file of scope.files) {
@@ -115,21 +118,18 @@ export async function runRules(options: RunRulesOptions): Promise<Finding[]> {
       rule.visitors.element?.(element);
     }
   }
-  if (textRules.length) {
-    for (const file of scope.files) {
-      const text = project.textSync(file.path);
-      if (text === undefined) {
-        continue;
-      }
-      for (const rule of appliesTo(textRules, fileLocation(file))) {
-        rule.visitors.text?.(file, text);
-      }
+  for (const file of textFiles) {
+    const text = project.textSync(file.path);
+    if (text === undefined) {
+      continue;
+    }
+    for (const rule of appliesTo(textRules, fileLocation(file))) {
+      rule.visitors.text?.(file, text);
     }
   }
   if (sourceRules.length) {
     const moduleRules = using('module');
     const importRules = using('import');
-    const astRules = using('ast');
     for (const file of sources) {
       const parsed = project.parsedSync(file);
       if (!parsed) {
