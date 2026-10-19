@@ -30,7 +30,7 @@ export default defineConfig({
 | -------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
 | [`featureSliced()`](https://github.com/banjo/pilotlint/blob/main/docs/presets/feature-sliced.md)         | Feature-Sliced Design: layers import only lower layers, and slices use the public API |
 | [`bulletproofReact()`](https://github.com/banjo/pilotlint/blob/main/docs/presets/bulletproof-react.md)   | Bulletproof React: shared code → features → app, and no imports between features      |
-| [`monorepo()`](https://github.com/banjo/pilotlint/blob/main/docs/presets/monorepo.md)                    | Apps use packages through their entry, packages never use apps, no undeclared imports |
+| [`monorepo()`](https://github.com/banjo/pilotlint/blob/main/docs/presets/monorepo.md)                    | Packages are imported through what they export, never import apps, and are declared   |
 | [`cleanArchitecture()`](https://github.com/banjo/pilotlint/blob/main/docs/presets/clean-architecture.md) | Dependencies point inward, and the domain and application layers do no I/O            |
 | [`layered()`](https://github.com/banjo/pilotlint/blob/main/docs/presets/layered.md)                      | Controllers → services → repositories, with no skipped or upward imports              |
 

@@ -43,35 +43,42 @@ describe('monorepo', () => {
     ]);
   });
 
-  it('reports imports past the entry file, undeclared dependencies, and cycles', async () => {
+  it('reports imports past what a package exports, undeclared dependencies, and cycles', async () => {
     const findings = await check([monorepo()], {
       ...valid,
-      'apps/web/src/main.ts': "import { Button } from '@acme/ui/src/button.ts';",
+      'packages/ui/package.json': JSON.stringify({
+        name: '@acme/ui',
+        dependencies: { '@acme/utils': 'workspace:*' },
+        exports: { '.': './src/index.ts' },
+      }),
+      'apps/web/src/main.ts': [
+        "import { Button } from '@acme/ui/src/button.ts';",
+        "import { format } from '../../../packages/utils/index.ts';",
+      ].join('\n'),
       'packages/utils/index.ts': "import { Button } from '@acme/ui';\nexport const format = 1;",
     });
     expect(findings).toEqual([
-      'apps/web/src/main.ts:1 boundaries/entry-only Import packages/ui through its entry file, not packages/ui/src/button.ts.',
+      'apps/web/src/main.ts:1 boundaries/workspace-imports @acme/ui does not export ./src/button.ts.',
+      'apps/web/src/main.ts:2 boundaries/workspace-imports Import @acme/utils by its package name, not by the path ../../../packages/utils/index.ts.',
       'packages/ui/src/button.ts:1 boundaries/no-cycles Dependency cycle: packages/ui -> packages/utils -> packages/ui.',
       'packages/utils/index.ts:1 boundaries/no-undeclared-dependency @acme/ui is not declared in packages/utils/package.json.',
     ]);
   });
 
-  it('takes other directories and entry files', async () => {
-    const findings = await check(
-      [monorepo({ apps: [], packages: 'libs/:name', entry: 'main.ts' })],
-      {
-        'libs/a/package.json': pkg('a', ['b']),
-        'libs/a/main.ts': "import { b } from 'b';\nimport { c } from 'b/c.ts';",
-        'libs/b/package.json': JSON.stringify({
-          name: 'b',
-          exports: { '.': './main.ts', './*': './*' },
-        }),
-        'libs/b/main.ts': 'export const b = 1;',
-        'libs/b/c.ts': 'export const c = 1;',
-      },
-    );
-    expect(findings).toEqual([
-      'libs/a/main.ts:2 boundaries/entry-only Import libs/b through its entry file, not libs/b/c.ts.',
-    ]);
+  it('allows deep imports that a package exports, or of a package without exports', async () => {
+    const findings = await check([monorepo({ apps: [], packages: 'libs/:name' })], {
+      'libs/a/package.json': pkg('a', ['b', 'c']),
+      'libs/a/main.ts':
+        "import { b } from 'b';\nimport { x } from 'b/x.ts';\nimport { y } from 'c/src/y.ts';",
+      'libs/b/package.json': JSON.stringify({
+        name: 'b',
+        exports: { '.': './main.ts', './*': './*' },
+      }),
+      'libs/b/main.ts': 'export const b = 1;',
+      'libs/b/x.ts': 'export const x = 1;',
+      'libs/c/package.json': JSON.stringify({ name: 'c' }),
+      'libs/c/src/y.ts': 'export const y = 1;',
+    });
+    expect(findings).toEqual([]);
   });
 });

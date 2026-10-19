@@ -1,4 +1,4 @@
-import { DEFAULT_ENTRIES, defineConfigFragment } from '@pilotlint/core';
+import { defineConfigFragment } from '@pilotlint/core';
 import boundaries from '@pilotlint/plugin-boundaries';
 import { PathUtil } from '../utils/pathUtil.ts';
 
@@ -7,18 +7,13 @@ export interface MonorepoOptions {
   readonly apps?: string | readonly string[];
   /** Directory patterns of packages. Defaults to `packages/:name`. */
   readonly packages?: string | readonly string[];
-  /** Entry files or globs of a package, relative to its root. Defaults to `src/index.ts` or `index.ts`, with any source extension. */
-  readonly entry?: string | readonly string[];
 }
 
 /**
  * A monorepo with apps and packages: apps use packages, packages never use apps, and packages
- * are used through their entry files and declared as dependencies.
+ * are imported by name, through what they export, and declared as dependencies.
  */
 export function monorepo(options: MonorepoOptions = {}) {
-  const entry = PathUtil.toList(
-    options.entry ?? [...DEFAULT_ENTRIES.map((file) => `src/${file}`), ...DEFAULT_ENTRIES],
-  );
   const apps = PathUtil.toList(options.apps ?? 'apps/:name');
 
   return defineConfigFragment({
@@ -27,9 +22,8 @@ export function monorepo(options: MonorepoOptions = {}) {
       ...PathUtil.toList(options.packages ?? 'packages/:name').map((pattern) => ({
         type: 'package',
         pattern,
-        entry: [...entry],
         description:
-          'A workspace package. Other code imports it by name, through its entry file, and declares it as a dependency.',
+          'A workspace package. Other code imports it by name, through what its package.json exports, and declares it as a dependency.',
       })),
       ...apps.map((pattern) => ({
         type: 'app',
@@ -57,9 +51,9 @@ export function monorepo(options: MonorepoOptions = {}) {
             : [],
         },
       ],
-      'boundaries/entry-only': ['error', { elements: 'package' }],
       'boundaries/no-cycles': 'error',
       'boundaries/no-undeclared-dependency': 'error',
+      'boundaries/workspace-imports': 'error',
     },
   });
 }

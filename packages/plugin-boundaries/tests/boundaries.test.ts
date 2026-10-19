@@ -11,6 +11,7 @@ import {
   publicApi,
   restrictedGlobals,
   restrictedPackages,
+  workspaceImports,
 } from '../src/index.ts';
 
 const framework = { describe, it, expect };
@@ -389,8 +390,41 @@ testRule(
           'vite.config.ts': "import 'tool';",
         },
       },
+      {
+        name: 'test files may use dev tools from the root package.json',
+        files: {
+          'package.json': JSON.stringify({ name: 'root', devDependencies: { vitest: '1' } }),
+          'node_modules/vitest/package.json': JSON.stringify({ name: 'vitest' }),
+          'node_modules/vitest/index.js': '',
+          'packages/app/package.json': JSON.stringify({ name: 'app' }),
+          'packages/app/src/a.test.ts': "import { it } from 'vitest';",
+          'packages/app/vitest.config.ts': "import 'vitest';",
+        },
+      },
     ],
     invalid: [
+      {
+        name: 'code that is not a test may not use root dev tools, nor tests with allowRootDev off',
+        options: { allowRootDev: false },
+        files: {
+          'package.json': JSON.stringify({ name: 'root', devDependencies: { vitest: '1' } }),
+          'node_modules/vitest/package.json': JSON.stringify({ name: 'vitest' }),
+          'node_modules/vitest/index.js': '',
+          'packages/app/package.json': JSON.stringify({ name: 'app' }),
+          'packages/app/src/a.test.ts': "import { it } from 'vitest';",
+          'packages/app/src/a.ts': "import { it } from 'vitest';",
+        },
+        findings: [
+          {
+            path: 'packages/app/src/a.test.ts',
+            message: 'vitest is not declared in packages/app/package.json.',
+          },
+          {
+            path: 'packages/app/src/a.ts',
+            message: 'vitest is not declared in packages/app/package.json.',
+          },
+        ],
+      },
       {
         files: {
           'package.json': JSON.stringify({ name: 'root', private: true }),
@@ -516,6 +550,112 @@ testRule(
             path: 'src/utils/a.ts',
             line: 4,
             message: 'Do not use fetch. Utils are pure functions.',
+          },
+        ],
+      },
+    ],
+  },
+  framework,
+);
+
+const workspace = {
+  'package.json': JSON.stringify({ name: 'root', private: true }),
+  'packages/app/package.json': JSON.stringify({
+    name: 'app',
+    dependencies: { '@acme/ui': '1', '@acme/lib': '1', '@acme/sugar': '1' },
+  }),
+  'packages/ui/package.json': JSON.stringify({
+    name: '@acme/ui',
+    exports: {
+      '.': './src/index.ts',
+      './icons': './src/icons/index.ts',
+      './components/*': './src/components/*.ts',
+      './components/internal': null,
+    },
+  }),
+  'packages/ui/src/index.ts': 'export const ui = 1;',
+  'packages/ui/src/icons/index.ts': 'export const icon = 1;',
+  'packages/ui/src/components/button.ts': 'export const button = 1;',
+  'packages/ui/src/components/internal.ts': 'export const internal = 1;',
+  'packages/ui/src/private.ts': 'export const secret = 1;',
+  'packages/lib/package.json': JSON.stringify({ name: '@acme/lib' }),
+  'packages/lib/src/index.ts': 'export const lib = 1;',
+  'packages/lib/src/date.ts': 'export const date = 1;',
+  'packages/sugar/package.json': JSON.stringify({
+    name: '@acme/sugar',
+    exports: { import: './src/index.ts' },
+  }),
+  'packages/sugar/src/index.ts': 'export const sugar = 1;',
+  'packages/sugar/src/inner.ts': 'export const inner = 1;',
+  'packages/lib/auth/package.json': JSON.stringify({ name: '@acme/lib-auth' }),
+  'packages/lib/auth/session.ts':
+    "import { date } from '../src/date.ts';\nexport const session = date;",
+};
+
+testRule(
+  'boundaries/workspace-imports',
+  workspaceImports,
+  {
+    valid: [
+      {
+        name: 'names and exported subpaths, deep imports of packages without exports',
+        files: {
+          ...workspace,
+          'packages/app/src/a.ts': [
+            "import { ui } from '@acme/ui';",
+            "import { icon } from '@acme/ui/icons';",
+            "import { button } from '@acme/ui/components/button';",
+            "import { date } from '@acme/lib/src/date';",
+            "import { sugar } from '@acme/sugar';",
+            "import { session } from '@acme/lib/auth/session';",
+          ].join('\n'),
+          'packages/ui/src/components/button.ts': "import { secret } from '../private.ts';",
+          'packages/app/src/a.test.ts': "import { secret } from '../../ui/src/private.ts';",
+          'packages/lib/src/index.ts': "import { session } from '../auth/session.ts';",
+        },
+      },
+    ],
+    invalid: [
+      {
+        name: 'relative paths into other packages, and subpaths that are not exported',
+        files: {
+          ...workspace,
+          'packages/app/src/a.ts': [
+            "import { secret } from '../../ui/src/private.ts';",
+            "import { secret as s } from '@acme/ui/src/private';",
+            "import { internal } from '@acme/ui/components/internal';",
+            "import { inner } from '@acme/sugar/src/inner';",
+          ].join('\n'),
+          'scripts/seed.ts': "import { date } from '../packages/lib/src/date.ts';",
+        },
+        findings: [
+          {
+            path: 'packages/app/src/a.ts',
+            line: 1,
+            message:
+              'Import @acme/ui by its package name, not by the path ../../ui/src/private.ts.',
+            hint: 'Import from "@acme/ui", or a subpath that packages/ui/package.json exports.',
+          },
+          {
+            path: 'packages/app/src/a.ts',
+            line: 2,
+            message: '@acme/ui does not export ./src/private.',
+            hint: 'Import from a subpath that packages/ui/package.json exports (., ./icons, ./components/*), or add ./src/private to its exports.',
+          },
+          {
+            path: 'packages/app/src/a.ts',
+            line: 3,
+            message: '@acme/ui does not export ./components/internal.',
+          },
+          {
+            path: 'packages/app/src/a.ts',
+            line: 4,
+            message: '@acme/sugar does not export ./src/inner.',
+          },
+          {
+            path: 'scripts/seed.ts',
+            message:
+              'Import @acme/lib by its package name, not by the path ../packages/lib/src/date.ts.',
           },
         ],
       },

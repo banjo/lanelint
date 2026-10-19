@@ -25,6 +25,7 @@ Rules about dependencies between elements and on packages and globals.
 - [public-api](boundaries.md#public-api): Imported files of an element must be reachable from its entry files.
 - [restricted-globals](boundaries.md#restricted-globals): Globals, or members of globals, that must not be used.
 - [restricted-packages](boundaries.md#restricted-packages): Packages, or names from packages, that must not be imported.
+- [workspace-imports](boundaries.md#workspace-imports): Imports of other workspace packages must use the package name and a subpath it exports.
 
 ## [conventions](conventions.md)
 

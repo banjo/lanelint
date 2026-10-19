@@ -9,6 +9,7 @@ import { noUnresolved } from './rules/noUnresolved.ts';
 import { publicApi } from './rules/publicApi.ts';
 import { restrictedGlobals } from './rules/restrictedGlobals.ts';
 import { restrictedPackages } from './rules/restrictedPackages.ts';
+import { workspaceImports } from './rules/workspaceImports.ts';
 
 export {
   allowedImports,
@@ -21,6 +22,7 @@ export {
   publicApi,
   restrictedGlobals,
   restrictedPackages,
+  workspaceImports,
 };
 export type { Selector } from './models/optionSchemas.ts';
 
@@ -38,6 +40,7 @@ const boundaries = definePlugin({
     'public-api': publicApi,
     'restricted-globals': restrictedGlobals,
     'restricted-packages': restrictedPackages,
+    'workspace-imports': workspaceImports,
   },
   configs: {
     recommended: {

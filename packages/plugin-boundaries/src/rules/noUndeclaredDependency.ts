@@ -20,8 +20,10 @@ export const noUndeclaredDependency = defineRule({
       'A package that is imported but not declared works only by accident, through hoisting or',
       'another package. Imports of workspace packages must be declared too.',
       '',
-      'devDependencies count for test files and for files matching `allowDev`. Type-only imports',
-      'also accept the matching `@types` package.',
+      'devDependencies count for test files and for files matching `allowDev`. These files may',
+      'also use packages declared in the root package.json, where monorepos often keep shared',
+      'dev tools such as a test runner. Type-only imports also accept the matching `@types`',
+      'package.',
       '',
       'To fix a finding, add the package to the nearest package.json.',
     ].join('\n'),
@@ -43,6 +45,15 @@ export const noUndeclaredDependency = defineRule({
             v.description('Package names or globs that are never reported.'),
           ),
           [],
+        ),
+        allowRootDev: v.optional(
+          v.pipe(
+            v.boolean(),
+            v.description(
+              'Let the files that may use devDependencies also use packages declared in the root package.json.',
+            ),
+          ),
+          true,
         ),
       }),
       {},
@@ -71,10 +82,14 @@ export const noUndeclaredDependency = defineRule({
         }
       }
       const dev = edge.from.isTest || GlobUtil.matches(edge.from.path, context.options.allowDev);
-      if (
-        declares(info, name, dev) ||
-        (edge.typeOnly && declares(info, typesPackageOf(name), true))
-      ) {
+      const root =
+        dev && context.options.allowRootDev && info.directory
+          ? context.project.packageOf('package.json')
+          : undefined;
+      const declared = (manifest: PackageInfo) =>
+        declares(manifest, name, dev) ||
+        (edge.typeOnly && declares(manifest, typesPackageOf(name), true));
+      if (declared(info) || (root?.directory === '' && declared(root))) {
         return;
       }
       const manifest = info.directory ? `${info.directory}/package.json` : 'package.json';

@@ -82,6 +82,7 @@ const packageInfoOf = (directory: string, text: string | undefined) => {
       devDependencies: record(json.devDependencies),
       peerDependencies: record(json.peerDependencies),
       optionalDependencies: record(json.optionalDependencies),
+      exports: json.exports,
     };
     return { info, source: typeof json.source === 'string' ? json.source : undefined };
   } catch {

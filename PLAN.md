@@ -870,18 +870,19 @@ values or path globs (for files outside elements, such as an aggregator
 files are skipped unless `includeTests` is set, and most rules can skip
 type-only imports with `ignoreTypeImports`.
 
-| Rule                       | Purpose                                                                                                            | Main options                                                                       |
-| -------------------------- | ------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------- |
-| `allowed-imports`          | Which elements may import which                                                                                    | `rules: [{ from, allow?, disallow?, message? }]`, `default: 'allow' \| 'disallow'` |
-| `entry-only`               | Imports from outside an element must target its entry files                                                        | `elements`                                                                         |
-| `no-entry-import`          | These imports must target files, not entry files (including imports of the element's own entry)                    | `rules: [{ from, to: selector \| 'self' }]`                                        |
-| `public-api`               | An imported file must be reachable from the target element's entry through re-exports                              | `elements`, `from?`, `exceptions?: [{ from?, to: glob }]`                          |
-| `no-cycles`                | No dependency cycles between elements, anchored at the changed import                                              | `elements?` (all by default)                                                       |
-| `no-unresolved`            | Imports must resolve                                                                                               | `ignore?`                                                                          |
-| `restricted-packages`      | Packages or named imports that must not be used, optionally per element                                            | `packages: [{ name, importNames?, allowTypeImports?, from?, message?, hint? }]`    |
-| `restricted-globals`       | Globals or members of globals that must not be used, such as `fetch` or `Date.now`, optionally per element or file | `globals: [{ name, from?, message?, hint? }]`                                      |
-| `no-undeclared-dependency` | External and workspace imports must be declared in the nearest `package.json`                                      | `allowDev?: glob[]`, `ignore?`                                                     |
-| `no-orphans`               | Source files that only tests import, unless they are entries, config files, or listed roots                        | `roots: glob[]`                                                                    |
+| Rule                       | Purpose                                                                                                                    | Main options                                                                       |
+| -------------------------- | -------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| `allowed-imports`          | Which elements may import which                                                                                            | `rules: [{ from, allow?, disallow?, message? }]`, `default: 'allow' \| 'disallow'` |
+| `entry-only`               | Imports from outside an element must target its entry files                                                                | `elements`                                                                         |
+| `no-entry-import`          | These imports must target files, not entry files (including imports of the element's own entry)                            | `rules: [{ from, to: selector \| 'self' }]`                                        |
+| `public-api`               | An imported file must be reachable from the target element's entry through re-exports                                      | `elements`, `from?`, `exceptions?: [{ from?, to: glob }]`                          |
+| `no-cycles`                | No dependency cycles between elements, anchored at the changed import                                                      | `elements?` (all by default)                                                       |
+| `no-unresolved`            | Imports must resolve                                                                                                       | `ignore?`                                                                          |
+| `restricted-packages`      | Packages or named imports that must not be used, optionally per element                                                    | `packages: [{ name, importNames?, allowTypeImports?, from?, message?, hint? }]`    |
+| `restricted-globals`       | Globals or members of globals that must not be used, such as `fetch` or `Date.now`, optionally per element or file         | `globals: [{ name, from?, message?, hint? }]`                                      |
+| `no-undeclared-dependency` | External and workspace imports must be declared in the nearest `package.json`; dev files may also use root devDependencies | `allowDev?: glob[]`, `ignore?`, `allowRootDev?`                                    |
+| `workspace-imports`        | Other workspace packages are imported by name, through a subpath their `exports` lists                                     | `ignore?`, `includeTests?`                                                         |
+| `no-orphans`               | Source files that only tests import, unless they are entries, config files, or listed roots                                | `roots: glob[]`                                                                    |
 
 `recommended` enables `no-cycles`, `no-unresolved`, and `no-undeclared-dependency`.
 

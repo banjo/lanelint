@@ -47,6 +47,7 @@ export default defineConfig({
 | [`public-api`](https://github.com/banjo/pilotlint/blob/main/docs/rules/boundaries.md#public-api)                             | Imported files of an element are reachable from its entry files          |
 | [`restricted-globals`](https://github.com/banjo/pilotlint/blob/main/docs/rules/boundaries.md#restricted-globals)             | Globals such as `fetch` or `Date.now` are not used where they are banned |
 | [`restricted-packages`](https://github.com/banjo/pilotlint/blob/main/docs/rules/boundaries.md#restricted-packages)           | Packages, or names from them, are not imported where they are banned     |
+| [`workspace-imports`](https://github.com/banjo/pilotlint/blob/main/docs/rules/boundaries.md#workspace-imports)               | Other workspace packages are imported by name, through what they export  |
 
 See [all options](https://github.com/banjo/pilotlint/blob/main/docs/rules/boundaries.md), or
 run `pilotlint rules explain boundaries/<rule>`.

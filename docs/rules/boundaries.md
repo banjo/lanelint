@@ -4,18 +4,19 @@
 
 Rules about dependencies between elements and on packages and globals.
 
-| Rule                                                  | Description                                                           | Default level |
-| ----------------------------------------------------- | --------------------------------------------------------------------- | ------------- |
-| [allowed-imports](#allowed-imports)                   | Controls which elements may import which.                             | `error`       |
-| [entry-only](#entry-only)                             | Imports from outside an element must target its entry files.          | `error`       |
-| [no-cycles](#no-cycles)                               | Elements must not depend on each other in a cycle.                    | `error`       |
-| [no-entry-import](#no-entry-import)                   | Imports must target the files they need, not entry files.             | `error`       |
-| [no-orphans](#no-orphans)                             | Source files must be imported by non-test code, or be an entry point. | `warn`        |
-| [no-undeclared-dependency](#no-undeclared-dependency) | Imported packages must be declared in the nearest package.json.       | `error`       |
-| [no-unresolved](#no-unresolved)                       | Imports must resolve to a file or an installed package.               | `error`       |
-| [public-api](#public-api)                             | Imported files of an element must be reachable from its entry files.  | `error`       |
-| [restricted-globals](#restricted-globals)             | Globals, or members of globals, that must not be used.                | `error`       |
-| [restricted-packages](#restricted-packages)           | Packages, or names from packages, that must not be imported.          | `error`       |
+| Rule                                                  | Description                                                                             | Default level |
+| ----------------------------------------------------- | --------------------------------------------------------------------------------------- | ------------- |
+| [allowed-imports](#allowed-imports)                   | Controls which elements may import which.                                               | `error`       |
+| [entry-only](#entry-only)                             | Imports from outside an element must target its entry files.                            | `error`       |
+| [no-cycles](#no-cycles)                               | Elements must not depend on each other in a cycle.                                      | `error`       |
+| [no-entry-import](#no-entry-import)                   | Imports must target the files they need, not entry files.                               | `error`       |
+| [no-orphans](#no-orphans)                             | Source files must be imported by non-test code, or be an entry point.                   | `warn`        |
+| [no-undeclared-dependency](#no-undeclared-dependency) | Imported packages must be declared in the nearest package.json.                         | `error`       |
+| [no-unresolved](#no-unresolved)                       | Imports must resolve to a file or an installed package.                                 | `error`       |
+| [public-api](#public-api)                             | Imported files of an element must be reachable from its entry files.                    | `error`       |
+| [restricted-globals](#restricted-globals)             | Globals, or members of globals, that must not be used.                                  | `error`       |
+| [restricted-packages](#restricted-packages)           | Packages, or names from packages, that must not be imported.                            | `error`       |
+| [workspace-imports](#workspace-imports)               | Imports of other workspace packages must use the package name and a subpath it exports. | `error`       |
 
 ## allowed-imports
 
@@ -257,8 +258,10 @@ Imported packages must be declared in the nearest package.json.
 A package that is imported but not declared works only by accident, through hoisting or
 another package. Imports of workspace packages must be declared too.
 
-devDependencies count for test files and for files matching `allowDev`. Type-only imports
-also accept the matching `@types` package.
+devDependencies count for test files and for files matching `allowDev`. These files may
+also use packages declared in the root package.json, where monorepos often keep shared
+dev tools such as a test runner. Type-only imports also accept the matching `@types`
+package.
 
 To fix a finding, add the package to the nearest package.json.
 
@@ -268,13 +271,15 @@ To fix a finding, add the package to the nearest package.json.
 {
   allowDev?: string[];
   ignore?: string[];
+  allowRootDev?: boolean;
 }
 ```
 
-| Option     | Type       | Default                              | Description                                                         |
-| ---------- | ---------- | ------------------------------------ | ------------------------------------------------------------------- |
-| `allowDev` | `string[]` | `['**/*.config.*', '**/scripts/**']` | Globs of files that may import devDependencies, besides test files. |
-| `ignore`   | `string[]` | `[]`                                 | Package names or globs that are never reported.                     |
+| Option         | Type       | Default                              | Description                                                                                     |
+| -------------- | ---------- | ------------------------------------ | ----------------------------------------------------------------------------------------------- |
+| `allowDev`     | `string[]` | `['**/*.config.*', '**/scripts/**']` | Globs of files that may import devDependencies, besides test files.                             |
+| `ignore`       | `string[]` | `[]`                                 | Package names or globs that are never reported.                                                 |
+| `allowRootDev` | `boolean`  | `true`                               | Let the files that may use devDependencies also use packages declared in the root package.json. |
 
 ### Example
 
@@ -490,6 +495,46 @@ rules: {
       ],
     },
   ],
+},
+```
+
+## workspace-imports
+
+Imports of other workspace packages must use the package name and a subpath it exports.
+
+- **Id:** `boundaries/workspace-imports`
+- **Default level:** `error`
+
+A workspace package exposes its public API through its name and the `exports` field of
+its package.json. Code in another package must not reach past it, with a relative path
+into the package or with a subpath that `exports` does not list. A package without
+`exports` exports every subpath, as in Node. A package inside another package may also be
+imported through the outer package. Imports inside one package, between a package and the
+packages nested in it, and of the root package are not checked.
+
+To fix a finding, import the package by its name and an exported subpath, or add the
+subpath to `exports` in the package.json of the imported package.
+Test files are skipped unless `includeTests` is set.
+
+### Options
+
+```ts
+{
+  ignore?: string[];
+  includeTests?: boolean;
+}
+```
+
+| Option         | Type       | Default | Description                                                  |
+| -------------- | ---------- | ------- | ------------------------------------------------------------ |
+| `ignore`       | `string[]` | `[]`    | Names or globs of packages whose imports are never reported. |
+| `includeTests` | `boolean`  | `false` | Also check imports from test files.                          |
+
+### Example
+
+```ts
+rules: {
+  'boundaries/workspace-imports': ['error', { ignore: ['@acme/legacy-*'] }],
 },
 ```
 

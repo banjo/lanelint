@@ -57,4 +57,6 @@ export interface PackageInfo {
   readonly devDependencies: Readonly<Record<string, string>>;
   readonly peerDependencies: Readonly<Record<string, string>>;
   readonly optionalDependencies: Readonly<Record<string, string>>;
+  /** The `exports` field as written, or `undefined` when the package has none. */
+  readonly exports: unknown;
 }
