@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="940" height="476" viewBox="0 0 940 476" role="img" aria-label="An agent writes a file that imports another feature. The pilotlint hook reports the broken boundary with a hint. The agent moves the import to the app route, and the next check passes.">
+  <style>
+    text { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 13px; fill: #e5e7eb; white-space: pre; }
+    .dim { fill: #9ca3af; }
+    .user { fill: #f9fafb; font-weight: 600; }
+    .agent { fill: #c084fc; }
+    .tool { fill: #fbbf24; }
+    .path { fill: #22d3ee; }
+    .error { fill: #f87171; }
+    .ok { fill: #4ade80; }
+    .title { fill: #9ca3af; font-size: 12px; }
+  </style>
+  <rect width="940" height="476" rx="12" fill="#0f172a"/>
+  <rect width="940" height="36" rx="12" fill="#1e293b"/>
+  <rect y="24" width="940" height="12" fill="#1e293b"/>
+  <circle cx="22" cy="18" r="6" fill="#f87171"/>
+  <circle cx="42" cy="18" r="6" fill="#fbbf24"/>
+  <circle cx="62" cy="18" r="6" fill="#4ade80"/>
+  <text x="470" y="22" text-anchor="middle" class="title">coding agent, with a pilotlint hook after each edit</text>
+
+  <text x="24" y="68" xml:space="preserve"><tspan class="user">&gt; Show the comments under each discussion.</tspan></text>
+
+  <text x="24" y="104" xml:space="preserve"><tspan class="tool">● Write</tspan> src/features/discussions/components/discussion-comments.tsx</text>
+  <text x="24" y="125" xml:space="preserve" class="dim">  import { CommentsList } from '@/features/comments/components/comments-list';</text>
+
+  <text x="24" y="161" xml:space="preserve"><tspan class="tool">● Hook</tspan>  pilotlint check --changed --new</text>
+  <text x="24" y="182" xml:space="preserve">  <tspan class="path">src/features/discussions/components/discussion-comments.tsx:1</tspan> <tspan class="error">error</tspan> <tspan class="dim">boundaries/allowed-imports</tspan></text>
+  <text x="24" y="203" xml:space="preserve">  The feature src/features/discussions must not import the feature src/features/comments.</text>
+  <text x="24" y="224" xml:space="preserve">    <tspan class="dim">hint:</tspan> Compose features in the app instead: import both there, and pass data or components down as props.</text>
+  <text x="24" y="245" xml:space="preserve">  <tspan class="error">1 error, 0 warnings</tspan> in 1 file, new since HEAD (116 ms)</text>
+
+  <text x="24" y="281" xml:space="preserve"><tspan class="agent">●</tspan> Features may not import each other in this project. I'll compose them in the app route.</text>
+
+  <text x="24" y="317" xml:space="preserve"><tspan class="tool">● Edit</tspan>   src/app/routes/app/discussions.tsx</text>
+  <text x="24" y="338" xml:space="preserve" class="dim">  + import { CommentsList } from '@/features/comments/components/comments-list';</text>
+  <text x="24" y="359" xml:space="preserve"><tspan class="tool">● Delete</tspan> src/features/discussions/components/discussion-comments.tsx</text>
+
+  <text x="24" y="395" xml:space="preserve"><tspan class="tool">● Hook</tspan>  pilotlint check --changed --new</text>
+  <text x="24" y="416" xml:space="preserve">  <tspan class="ok">0 errors, 0 warnings</tspan> in 1 file, new since HEAD (172 ms)</text>
+
+  <text x="24" y="452" xml:space="preserve"><tspan class="agent">●</tspan> Done. Comments show under each discussion, and the features stay independent.</text>
+</svg>
