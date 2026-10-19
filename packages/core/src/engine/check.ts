@@ -82,6 +82,7 @@ export async function check(options: CheckOptions): Promise<CheckResult> {
     }
   }
   const filter = { include: config.include, ignore: config.ignore };
+  const stats: WorkStats = { filesRead: 0, filesParsed: 0, importsResolved: 0 };
 
   // Git and the file listing do not depend on each other, so they run concurrently.
   const loadGit = async () => {
@@ -90,7 +91,7 @@ export async function check(options: CheckOptions): Promise<CheckResult> {
     return { repo, state: { available: !!repo || !!options.changes, changes } };
   };
   const [working, git] = await Promise.all([
-    SnapshotService.createWorkingTree(root, filter),
+    SnapshotService.createWorkingTree(root, filter, stats),
     loadGit(),
   ]);
   if ((options.onlyNew || (options.changed && !options.changes)) && !git.repo) {
@@ -104,9 +105,8 @@ export async function check(options: CheckOptions): Promise<CheckResult> {
       )
     : undefined;
 
-  const stats: WorkStats = { filesRead: 0, filesParsed: 0, importsResolved: 0 };
   const parseCache = ParseService.createCache(stats);
-  const resolver = ResolveService.create();
+  const resolver = ResolveService.create(stats);
   const run = async (snapshot: Snapshot, changes: ChangeState) => {
     const project = createProject({
       snapshot,
@@ -116,7 +116,6 @@ export async function check(options: CheckOptions): Promise<CheckResult> {
       configFile: config.configFile,
       parseCache,
       resolver,
-      stats,
     });
     const scope = createScope(project, prefixes, changed);
     const findings = await runRules({
@@ -135,6 +134,7 @@ export async function check(options: CheckOptions): Promise<CheckResult> {
   if (options.onlyNew && git.repo) {
     const list = git.state.changes;
     const contents = await GitService.readAtRef(root, git.repo, SnapshotService.basePathsOf(list));
+    stats.filesRead += contents.size;
     const atBase = SnapshotService.createAtRef(working, filter, list, contents);
     // At the base ref nothing has changed yet, so change rules report nothing there.
     const previous = await run(atBase, { available: true, changes: [] });

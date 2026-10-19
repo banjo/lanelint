@@ -2,6 +2,7 @@ import { isBuiltin } from 'node:module';
 import { dirname } from 'pathe';
 import { ResolverFactory } from 'oxc-resolver';
 import { SOURCE_EXTENSIONS } from '../constants/defaults.ts';
+import type { WorkStats } from '../models/stats.ts';
 
 export type Resolution = { readonly builtin: true } | { readonly path: string } | undefined;
 
@@ -12,7 +13,8 @@ export interface Resolver {
 
 const BUILTIN = { builtin: true } as const;
 
-const create = (): Resolver => {
+/** Resolves each specifier once per directory. */
+const create = (stats?: WorkStats): Resolver => {
   const options = {
     extensions: [...SOURCE_EXTENSIONS, '.d.ts', '.json', '.node'],
     extensionAlias: {
@@ -38,6 +40,9 @@ const create = (): Resolver => {
       const key = `${directory}\0${specifier}`;
       if (cache.has(key)) {
         return cache.get(key);
+      }
+      if (stats) {
+        stats.importsResolved++;
       }
       let result = factory.resolveFileSync(fromAbsolute, specifier);
       if (result.error && /tsconfig/i.test(result.error)) {

@@ -4,6 +4,7 @@ import { join } from 'pathe';
 import { glob } from 'tinyglobby';
 import { DEFAULT_IGNORE } from '../constants/defaults.ts';
 import type { Change } from '../models/changes.ts';
+import type { WorkStats } from '../models/stats.ts';
 import { GlobUtil } from '../utils/globUtil.ts';
 
 /** Every file access goes through a snapshot, so the engine can run on the working tree or a git ref. */
@@ -43,7 +44,12 @@ const readSyncOrUndefined = (path: string) => {
   }
 };
 
-const createWorkingTree = async (root: string, filter: FileFilter): Promise<Snapshot> => {
+/** A working tree snapshot remembers what it read, so a base snapshot can reuse unchanged files. */
+const createWorkingTree = async (
+  root: string,
+  filter: FileFilter,
+  stats?: WorkStats,
+): Promise<Snapshot> => {
   const paths = (
     await glob([...filter.include], {
       cwd: root,
@@ -55,12 +61,40 @@ const createWorkingTree = async (root: string, filter: FileFilter): Promise<Snap
     })
   ).sort();
   const set = new Set(paths);
+  const texts = new Map<string, string | undefined>();
+  const pending = new Map<string, Promise<string | undefined>>();
+  const counted = () => {
+    if (stats) {
+      stats.filesRead++;
+    }
+  };
   return {
     root,
     paths,
     has: (path) => set.has(path),
-    read: (path) => readOrUndefined(join(root, path)),
-    readSync: (path) => readSyncOrUndefined(join(root, path)),
+    read: (path) => {
+      if (texts.has(path)) {
+        return Promise.resolve(texts.get(path));
+      }
+      let reading = pending.get(path);
+      if (!reading) {
+        counted();
+        reading = readOrUndefined(join(root, path)).then((text) => {
+          texts.set(path, text);
+          pending.delete(path);
+          return text;
+        });
+        pending.set(path, reading);
+      }
+      return reading;
+    },
+    readSync: (path) => {
+      if (!texts.has(path)) {
+        counted();
+        texts.set(path, readSyncOrUndefined(join(root, path)));
+      }
+      return texts.get(path);
+    },
   };
 };
 

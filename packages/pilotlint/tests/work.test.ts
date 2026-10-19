@@ -21,6 +21,7 @@ const statsOf = (fixture: Fixture, ...args: string[]): WorkStats => {
 const project = generateProject({ features: 4, filesPerFeature: 6, domains: 3, filesPerDomain: 4 });
 const changedFiles = Object.keys(CHANGES).length;
 // The changes remove the imports of the changed files; their base versions still have them.
+// Resolutions are counted once per directory and specifier, so this is an upper bound.
 const baseImports = Object.keys(CHANGES).reduce(
   (count, path) => count + (project[path]?.match(/^import /gm)?.length ?? 0),
   0,
@@ -32,8 +33,8 @@ describe('work', () => {
 
   beforeAll(() => {
     fixture = createFixture('feature-folders', project);
-    full = statsOf(fixture);
     fixture.write(CHANGES);
+    full = statsOf(fixture);
   });
 
   afterAll(() => fixture.remove());
@@ -41,7 +42,7 @@ describe('work', () => {
   it('reads and parses each source file once in a full check', () => {
     expect(full.filesParsed).toBeGreaterThan(40);
     expect(full.filesRead).toBeGreaterThanOrEqual(full.filesParsed);
-    expect(full.importsResolved).toBeGreaterThan(full.filesParsed);
+    expect(full.importsResolved).toBeGreaterThan(0);
   });
 
   it('reads and parses only the changed files when no rule needs the whole project', () => {
@@ -53,24 +54,21 @@ describe('work', () => {
   });
 
   it('also reads the base versions of the changed files with --new', () => {
-    expect(statsOf(fixture, '--changed', '--new', '--config', 'fast.config.ts')).toEqual({
-      filesRead: 2 * changedFiles,
-      filesParsed: 2 * changedFiles,
-      importsResolved: baseImports,
-    });
+    const stats = statsOf(fixture, '--changed', '--new', '--config', 'fast.config.ts');
+    expect(stats.filesRead).toBe(2 * changedFiles);
+    expect(stats.filesParsed).toBe(2 * changedFiles);
+    expect(stats.importsResolved).toBeGreaterThan(0);
+    expect(stats.importsResolved).toBeLessThanOrEqual(baseImports);
   });
 
   it('builds the import graph once when a rule needs the whole project', () => {
-    expect(statsOf(fixture, '--changed')).toEqual({
-      ...full,
-      importsResolved: full.importsResolved - baseImports,
-    });
+    expect(statsOf(fixture, '--changed')).toEqual(full);
   });
 
-  it('parses unchanged files once with --new', () => {
+  it('reads, parses, and resolves unchanged files once with --new', () => {
     const stats = statsOf(fixture, '--changed', '--new');
+    expect(stats.filesRead).toBe(full.filesRead + changedFiles);
     expect(stats.filesParsed).toBe(full.filesParsed + changedFiles);
-    expect(stats.filesRead).toBeLessThanOrEqual(2 * full.filesRead);
-    expect(stats.importsResolved).toBeLessThanOrEqual(2 * full.importsResolved);
+    expect(stats.importsResolved).toBeLessThanOrEqual(full.importsResolved + baseImports);
   });
 });
