@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vite-plus/test';
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { createFixture, type Fixture } from './fixture.ts';
 
@@ -130,6 +130,37 @@ describe('pilotlint check', () => {
     const result = project.run('check');
     expect(result.stderr).toBe('');
     expect(result.status).toBe(0);
+  });
+
+  it('lists files with git: untracked files count, ignored and deleted files do not', () => {
+    const project = fixture('feature-folders', {
+      '.gitignore': 'src/features/calendar/hooks/\n',
+      'src/hooks/useLegacy.ts': '// @ts-ignore\nexport const useLegacy = 1;\n',
+    });
+    rmSync(join(project.root, 'src/hooks/useLegacy.ts'));
+    project.write(violations);
+    expect(project.run('check').stdout).toMatch(/^0 errors, 0 warnings/m);
+
+    project.write({ 'src/hooks/useLate.ts': '// @ts-ignore\nexport const useLate = 1;\n' });
+    expect(project.run('check').stdout).toContain(
+      'src/hooks/useLate.ts:1 error conventions/no-suppressions',
+    );
+  });
+
+  it('walks the directories with gitignore: false, and outside git', () => {
+    const project = fixture('feature-folders', {
+      '.gitignore': 'src/features/calendar/hooks/\n',
+    });
+    project.write(violations);
+    const config = readFileSync(join(project.root, 'pilotlint.config.ts'), 'utf8');
+    project.write({
+      'pilotlint.config.ts': config.replace('include:', 'gitignore: false,\n  include:'),
+    });
+    expect(project.run('check').stdout).toContain('src/features/calendar/hooks/useSlots.ts:2');
+
+    project.write({ 'pilotlint.config.ts': config });
+    rmSync(join(project.root, '.git'), { recursive: true, force: true });
+    expect(project.run('check').stdout).toContain('src/features/calendar/hooks/useSlots.ts:2');
   });
 
   it('exits with 2 on setup problems', () => {

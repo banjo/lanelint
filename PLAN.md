@@ -699,8 +699,13 @@ How:
   in scope.
 - `check <paths>` and `--changed` limit reporting. The full graph is built
   only when a `project` rule needs it.
-- Git runs at most twice for `HEAD` (three times for other refs), concurrently
-  with the file listing.
+- In a git repository the file list comes from git: `ls-files --stage` for
+  tracked files (with their blob hashes), `diff-files` for modified and deleted
+  ones, and `ls-files --others --exclude-standard` for untracked files. Changes
+  come from `git diff` against the base commit plus the same untracked list, so
+  git scans the working tree for untracked files once per run. Files git
+  ignores are left out; `gitignore: false` walks the directories instead, and
+  so does every run outside git.
 - `--new` shares parse results between snapshots.
 - Files are read concurrently.
 - Module info (imports, exports, parse errors) is kept between runs in

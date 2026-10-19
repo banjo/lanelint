@@ -42,6 +42,7 @@ export default defineConfig({
 | `root`      | `string`                       | the directory of the config file                           | Project root. Paths in the config and in findings are relative to it.      |
 | `include`   | `string[]`                     | `['**/*']`                                                 | Globs of files that belong to the project.                                 |
 | `ignore`    | `string[]`                     | `[]`                                                       | Globs of files to leave out. `node_modules` and `.git` are always ignored. |
+| `gitignore` | `boolean`                      | `true`                                                     | Leave out files that git ignores. See [Files](#files).                     |
 | `tests`     | `string[]`                     | `['**/*.{test,spec}.*', '**/__tests__/**', '**/tests/**']` | Globs of test files.                                                       |
 | `failOn`    | `'error' \| 'warn' \| 'never'` | `'error'`                                                  | The level that makes the run fail with exit code `1`.                      |
 | `elements`  | `ElementDefinition[]`          | `[]`                                                       | The parts of the architecture. See [Elements](#elements).                  |
@@ -52,6 +53,17 @@ export default defineConfig({
 
 All globs use `/` as the separator, are relative to the root, and support `*`, `**`, `?`,
 `{a,b}`, and `[abc]`.
+
+## Files
+
+In a git repository, pilotlint asks git for the files instead of walking the directories:
+tracked files, and untracked files that `.gitignore` does not exclude. `include` and `ignore`
+then pick the project files from that list. This is faster, and generated or ignored files
+stay out without listing them in `ignore`. Files in git submodules are left out.
+
+Set `gitignore: false` to walk the directories instead, for example when the project checks
+generated files that git ignores. Outside a git repository, pilotlint always walks the
+directories.
 
 ## Elements
 

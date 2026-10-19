@@ -42,7 +42,8 @@ Rule options refer to elements and files with selectors:
 
 ## Files and source files
 
-`include` and `ignore` in the config decide which files belong to the project. Every file
+`include` and `ignore` in the config decide which files belong to the project. In a git
+repository, files that git ignores are left out too (see [`gitignore`](configuration.md#files)). Every file
 type counts, so rules can check Markdown, JSON, or CSS files too. Files with a JavaScript or
 TypeScript extension are source files: pilotlint parses them to find imports and exports.
 

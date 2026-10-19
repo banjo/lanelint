@@ -46,13 +46,9 @@ const readSyncOrUndefined = (path: string) => {
   }
 };
 
-/** A working tree snapshot remembers what it read, so a base snapshot can reuse unchanged files. */
-const createWorkingTree = async (
-  root: string,
-  filter: FileFilter,
-  stats?: WorkStats,
-): Promise<Snapshot> => {
-  const paths = (
+/** Files under the root that match the filter, found by walking the directories. */
+const walk = async (root: string, filter: FileFilter): Promise<string[]> =>
+  (
     await glob([...filter.include], {
       cwd: root,
       ignore: [...DEFAULT_IGNORE, ...filter.ignore],
@@ -62,6 +58,19 @@ const createWorkingTree = async (
       followSymbolicLinks: false,
     })
   ).sort();
+
+/**
+ * A working tree snapshot remembers what it read, so a base snapshot can reuse unchanged files.
+ * `listed` are the files to filter instead of walking the directories, for example the files
+ * git knows about.
+ */
+const createWorkingTree = async (
+  root: string,
+  filter: FileFilter,
+  stats?: WorkStats,
+  listed?: readonly string[],
+): Promise<Snapshot> => {
+  const paths = listed ? listed.filter(inFilter(filter)).sort() : await walk(root, filter);
   const set = new Set(paths);
   const texts = new Map<string, string | undefined>();
   const pending = new Map<string, Promise<string | undefined>>();

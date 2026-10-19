@@ -104,6 +104,8 @@ export interface PilotlintConfig<
   /** Globs of files that belong to the project. Defaults to every file. */
   readonly include?: readonly string[];
   readonly ignore?: readonly string[];
+  /** Leave out files that git ignores. Defaults to `true`. */
+  readonly gitignore?: boolean;
   /** Globs of test files. */
   readonly tests?: readonly string[];
   readonly failOn?: FailOn;

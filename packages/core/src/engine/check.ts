@@ -95,29 +95,38 @@ export async function check(options: CheckOptions): Promise<CheckResult> {
   };
   const cache = options.cache ?? true;
 
-  // Git, the file listing, and the cache do not depend on each other, so they load concurrently.
+  // Git and the module cache load concurrently. The file list comes from git when the project
+  // is in a repository, so files git ignores are left out, and from the directories otherwise.
   const loadGit = async () => {
     const repo = await GitService.repository(root, base);
-    const [changes, hashes] = await Promise.all([
-      options.changes ?? (repo ? GitService.changes(root, repo) : []),
-      repo && cache
-        ? GitService.cleanHashes(root).catch(() => new Map<string, string>())
-        : new Map<string, string>(),
+    if (!repo) {
+      return { repo, files: undefined, changes: options.changes ?? [] };
+    }
+    const untracked = GitService.untrackedFiles(root);
+    const [files, changes] = await Promise.all([
+      GitService.workingFiles(root, untracked).catch(() => undefined),
+      options.changes ?? GitService.changes(root, repo, untracked),
     ]);
-    return { repo, hashes, state: { available: !!repo || !!options.changes, changes } };
+    return { repo, files, changes };
   };
   const loadListing = async () => {
-    const listing = await SnapshotService.createWorkingTree(root, filter, stats);
+    const git = await loadGit();
+    const listed = config.gitignore ? git.files?.paths : undefined;
+    const listing = await SnapshotService.createWorkingTree(root, filter, stats, listed);
     const resolutions = cache
       ? await ResolutionCacheService.load(root, listing.paths)
       : ResolutionCacheService.memory();
-    return { listing, resolutions };
+    return { git, listing, resolutions };
   };
-  const [{ listing, resolutions }, git, store] = await Promise.all([
+  const [{ git: loaded, listing, resolutions }, store] = await Promise.all([
     loadListing(),
-    loadGit(),
     cache ? ModuleCacheService.load(root) : ModuleCacheService.memory(),
   ]);
+  const git = {
+    repo: loaded.repo,
+    hashes: (cache && loaded.files?.hashes) || new Map<string, string>(),
+    state: { available: !!loaded.repo || !!options.changes, changes: loaded.changes },
+  };
   const working = SnapshotService.withHashes(listing, git.hashes);
   if ((options.onlyNew || (options.changed && !options.changes)) && !git.repo) {
     throw new UsageError('--changed and --new need a git repository.');

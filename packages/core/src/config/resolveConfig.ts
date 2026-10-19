@@ -53,6 +53,7 @@ export interface ResolvedConfig {
   readonly configFile: string | undefined;
   readonly include: readonly string[];
   readonly ignore: readonly string[];
+  readonly gitignore: boolean;
   readonly tests: readonly string[];
   readonly failOn: FailOn;
   readonly elementDefinitions: readonly ElementDefinition[];
@@ -338,6 +339,7 @@ export async function resolveConfig(
         : undefined,
     include: config.include ?? ['**/*'],
     ignore: config.ignore ?? [],
+    gitignore: config.gitignore ?? true,
     tests: config.tests ?? DEFAULT_TESTS,
     failOn: config.failOn ?? 'error',
     elementDefinitions,
