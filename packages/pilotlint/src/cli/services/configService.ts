@@ -7,6 +7,7 @@ import {
   type ResolvedConfig,
 } from '@pilotlint/core';
 import { loadConfig } from 'c12';
+import { createJiti } from 'jiti';
 
 const CONFIG_NAMES = ['ts', 'mts', 'cts', 'js', 'mjs', 'cjs'].map(
   (extension) => `pilotlint.config.${extension}`,
@@ -39,10 +40,14 @@ const load = async (options: { cwd: string; config?: string }): Promise<Resolved
   }
   const directory = dirname(configFile);
   let loaded: PilotlintConfig | undefined;
+  // jiti loads TypeScript configs in any package, including ones without `"type": "module"`
+  // and with extensionless imports, where Node's own import warns or fails.
+  const jiti = createJiti(configFile, { interopDefault: true, moduleCache: false });
   try {
     const result = await loadConfig<PilotlintConfig & Record<string, unknown>>({
       cwd: directory,
       configFile,
+      import: (id) => jiti.import(id),
       rcFile: false,
       globalRc: false,
       packageJson: false,

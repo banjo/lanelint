@@ -106,6 +106,32 @@ describe('pilotlint check', () => {
     expect(result.status).toBe(0);
   });
 
+  it('loads TypeScript configs in packages without "type": "module", without warnings', () => {
+    const project = fixture('feature-folders', {
+      'local/plugin.ts': [
+        "import { definePlugin } from 'pilotlint';",
+        "export default definePlugin({ name: 'local', rules: {} });",
+      ].join('\n'),
+    });
+    const { type: _type, ...manifest } = JSON.parse(
+      readFileSync(join(project.root, 'package.json'), 'utf8'),
+    ) as Record<string, unknown>;
+    const config = readFileSync(join(project.root, 'pilotlint.config.ts'), 'utf8');
+    project.write({
+      'package.json': JSON.stringify(manifest),
+      'pilotlint.config.ts': config
+        .replace(
+          "import { defineConfig } from 'pilotlint';",
+          "$&\nimport local from './local/plugin';",
+        )
+        .replace('plugins: [', 'plugins: [local, '),
+    });
+    project.commit();
+    const result = project.run('check');
+    expect(result.stderr).toBe('');
+    expect(result.status).toBe(0);
+  });
+
   it('exits with 2 on setup problems', () => {
     const project = fixture('feature-folders');
     expect(project.run('check', '--rule', 'nope/rule').status).toBe(2);
