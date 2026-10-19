@@ -1,5 +1,12 @@
 # @pilotlint/plugin-conventions
 
+## 0.2.2
+
+### Patch Changes
+
+- Updated dependencies [c836a86]
+  - @pilotlint/core@0.2.2
+
 ## 0.2.1
 
 ### Patch Changes

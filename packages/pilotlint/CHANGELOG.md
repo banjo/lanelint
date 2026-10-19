@@ -1,5 +1,13 @@
 # pilotlint
 
+## 0.2.2
+
+### Patch Changes
+
+- 370a6d3: TypeScript configs load through jiti. Node no longer warns about `MODULE_TYPELESS_PACKAGE_JSON` in packages without `"type": "module"`, and configs that import local files without an extension load on the first try, which also makes startup faster.
+- Updated dependencies [c836a86]
+  - @pilotlint/core@0.2.2
+
 ## 0.2.1
 
 ### Patch Changes
