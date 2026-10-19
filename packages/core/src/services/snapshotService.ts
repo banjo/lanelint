@@ -15,6 +15,8 @@ export interface Snapshot {
   has(path: string): boolean;
   read(path: string): Promise<string | undefined>;
   readSync(path: string): string | undefined;
+  /** The git blob hash of a file when it is known without reading the file. */
+  hashOf(path: string): string | undefined;
 }
 
 export interface FileFilter {
@@ -95,8 +97,15 @@ const createWorkingTree = async (
       }
       return texts.get(path);
     },
+    hashOf: () => undefined,
   };
 };
+
+/** A snapshot that knows the blob hashes of files, for example of files that match the git index. */
+const withHashes = (snapshot: Snapshot, hashes: ReadonlyMap<string, string>): Snapshot => ({
+  ...snapshot,
+  hashOf: (path) => (snapshot.has(path) ? hashes.get(path) : undefined),
+});
 
 /** Paths whose content at the base ref is needed to rebuild it from the working tree. */
 const basePathsOf = (changes: readonly Change[]): string[] =>
@@ -147,6 +156,7 @@ const createAtRef = (
       !set.has(path) ? undefined : contents.has(path) ? read(path) : working.read(path),
     readSync: (path) =>
       !set.has(path) ? undefined : contents.has(path) ? read(path) : working.readSync(path),
+    hashOf: (path) => (!set.has(path) || contents.has(path) ? undefined : working.hashOf(path)),
   };
 };
 
@@ -154,4 +164,5 @@ export const SnapshotService = {
   basePathsOf,
   createAtRef,
   createWorkingTree,
+  withHashes,
 };

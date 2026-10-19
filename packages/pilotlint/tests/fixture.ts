@@ -3,6 +3,7 @@ import {
   cpSync,
   mkdirSync,
   mkdtempSync,
+  readdirSync,
   realpathSync,
   rmSync,
   symlinkSync,
@@ -54,7 +55,13 @@ export function createFixture(
     recursive: true,
     filter: (path) => !path.includes('node_modules'),
   });
-  symlinkSync(join(source, 'node_modules'), join(root, 'node_modules'), 'dir');
+  // Its own node_modules with links to the packages, so each fixture has its own cache.
+  mkdirSync(join(root, 'node_modules'));
+  for (const entry of readdirSync(join(source, 'node_modules'))) {
+    if (entry !== '.cache') {
+      symlinkSync(join(source, 'node_modules', entry), join(root, 'node_modules', entry));
+    }
+  }
   const fixture: Fixture = {
     root,
     run: (...args) => {

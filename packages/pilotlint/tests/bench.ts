@@ -27,12 +27,21 @@ const measure = (fixture: Fixture, name: string, args: readonly string[]) => {
 
 const fixture = createFixture('feature-folders', generateProject(LARGE));
 try {
-  engineMs(fixture, []);
-  measure(fixture, 'full check', []);
+  engineMs(fixture, ['--no-cache']);
+  measure(fixture, 'full check', ['--no-cache']);
   fixture.write(CHANGES);
-  measure(fixture, '--changed, file rules', ['--changed', '--config', 'fast.config.ts']);
-  measure(fixture, '--changed', ['--changed']);
-  measure(fixture, '--changed --new', ['--changed', '--new']);
+  measure(fixture, '--changed, file rules', [
+    '--changed',
+    '--config',
+    'fast.config.ts',
+    '--no-cache',
+  ]);
+  measure(fixture, '--changed', ['--changed', '--no-cache']);
+  measure(fixture, '--changed --new', ['--changed', '--new', '--no-cache']);
+  // Fills the cache, as the run before an agent's edit would.
+  engineMs(fixture, ['--changed', '--new']);
+  measure(fixture, '--changed, cached', ['--changed']);
+  measure(fixture, '--changed --new, cached', ['--changed', '--new']);
 } finally {
   fixture.remove();
 }

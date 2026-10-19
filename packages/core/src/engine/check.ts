@@ -3,6 +3,7 @@ import { isAbsolute, normalize, relative, resolve } from 'pathe';
 import type { ResolvedConfig } from '../config/resolveConfig.ts';
 import { UsageError } from '../errors.ts';
 import { GitService } from '../services/gitService.ts';
+import { ModuleCacheService } from '../services/moduleCacheService.ts';
 import type { Change } from '../models/changes.ts';
 import type { FailOn, Finding } from '../models/finding.ts';
 import type { WorkStats } from '../models/stats.ts';
@@ -32,6 +33,8 @@ export interface CheckOptions {
   readonly changes?: readonly Change[];
   /** Overrides `failOn` from the config. */
   readonly failOn?: FailOn;
+  /** Keep module info between runs in `node_modules/.cache/pilotlint`. Defaults to `true`. */
+  readonly cache?: boolean;
 }
 
 export interface CheckResult {
@@ -82,18 +85,31 @@ export async function check(options: CheckOptions): Promise<CheckResult> {
     }
   }
   const filter = { include: config.include, ignore: config.ignore };
-  const stats: WorkStats = { filesRead: 0, filesParsed: 0, importsResolved: 0 };
+  const stats: WorkStats = {
+    filesRead: 0,
+    filesParsed: 0,
+    modulesFromCache: 0,
+    importsResolved: 0,
+  };
+  const cache = options.cache ?? true;
 
-  // Git and the file listing do not depend on each other, so they run concurrently.
+  // Git, the file listing, and the cache do not depend on each other, so they load concurrently.
   const loadGit = async () => {
     const repo = await GitService.repository(root, base);
-    const changes = options.changes ?? (repo ? await GitService.changes(root, repo) : []);
-    return { repo, state: { available: !!repo || !!options.changes, changes } };
+    const [changes, hashes] = await Promise.all([
+      options.changes ?? (repo ? GitService.changes(root, repo) : []),
+      repo && cache
+        ? GitService.cleanHashes(root).catch(() => new Map<string, string>())
+        : new Map<string, string>(),
+    ]);
+    return { repo, hashes, state: { available: !!repo || !!options.changes, changes } };
   };
-  const [working, git] = await Promise.all([
+  const [listing, git, store] = await Promise.all([
     SnapshotService.createWorkingTree(root, filter, stats),
     loadGit(),
+    cache ? ModuleCacheService.load(root) : ModuleCacheService.memory(),
   ]);
+  const working = SnapshotService.withHashes(listing, git.hashes);
   if ((options.onlyNew || (options.changed && !options.changes)) && !git.repo) {
     throw new UsageError('--changed and --new need a git repository.');
   }
@@ -105,7 +121,7 @@ export async function check(options: CheckOptions): Promise<CheckResult> {
       )
     : undefined;
 
-  const parseCache = ParseService.createCache(stats);
+  const parseCache = ParseService.createCache(store, stats);
   const resolver = ResolveService.create(stats);
   const run = async (snapshot: Snapshot, changes: ChangeState) => {
     const project = createProject({
@@ -141,6 +157,8 @@ export async function check(options: CheckOptions): Promise<CheckResult> {
     const known = new Set(previous.findings.map((finding) => finding.identity));
     findings = findings.filter((finding) => !known.has(finding.identity));
   }
+
+  await store.save(2 * working.paths.length + 1000);
 
   findings = [...findings].sort(compare);
   const errorCount = findings.filter((finding) => finding.severity === 'error').length;

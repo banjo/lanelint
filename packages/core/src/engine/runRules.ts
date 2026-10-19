@@ -87,9 +87,11 @@ export async function runRules(options: RunRulesOptions): Promise<Finding[]> {
   const textRules = using('text');
   const sourceRules = [...using('module'), ...using('import'), ...using('ast')];
   const sources = scope.files.filter((file) => file.isSource);
+  // Module and import rules can use cached module info; AST and text rules need the files.
+  const needed = using('ast').length ? sources : sources.filter((file) => project.needsText(file));
   await project.preload([
     ...new Set(
-      [...(textRules.length ? scope.files : []), ...(sourceRules.length ? sources : [])].map(
+      [...(textRules.length ? scope.files : []), ...(sourceRules.length ? needed : [])].map(
         (file) => file.path,
       ),
     ),

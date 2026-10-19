@@ -31,6 +31,8 @@ export interface ProjectModel extends ProjectApi {
   readonly parseErrors: ReadonlyMap<string, readonly ParseError[]>;
   /** Reads files concurrently so later synchronous access is cheap. */
   preload(paths: readonly string[]): Promise<void>;
+  /** Whether a source file must be read for its module info, because the cache does not have it. */
+  needsText(file: ProjectFile): boolean;
   textSync(path: string): string | undefined;
   parsedSync(file: ProjectFile): ParsedFile | undefined;
   edgesSync(file: ProjectFile): readonly ImportEdge[];
@@ -335,9 +337,7 @@ export function createProject(options: ProjectOptions): ProjectModel {
       return undefined;
     }
     if (!parsed.has(file.path)) {
-      const text = textSync(file.path);
-      const result =
-        text === undefined ? undefined : parseCache.parse(file.path, file.absolutePath, text);
+      const result = parseCache.parse(file, snapshot.hashOf(file.path), () => textSync(file.path));
       if (result?.errors.length) {
         parseErrors.set(file.path, result.errors);
       }
@@ -345,6 +345,10 @@ export function createProject(options: ProjectOptions): ProjectModel {
     }
     return parsed.get(file.path);
   };
+
+  /** Whether a file must be read for its module info, because the cache does not have it. */
+  const needsText = (file: ProjectFile) =>
+    !parsed.has(file.path) && !parseCache.has(snapshot.hashOf(file.path), file.extension);
 
   const edges = new Map<string, readonly ImportEdge[]>();
   const edgesSync = (file: ProjectFile) => {
@@ -386,6 +390,7 @@ export function createProject(options: ProjectOptions): ProjectModel {
     packageOf,
     workspacePackage: (name) => workspacePackageOf(name)?.info,
     preload,
+    needsText,
     textSync,
     parsedSync,
     edgesSync,
@@ -394,7 +399,9 @@ export function createProject(options: ProjectOptions): ProjectModel {
       return textSync(path);
     },
     async module(file: ProjectFile): Promise<ModuleInfo | undefined> {
-      await preload([file.path]);
+      if (needsText(file)) {
+        await preload([file.path]);
+      }
       return parsedSync(file)?.module;
     },
     async ast(file: ProjectFile): Promise<AstInfo | undefined> {
@@ -402,12 +409,14 @@ export function createProject(options: ProjectOptions): ProjectModel {
       return parsedSync(file)?.ast();
     },
     async importsOf(file) {
-      await preload([file.path]);
+      if (needsText(file)) {
+        await preload([file.path]);
+      }
       return edgesSync(file);
     },
     async graph() {
       if (!graph) {
-        await preload(sourceFiles.map((file) => file.path));
+        await preload(sourceFiles.filter(needsText).map((file) => file.path));
         const all = sourceFiles.flatMap((file) => edgesSync(file));
         const importers = new Map<string, ImportEdge[]>();
         for (const edge of all) {

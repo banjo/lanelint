@@ -1,6 +1,7 @@
 import { parseSync, Visitor, type Comment, type ParseResult } from 'oxc-parser';
 import type { AstInfo, ModuleExport, ModuleImport, ModuleInfo } from '../models/module.ts';
 import type { WorkStats } from '../models/stats.ts';
+import { ModuleCacheService, type CachedModule, type ModuleCache } from './moduleCacheService.ts';
 import { LineUtil, type LineIndex } from '../utils/lineUtil.ts';
 
 export interface ParseError {
@@ -9,16 +10,30 @@ export interface ParseError {
 }
 
 export interface ParsedFile {
-  readonly text: string;
   readonly module: ModuleInfo;
   readonly errors: readonly ParseError[];
-  readonly lines: LineIndex;
+  /** The full AST. For module info from the cache, the file is read and parsed now. */
   ast(): AstInfo;
 }
 
+export interface SourceFile {
+  readonly path: string;
+  readonly absolutePath: string;
+  readonly extension: string;
+}
+
 export interface ParseCache {
-  /** Parses a file, reusing the result when the same path was parsed with the same text. */
-  parse(path: string, absolutePath: string, text: string): ParsedFile;
+  /**
+   * Module info of a file. With a known content hash it may come from the cache without
+   * reading the file; otherwise `read` is called. `undefined` when the file cannot be read.
+   */
+  parse(
+    file: SourceFile,
+    hash: string | undefined,
+    read: () => string | undefined,
+  ): ParsedFile | undefined;
+  /** Whether the module info of a file with this content hash is cached. */
+  has(hash: string | undefined, extension: string): boolean;
 }
 
 const REQUIRE = /\brequire\s*\(/;
@@ -199,8 +214,6 @@ const parseFile = (absolutePath: string, text: string): ParsedFile => {
   let ast: AstInfo | undefined;
   const module = moduleOf(result, text, lines);
   return {
-    text,
-    lines,
     module,
     errors: result.errors
       .filter((error) => String(error.severity) === 'Error')
@@ -212,20 +225,78 @@ const parseFile = (absolutePath: string, text: string): ParsedFile => {
   };
 };
 
-const createCache = (stats?: WorkStats): ParseCache => {
-  const entries = new Map<string, ParsedFile>();
+/** A file whose module info came from the cache. Its AST is built when a rule needs it. */
+const fromCache = (
+  cached: CachedModule,
+  absolutePath: string,
+  read: () => string | undefined,
+): ParsedFile => {
+  let parsed: ParsedFile | undefined;
   return {
-    parse(path, absolutePath, text) {
-      const cached = entries.get(path);
-      if (cached?.text === text) {
-        return cached;
+    module: cached.module,
+    errors: cached.errors,
+    ast: () => {
+      const text = read();
+      if (text === undefined) {
+        throw new Error(`${absolutePath} can no longer be read.`);
+      }
+      return (parsed ??= parseFile(absolutePath, text)).ast();
+    },
+  };
+};
+
+/**
+ * Parses files once per content. Module info is looked up by the content's git blob hash, first
+ * in this run, then in `store`, which can keep it between runs.
+ */
+const createCache = (store: ModuleCache, stats?: WorkStats): ParseCache => {
+  const parsed = new Map<string, ParsedFile>();
+  const lookup = (key: string, absolutePath: string, read: () => string | undefined) => {
+    const hit = parsed.get(key);
+    if (hit) {
+      return hit;
+    }
+    const cached = store.get(key);
+    if (!cached) {
+      return undefined;
+    }
+    if (stats) {
+      stats.modulesFromCache++;
+    }
+    const file = fromCache(cached, absolutePath, read);
+    parsed.set(key, file);
+    return file;
+  };
+  return {
+    parse(file, hash, read) {
+      const known =
+        hash && lookup(ModuleCacheService.keyOf(hash, file.extension), file.absolutePath, read);
+      if (known) {
+        return known;
+      }
+      const text = read();
+      if (text === undefined) {
+        return undefined;
+      }
+      const key = ModuleCacheService.keyOf(ModuleCacheService.hashOf(text), file.extension);
+      const hit = lookup(key, file.absolutePath, () => text);
+      if (hit) {
+        return hit;
       }
       if (stats) {
         stats.filesParsed++;
       }
-      const parsed = parseFile(absolutePath, text);
-      entries.set(path, parsed);
-      return parsed;
+      const result = parseFile(file.absolutePath, text);
+      parsed.set(key, result);
+      store.set(key, { module: result.module, errors: result.errors });
+      return result;
+    },
+    has: (hash, extension) => {
+      if (!hash) {
+        return false;
+      }
+      const key = ModuleCacheService.keyOf(hash, extension);
+      return parsed.has(key) || store.get(key) !== undefined;
     },
   };
 };

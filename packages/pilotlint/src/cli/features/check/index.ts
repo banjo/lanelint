@@ -50,6 +50,11 @@ export const check = defineCommand({
       type: 'string',
       description: 'Path to the config file',
     },
+    cache: {
+      type: 'boolean',
+      default: true,
+      description: 'Reuse module info from earlier runs. Use --no-cache to turn it off',
+    },
   },
   run: ({ args, rawArgs }) =>
     CommandService.run(async () => {
@@ -68,6 +73,7 @@ export const check = defineCommand({
         onlyNew: args.new,
         rules: ArgsUtil.repeated(rawArgs, 'rule'),
         failOn,
+        cache: args.cache,
       });
       const options = { maxFindings, onlyNew: !!args.new, base };
       console.log(

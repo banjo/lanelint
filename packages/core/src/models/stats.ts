@@ -4,6 +4,8 @@ export interface WorkStats {
   filesRead: number;
   /** Files parsed. Unchanged files are parsed once, even with `--new`. */
   filesParsed: number;
+  /** Files whose module info came from the cache of an earlier run instead of being parsed. */
+  modulesFromCache: number;
   /** Specifiers resolved. Each specifier is resolved once per directory, even with `--new`. */
   importsResolved: number;
 }

@@ -2,6 +2,7 @@ import type { ResolvedConfig, ResolvedEntry } from '../config/resolveConfig.ts';
 import { LocationUtil } from '../utils/locationUtil.ts';
 import type { Severity } from '../models/finding.ts';
 import type { ElementInfo } from '../models/project.ts';
+import { ModuleCacheService } from '../services/moduleCacheService.ts';
 import { ParseService } from '../services/parseService.ts';
 import { createProject } from '../project/project.ts';
 import { ResolveService } from '../services/resolveService.ts';
@@ -94,7 +95,7 @@ export async function describeProject(
     elements: config.elements,
     tests: config.tests,
     configFile: config.configFile,
-    parseCache: ParseService.createCache(),
+    parseCache: ParseService.createCache(ModuleCacheService.memory()),
     resolver: ResolveService.create(),
   });
 

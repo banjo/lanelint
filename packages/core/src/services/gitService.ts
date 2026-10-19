@@ -160,8 +160,32 @@ const readAtRef = async (
   return contents;
 };
 
+/**
+ * Blob hashes of files whose working copy matches the index, by root-relative path. Files that
+ * differ, conflict, or are not regular files are left out, so their content must be read.
+ */
+const cleanHashes = async (root: string): Promise<Map<string, string>> => {
+  const [staged, modified] = await Promise.all([
+    run(root, ['ls-files', '--stage', '-z']),
+    run(root, ['diff-files', '--name-only', '--relative', '-z']),
+  ]);
+  const dirty = new Set(modified.toString('utf8').split('\0').filter(Boolean));
+  const hashes = new Map<string, string>();
+  for (const entry of staged.toString('utf8').split('\0')) {
+    // <mode> <hash> <stage>\t<path>
+    const tab = entry.indexOf('\t');
+    const [mode, hash, stage] = entry.slice(0, tab).split(' ');
+    const path = entry.slice(tab + 1);
+    if (tab > 0 && hash && stage === '0' && mode?.startsWith('100') && !dirty.has(path)) {
+      hashes.set(path, hash);
+    }
+  }
+  return hashes;
+};
+
 export const GitService = {
   changes,
+  cleanHashes,
   readAtRef,
   repository,
 };

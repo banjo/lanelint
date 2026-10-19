@@ -8,15 +8,26 @@ import { CHANGES, generateProject } from './generatedProject.ts';
 
 interface Report {
   readonly summary: { readonly stats: WorkStats };
+  readonly findings: readonly { readonly identity: string }[];
 }
 
-const statsOf = (fixture: Fixture, ...args: string[]): WorkStats => {
+const reportOf = (fixture: Fixture, args: readonly string[]): Report => {
   const result = fixture.run('check', ...args, '--format', 'json', '--fail-on', 'never');
   if (result.status !== 0) {
     throw new Error(result.stderr || result.stdout);
   }
-  return (JSON.parse(result.stdout) as Report).summary.stats;
+  return JSON.parse(result.stdout) as Report;
 };
+
+/** Work without the cache between runs, so each run starts from nothing. */
+const statsOf = (fixture: Fixture, ...args: string[]): WorkStats =>
+  reportOf(fixture, [...args, '--no-cache']).summary.stats;
+
+const cachedStatsOf = (fixture: Fixture, ...args: string[]): WorkStats =>
+  reportOf(fixture, args).summary.stats;
+
+const identitiesOf = (fixture: Fixture, ...args: string[]) =>
+  reportOf(fixture, args).findings.map((finding) => finding.identity);
 
 const project = generateProject({ features: 4, filesPerFeature: 6, domains: 3, filesPerDomain: 4 });
 const changedFiles = Object.keys(CHANGES).length;
@@ -49,6 +60,7 @@ describe('work', () => {
     expect(statsOf(fixture, '--changed', '--config', 'fast.config.ts')).toEqual({
       filesRead: changedFiles,
       filesParsed: changedFiles,
+      modulesFromCache: 0,
       importsResolved: 0,
     });
   });
@@ -70,5 +82,49 @@ describe('work', () => {
     expect(stats.filesRead).toBe(full.filesRead + changedFiles);
     expect(stats.filesParsed).toBe(full.filesParsed + changedFiles);
     expect(stats.importsResolved).toBeLessThanOrEqual(full.importsResolved + baseImports);
+  });
+});
+
+describe('cache between runs', () => {
+  let fixture: Fixture;
+  let first: WorkStats;
+
+  beforeAll(() => {
+    fixture = createFixture('feature-folders', project);
+    first = cachedStatsOf(fixture);
+    fixture.write(CHANGES);
+  });
+
+  afterAll(() => fixture.remove());
+
+  it('parses everything on the first run', () => {
+    expect(first.modulesFromCache).toBe(0);
+    expect(first.filesParsed).toBeGreaterThan(40);
+  });
+
+  it('reads and parses only the changed files on the next run', () => {
+    const uncached = statsOf(fixture, '--changed');
+    const cached = cachedStatsOf(fixture, '--changed');
+    expect(cached.filesParsed).toBe(changedFiles);
+    expect(cached.modulesFromCache).toBe(uncached.filesParsed - changedFiles);
+    // The changed files, and the config, which pilotlint/config-changed reads.
+    expect(cached.filesRead).toBeLessThanOrEqual(changedFiles + 1);
+  });
+
+  it('takes the base versions of changed files from the cache with --new', () => {
+    const cached = cachedStatsOf(fixture, '--changed', '--new');
+    expect(cached.filesParsed).toBe(0);
+  });
+
+  it('finds the same problems as without the cache, including in files edited since', () => {
+    fixture.write({
+      'src/common/domain-0/models/model0.ts':
+        "import { component01 } from '../../../features/feature-1/components/component0.ts';\nexport const model00 = component01;\n",
+    });
+    const cached = identitiesOf(fixture, '--changed');
+    expect(cached).toEqual(identitiesOf(fixture, '--changed', '--no-cache'));
+    expect(cached.some((identity) => identity.startsWith('boundaries/allowed-imports|'))).toBe(
+      true,
+    );
   });
 });

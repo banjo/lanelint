@@ -31,9 +31,14 @@ pilotlint check --rule boundaries/entry-only # one rule
 | `--fail-on <level>`  | `error`, `warn`, or `never`. Overrides `failOn` in the config       |
 | `--format <format>`  | `compact` (default) or `json`                                       |
 | `--max-findings <n>` | Print at most `n` findings in compact output. Default `50`          |
+| `--no-cache`         | Parse every file instead of reusing module info from earlier runs   |
 
 Paths and `--changed` limit what is reported, not what is checked: a cycle is still found
 when only one of its files changed.
+
+pilotlint keeps the imports and exports of each file in `node_modules/.cache/pilotlint`, keyed
+by the file's git hash. The next check reads and parses only the files that changed. The cache
+is skipped when the project root has no `node_modules`.
 
 ### Compact output
 
@@ -61,7 +66,7 @@ the next run can be narrowed with a path or `--rule`. Colors are only used in a 
     "failed": true,
     "onlyNew": false,
     "base": "HEAD",
-    "stats": { "filesRead": 15, "filesParsed": 12, "importsResolved": 31 }
+    "stats": { "filesRead": 15, "filesParsed": 12, "modulesFromCache": 0, "importsResolved": 31 }
   },
   "findings": [
     {
@@ -78,8 +83,8 @@ the next run can be narrowed with a path or `--rule`. Colors are only used in a 
 ```
 
 `version` changes only when the format changes in a breaking way. `identity` never contains
-line numbers. `stats` counts the work the check did: files read, files parsed, and imports
-resolved, over the working tree and, with `--new`, the base.
+line numbers. `stats` counts the work the check did: files read, files parsed, modules taken
+from the cache, and specifiers resolved, over the working tree and, with `--new`, the base.
 
 ## describe
 

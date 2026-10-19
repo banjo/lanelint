@@ -42,7 +42,6 @@ list of the problems it introduced.
 - Editor integration (LSP, ESLint or oxlint adapter)
 - Autofix
 - Type-aware rules (no type checker is run)
-- Persistent cache between runs
 - Running type checks, linters, or tests (see
   [Verification scope](#verification-scope-structure-only))
 
@@ -703,6 +702,17 @@ How:
   with the file listing.
 - `--new` shares parse results between snapshots.
 - Files are read concurrently.
+- Module info (imports, exports, parse errors) is kept between runs in
+  `node_modules/.cache/pilotlint`, keyed by git blob hash and extension. Git
+  gives the hash of every file that matches the index (`git ls-files -s`,
+  minus `git diff-files`) without reading it; other files are read and hashed.
+  So after an edit only changed files are read and parsed, and a full AST is
+  built only for rules that need one. The cache is versioned by a format
+  number, the core version, and the oxc-parser version, written atomically,
+  and pruned when it grows past twice the project's files. Resolutions are not
+  cached yet: a new file can change what an existing import resolves to.
+  `--no-cache` turns it off. On Cal.com (4,813 parsed files), a `--changed`
+  check with `no-cycles` went from about 4 s to 1.4–2 s on a busy machine.
 - Each run prints its duration and counts its work: files read, files parsed,
   and imports resolved (`stats` in `--format json`). A test checks the counts
   on a generated project, for example that `--changed` without project rules

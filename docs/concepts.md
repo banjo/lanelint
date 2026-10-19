@@ -78,6 +78,10 @@ project in steps, and only takes a step when a rule needs it:
 A config with only naming rules never reads a file. A check of a few changed files parses
 those files and the files their rules need, not the whole project.
 
+Rules about the whole project, such as `no-cycles`, need the imports of every file. pilotlint
+keeps them between runs in `node_modules/.cache/pilotlint`, keyed by each file's git hash, which
+git knows without reading the file. After an edit, only the changed files are read and parsed.
+
 Parsing and import resolution use [Oxc](https://oxc.rs), written in Rust. On a project with
 1,053 files, Oxc collected every import in 60 ms, where the TypeScript compiler API took
 260 ms. Comments come almost for free with module info, so a rule such as `no-suppressions`
