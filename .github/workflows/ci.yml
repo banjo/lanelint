@@ -22,9 +22,9 @@ jobs:
       - run: vp check
       - run: vp run -r build
       - run: vp run -r test
-        env:
-          # Shared runners are slower than a laptop; the budgets still catch regressions.
-          PILOTLINT_BUDGET_FACTOR: '2'
+
+      # Prints the time of checks on about 1,000 files. It never fails on the times.
+      - run: vp run --no-cache pilotlint#bench
 
       - name: pilotlint
         run: vp exec pilotlint check ${{ github.event_name == 'pull_request' && format('--base origin/{0} --new', github.base_ref) || '' }}

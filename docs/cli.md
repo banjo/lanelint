@@ -60,7 +60,8 @@ the next run can be narrowed with a path or `--rule`. Colors are only used in a 
     "durationMs": 92,
     "failed": true,
     "onlyNew": false,
-    "base": "HEAD"
+    "base": "HEAD",
+    "stats": { "filesRead": 15, "filesParsed": 12, "importsResolved": 31 }
   },
   "findings": [
     {
@@ -77,7 +78,8 @@ the next run can be narrowed with a path or `--rule`. Colors are only used in a 
 ```
 
 `version` changes only when the format changes in a breaking way. `identity` never contains
-line numbers.
+line numbers. `stats` counts the work the check did: files read, files parsed, and imports
+resolved, over the working tree and, with `--new`, the base.
 
 ## describe
 

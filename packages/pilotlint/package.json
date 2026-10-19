@@ -49,6 +49,7 @@
     "build": "vp pack",
     "dev": "vp pack --watch",
     "test": "vp test",
+    "bench": "node tests/bench.ts",
     "check": "vp check",
     "prepublishOnly": "vp run build"
   },

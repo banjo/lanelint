@@ -1,5 +1,6 @@
 import { parseSync, Visitor, type Comment, type ParseResult } from 'oxc-parser';
 import type { AstInfo, ModuleExport, ModuleImport, ModuleInfo } from '../models/module.ts';
+import type { WorkStats } from '../models/stats.ts';
 import { LineUtil, type LineIndex } from '../utils/lineUtil.ts';
 
 export interface ParseError {
@@ -211,13 +212,16 @@ const parseFile = (absolutePath: string, text: string): ParsedFile => {
   };
 };
 
-const createCache = (): ParseCache => {
+const createCache = (stats?: WorkStats): ParseCache => {
   const entries = new Map<string, ParsedFile>();
   return {
     parse(path, absolutePath, text) {
       const cached = entries.get(path);
       if (cached?.text === text) {
         return cached;
+      }
+      if (stats) {
+        stats.filesParsed++;
       }
       const parsed = parseFile(absolutePath, text);
       entries.set(path, parsed);

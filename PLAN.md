@@ -703,9 +703,13 @@ How:
   with the file listing.
 - `--new` shares parse results between snapshots.
 - Files are read concurrently.
-- Each run prints its duration, and a test fails if a generated project of
-  about 1,000 files misses the budgets. CI raises them by a factor with
-  `PILOTLINT_BUDGET_FACTOR` because shared runners are slower.
+- Each run prints its duration and counts its work: files read, files parsed,
+  and imports resolved (`stats` in `--format json`). A test checks the counts
+  on a generated project, for example that `--changed` without project rules
+  parses only the changed files. Counts do not depend on the machine, so the
+  test is never flaky. `pnpm bench` measures the time on a generated project
+  of about 1,000 files and prints it; CI runs it too, but it never fails on
+  the times.
 
 Measured on the generated project (1,015 files, engine time, on a machine where
 each git process takes about 40 ms):
@@ -1025,7 +1029,7 @@ Milestones 1 to 7 are done. 8 and 9 are open. The docs in `docs/`, including
    resolution, git changes, rule runner, finding identity, config resolution
    and validation, severity, scope, core findings, testing helpers.
 3. **CLI:** `check` with all flags including `--new`, `describe`,
-   `rules list`, `rules explain`, reporters, exit codes, performance budget in
+   `rules list`, `rules explain`, reporters, exit codes, work counts and a benchmark in
    CI.
 4. **plugin-boundaries**
 5. **plugin-conventions**

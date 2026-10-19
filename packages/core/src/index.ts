@@ -44,6 +44,7 @@ export type {
   TypedConfigFragment,
 } from './models/config.ts';
 export type { FailOn, Finding, Level, Location, LocationKind, Severity } from './models/finding.ts';
+export type { WorkStats } from './models/stats.ts';
 export type {
   AstInfo,
   Comment,

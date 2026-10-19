@@ -14,6 +14,7 @@ export const formatJson = (result: CheckResult, options: ReportOptions): string 
         failed: result.failed,
         onlyNew: options.onlyNew,
         base: options.base,
+        stats: result.stats,
       },
       findings: result.findings,
     },

@@ -5,6 +5,7 @@ import { UsageError } from '../errors.ts';
 import { GitService } from '../services/gitService.ts';
 import type { Change } from '../models/changes.ts';
 import type { FailOn, Finding } from '../models/finding.ts';
+import type { WorkStats } from '../models/stats.ts';
 import { ParseService } from '../services/parseService.ts';
 import { createProject } from '../project/project.ts';
 import { ResolveService } from '../services/resolveService.ts';
@@ -41,6 +42,8 @@ export interface CheckResult {
   readonly durationMs: number;
   /** True when the findings reach the `failOn` threshold. */
   readonly failed: boolean;
+  /** How much work the check did, counted over the working tree and, with `onlyNew`, the base. */
+  readonly stats: Readonly<WorkStats>;
 }
 
 const compare = (a: Finding, b: Finding) =>
@@ -101,7 +104,8 @@ export async function check(options: CheckOptions): Promise<CheckResult> {
       )
     : undefined;
 
-  const parseCache = ParseService.createCache();
+  const stats: WorkStats = { filesRead: 0, filesParsed: 0, importsResolved: 0 };
+  const parseCache = ParseService.createCache(stats);
   const resolver = ResolveService.create();
   const run = async (snapshot: Snapshot, changes: ChangeState) => {
     const project = createProject({
@@ -112,6 +116,7 @@ export async function check(options: CheckOptions): Promise<CheckResult> {
       configFile: config.configFile,
       parseCache,
       resolver,
+      stats,
     });
     const scope = createScope(project, prefixes, changed);
     const findings = await runRules({
@@ -148,5 +153,6 @@ export async function check(options: CheckOptions): Promise<CheckResult> {
     filesInScope: current.filesInScope,
     durationMs: performance.now() - start,
     failed: failOn === 'never' ? false : failOn === 'warn' ? findings.length > 0 : errorCount > 0,
+    stats,
   };
 }

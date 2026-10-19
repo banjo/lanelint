@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "ready": "vp check && vp run -r test && vp run pilotlint",
+    "bench": "vp run --no-cache pilotlint#bench",
     "pilotlint": "pilotlint check",
     "docs:rules": "pilotlint rules docs",
     "changeset": "changeset",

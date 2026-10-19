@@ -8,6 +8,7 @@ import type {
   ProjectFile,
 } from '../models/project.ts';
 import type { Graph, ProjectApi } from '../models/rule.ts';
+import type { WorkStats } from '../models/stats.ts';
 import { DEFAULT_IGNORE, SOURCE_EXTENSIONS } from '../constants/defaults.ts';
 import { GlobUtil } from '../utils/globUtil.ts';
 import { ElementUtil, type CompiledElement, type ElementMatch } from '../utils/elementUtil.ts';
@@ -23,6 +24,7 @@ export interface ProjectOptions {
   readonly configFile: string | undefined;
   readonly parseCache: ParseCache;
   readonly resolver: Resolver;
+  readonly stats?: WorkStats;
 }
 
 /** The project API given to rules, plus what the engine needs to drive the tiers. */
@@ -201,14 +203,21 @@ export function createProject(options: ProjectOptions): ProjectModel {
   const elementList = [...elementMap.values()].sort((a, b) => a.root.localeCompare(b.root));
 
   const texts = new Map<string, string | undefined>();
+  const counted = (count: number) => {
+    if (options.stats) {
+      options.stats.filesRead += count;
+    }
+  };
   const textSync = (path: string) => {
     if (!texts.has(path)) {
+      counted(1);
       texts.set(path, snapshot.readSync(path));
     }
     return texts.get(path);
   };
   const preload = async (paths: readonly string[]) => {
     const missing = paths.filter((path) => !texts.has(path));
+    counted(missing.length);
     const contents = await Promise.all(missing.map((path) => snapshot.read(path)));
     missing.forEach((path, index) => texts.set(path, contents[index]));
   };
@@ -294,6 +303,9 @@ export function createProject(options: ProjectOptions): ProjectModel {
     return isBare(specifier) ? workspaceTarget(specifier) : undefined;
   };
   const targetOf = (from: ProjectFile, specifier: string): ImportTarget => {
+    if (options.stats) {
+      options.stats.importsResolved++;
+    }
     const resolved = resolver.resolve(from.absolutePath, specifier);
     if (resolved && 'builtin' in resolved) {
       return { type: 'builtin', module: specifier.replace(/^node:/, '') };

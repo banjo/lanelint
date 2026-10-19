@@ -190,6 +190,7 @@ The repository uses [Vite+](https://viteplus.dev) and pnpm:
 pnpm install
 pnpm ready         # format, lint, type check, test, and check this repository with pilotlint
 pnpm docs:rules    # update docs/rules
+pnpm bench        # time checks on a generated project of about 1,000 files
 pnpm changeset     # describe a change for the changelog
 ```
 
