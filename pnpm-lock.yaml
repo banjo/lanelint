@@ -201,6 +201,9 @@ catalogs:
     '@types/picomatch':
       specifier: ^4.0.3
       version: 4.0.3
+    '@types/react':
+      specifier: ^19.3.0
+      version: 19.3.0
     '@valibot/to-json-schema':
       specifier: ^1.8.0
       version: 1.8.0
@@ -222,6 +225,9 @@ catalogs:
     picomatch:
       specifier: ^4.0.7
       version: 4.0.7
+    react:
+      specifier: ^19.3.1
+      version: 19.3.1
     tinyglobby:
       specifier: ^0.2.17
       version: 0.2.17
@@ -266,6 +272,28 @@ importers:
       vite-plus:
         specifier: 'catalog:'
         version: 1.1.0(@types/node@24.19.2)(@vitest/ui@5.0.3)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.1)
+
+  examples/bulletproof-react:
+    dependencies:
+      '@types/react':
+        specifier: 'catalog:'
+        version: 19.3.0
+      react:
+        specifier: 'catalog:'
+        version: 19.3.1
+    devDependencies:
+      '@pilotlint/plugin-boundaries':
+        specifier: workspace:*
+        version: link:../../packages/plugin-boundaries
+      '@pilotlint/plugin-conventions':
+        specifier: workspace:*
+        version: link:../../packages/plugin-conventions
+      '@pilotlint/presets':
+        specifier: workspace:*
+        version: link:../../packages/presets
+      pilotlint:
+        specifier: workspace:*
+        version: link:../../packages/pilotlint
 
   examples/feature-folders:
     devDependencies:
@@ -1121,6 +1149,9 @@ packages:
   '@types/picomatch@4.0.3':
     resolution: {integrity: sha512-iG0T6+nYJ9FAPmx9SsUlnwcq1ZVRuCXcVEvWnntoPlrOpwtSTKNDC9uVAxTsC3PUvJ+99n4RpAcNgBbHX3JSnQ==}
 
+  '@types/react@19.3.0':
+    resolution: {integrity: sha512-N0rFCuH9YoxG9/m61l9MfpJKfmLOVU0em7ipIz6TRgSSkvReLB9vL85GB+yr8Bs5leqpvg96JSwF4ZS1s4viQg==}
+
   '@typescript/typescript-aix-ppc64@7.0.2':
     resolution: {integrity: sha512-MTKKkWB7p/0E9xi1d1tHtZ5PiLkGEMIq88pK2CubZjOsLtYTLqhgIgi6zepFa+9GHZ6h05NMCkQxGKiPXMxXtQ==}
     engines: {node: '>=16.20.0'}
@@ -1590,6 +1621,9 @@ packages:
   convert-source-map@2.0.0:
     resolution: {integrity: sha512-Kvp459HrV2FEJ1CAsi1Ku+MY3kasH19TFykTz2xWmMeq6bk2NU3XXvfJ+Q61m0xktWwt+1HSYf3JZsTms3aRJg==}
 
+  csstype@3.2.3:
+    resolution: {integrity: sha512-z1HGKcYy2xA8AGQfwrn0PAy+PB7X/GSj3UVJW9qKyn43xWa+gl5nXmU4qqLMRzWVLFC8KusUX8T/0kCiOYpAIQ==}
+
   dequal@2.0.3:
     resolution: {integrity: sha512-0je+qPKHEMohvfRTCEo3CrPG6cAzAYgmzKyxRiYSSDkS6eGJdyVJm7WaYA5ECaAD9wLB2T4EEeymA5aFVcYXCA==}
     engines: {node: '>=6'}
@@ -1821,6 +1855,10 @@ packages:
 
   react-is@17.0.2:
     resolution: {integrity: sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w==}
+
+  react@19.3.1:
+    resolution: {integrity: sha512-QNhWdt7nrgVWWQG58QuGsAR3jv3Hbe4mb4vz7w2csnHavciZJgda1CPNaldF6eVxv90ud3jUXpKlHL69gO38yw==}
+    engines: {node: '>=0.10.0'}
 
   semver@7.8.5:
     resolution: {integrity: sha512-Y7/KDsb8LjooZpwaqGyulO6DQlksgCncchHGk+sZIY4SBvUocMBEFH5Ur1fI4dV+Jvl0w6cjvucaIi40puRioA==}
@@ -2452,6 +2490,10 @@ snapshots:
 
   '@types/picomatch@4.0.3': {}
 
+  '@types/react@19.3.0':
+    dependencies:
+      csstype: 3.2.3
+
   '@typescript/typescript-aix-ppc64@7.0.2':
     optional: true
 
@@ -2784,6 +2826,8 @@ snapshots:
 
   convert-source-map@2.0.0: {}
 
+  csstype@3.2.3: {}
+
   dequal@2.0.3: {}
 
   detect-libc@2.1.2: {}
@@ -3024,6 +3068,8 @@ snapshots:
       react-is: 17.0.2
 
   react-is@17.0.2: {}
+
+  react@19.3.1: {}
 
   semver@7.8.5: {}
 

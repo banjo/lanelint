@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="940" height="566" viewBox="0 0 940 566" role="img" aria-label="Before: a src folder where features are mixed into components, with helpers, api.ts, types.ts, and utils.ts at the top. After: a Bulletproof React structure with app, one folder per feature, shared components and lib, and utils split by topic.">
+  <defs>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="6" stdDeviation="9" flood-color="#0f172a" flood-opacity="0.08"/>
+    </filter>
+  </defs>
+  <style>
+    .card { fill: #ffffff; stroke: #e5e7eb; }
+    .panel { fill: #f8fafc; stroke: #eef2f7; }
+    .sans { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Helvetica, Arial, sans-serif; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; fill: #1e293b; white-space: pre; }
+    .head { font-size: 13px; font-weight: 600; }
+    .sub { font-size: 13px; fill: #64748b; }
+    .item { font-size: 13.5px; fill: #334155; }
+    .bad-pill { fill: #fef2f2; } .bad-pill-text { fill: #dc2626; }
+    .good-pill { fill: #f0fdf4; } .good-pill-text { fill: #16a34a; }
+    .bad-dot { fill: #fee2e2; } .good-dot { fill: #dcfce7; }
+    .bad-mark { stroke: #dc2626; } .good-mark { stroke: #16a34a; }
+    .arrow-bg { fill: #ffffff; stroke: #e5e7eb; } .arrow { stroke: #64748b; }
+    .dim { fill: #94a3b8; } .dir { fill: #0369a1; } .file { fill: #1e293b; } .bad { fill: #dc2626; }
+    .kw { fill: #7c3aed; } .str { fill: #047857; } .num { fill: #b45309; } .type { fill: #0e7490; } .fn { fill: #1d4ed8; }
+    @media (prefers-color-scheme: dark) {
+      .card { fill: #161b22; stroke: #30363d; }
+      .panel { fill: #0d1117; stroke: #21262d; }
+      .mono, .file { fill: #e6edf3; }
+      .sub { fill: #8b949e; }
+      .item { fill: #c9d1d9; }
+      .bad-pill { fill: #3b1219; } .bad-pill-text { fill: #ff7b72; }
+      .good-pill { fill: #0f2e1b; } .good-pill-text { fill: #56d364; }
+      .bad-dot { fill: #3b1219; } .good-dot { fill: #0f2e1b; }
+      .bad-mark { stroke: #ff7b72; } .good-mark { stroke: #56d364; }
+      .arrow-bg { fill: #161b22; stroke: #30363d; } .arrow { stroke: #8b949e; }
+      .dim { fill: #6e7681; } .dir { fill: #79c0ff; } .bad { fill: #ff7b72; }
+      .kw { fill: #d2a8ff; } .str { fill: #a5d6ff; } .num { fill: #ffa657; } .type { fill: #7ee787; } .fn { fill: #79c0ff; }
+    }
+  </style>
+  <rect x="8" y="8" width="444" height="538" rx="16" class="card" filter="url(#shadow)"/>
+  <rect x="30" y="30" width="66" height="26" rx="13" class="bad-pill"/>
+  <text x="63.0" y="47.5" text-anchor="middle" class="sans head bad-pill-text">Before</text>
+  <text x="108" y="47.5" class="sans sub">Everything in one place</text>
+  <rect x="26" y="74" width="408" height="324" rx="10" class="panel"/>
+  <text x="42" y="100" class="mono" xml:space="preserve"><tspan class="dir">src/</tspan></text>
+  <text x="42" y="120" class="mono" xml:space="preserve"><tspan class="dim">├── </tspan><tspan class="bad">components/</tspan></text>
+  <text x="42" y="140" class="mono" xml:space="preserve"><tspan class="dim">│   ├── </tspan><tspan class="file">CommentsList.tsx</tspan></text>
+  <text x="42" y="160" class="mono" xml:space="preserve"><tspan class="dim">│   ├── </tspan><tspan class="file">DiscussionCard.tsx</tspan></text>
+  <text x="42" y="180" class="mono" xml:space="preserve"><tspan class="dim">│   ├── </tspan><tspan class="file">DiscussionPage.tsx</tspan></text>
+  <text x="42" y="200" class="mono" xml:space="preserve"><tspan class="dim">│   └── </tspan><tspan class="file">useComments.ts</tspan></text>
+  <text x="42" y="220" class="mono" xml:space="preserve"><tspan class="dim">├── </tspan><tspan class="bad">helpers/</tspan></text>
+  <text x="42" y="240" class="mono" xml:space="preserve"><tspan class="dim">│   └── </tspan><tspan class="file">format.ts</tspan></text>
+  <text x="42" y="260" class="mono" xml:space="preserve"><tspan class="dim">├── </tspan><tspan class="bad">api.ts</tspan></text>
+  <text x="42" y="280" class="mono" xml:space="preserve"><tspan class="dim">├── </tspan><tspan class="bad">types.ts</tspan></text>
+  <text x="42" y="300" class="mono" xml:space="preserve"><tspan class="dim">└── </tspan><tspan class="bad">utils.ts</tspan></text>
+  <circle cx="42" cy="428" r="10" class="bad-dot"/>
+  <path d="M38.5 424.5 L45.5 431.5 M45.5 424.5 L38.5 431.5" class="bad-mark" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <text x="62" y="432.5" class="sans item">Features are mixed into components/</text>
+  <circle cx="42" cy="458" r="10" class="bad-dot"/>
+  <path d="M38.5 454.5 L45.5 461.5 M45.5 454.5 L38.5 461.5" class="bad-mark" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <text x="62" y="462.5" class="sans item">Any file can import any other</text>
+  <circle cx="42" cy="488" r="10" class="bad-dot"/>
+  <path d="M38.5 484.5 L45.5 491.5 M45.5 484.5 L38.5 491.5" class="bad-mark" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <text x="62" y="492.5" class="sans item">helpers/ next to utils.ts</text>
+  <circle cx="42" cy="518" r="10" class="bad-dot"/>
+  <path d="M38.5 514.5 L45.5 521.5 M45.5 514.5 L38.5 521.5" class="bad-mark" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <text x="62" y="522.5" class="sans item">One types.ts and utils.ts for everything</text>
+  <rect x="488" y="8" width="444" height="538" rx="16" class="card" filter="url(#shadow)"/>
+  <rect x="510" y="30" width="58" height="26" rx="13" class="good-pill"/>
+  <text x="539.0" y="47.5" text-anchor="middle" class="sans head good-pill-text">After</text>
+  <text x="580" y="47.5" class="sans sub">Bulletproof React</text>
+  <rect x="506" y="74" width="408" height="324" rx="10" class="panel"/>
+  <text x="522" y="100" class="mono" xml:space="preserve"><tspan class="dir">src/</tspan></text>
+  <text x="522" y="120" class="mono" xml:space="preserve"><tspan class="dim">├── </tspan><tspan class="dir">app/</tspan></text>
+  <text x="522" y="140" class="mono" xml:space="preserve"><tspan class="dim">│   └── </tspan><tspan class="dir">routes/</tspan><tspan class="file">discussions.tsx</tspan></text>
+  <text x="522" y="160" class="mono" xml:space="preserve"><tspan class="dim">├── </tspan><tspan class="dir">features/</tspan></text>
+  <text x="522" y="180" class="mono" xml:space="preserve"><tspan class="dim">│   ├── </tspan><tspan class="dir">comments/</tspan></text>
+  <text x="522" y="200" class="mono" xml:space="preserve"><tspan class="dim">│   │   ├── </tspan><tspan class="dir">api/</tspan><tspan class="file">get-comments.ts</tspan></text>
+  <text x="522" y="220" class="mono" xml:space="preserve"><tspan class="dim">│   │   └── </tspan><tspan class="dir">components/</tspan><tspan class="file">comments-list.tsx</tspan></text>
+  <text x="522" y="240" class="mono" xml:space="preserve"><tspan class="dim">│   └── </tspan><tspan class="dir">discussions/</tspan></text>
+  <text x="522" y="260" class="mono" xml:space="preserve"><tspan class="dim">│       ├── </tspan><tspan class="dir">api/</tspan><tspan class="file">get-discussion.ts</tspan></text>
+  <text x="522" y="280" class="mono" xml:space="preserve"><tspan class="dim">│       └── </tspan><tspan class="dir">components/</tspan><tspan class="file">discussion-card.tsx</tspan></text>
+  <text x="522" y="300" class="mono" xml:space="preserve"><tspan class="dim">├── </tspan><tspan class="dir">components/</tspan><tspan class="dir">ui/</tspan><tspan class="file">button.tsx</tspan></text>
+  <text x="522" y="320" class="mono" xml:space="preserve"><tspan class="dim">├── </tspan><tspan class="dir">lib/</tspan><tspan class="file">api-client.ts</tspan></text>
+  <text x="522" y="340" class="mono" xml:space="preserve"><tspan class="dim">└── </tspan><tspan class="dir">utils/</tspan></text>
+  <text x="522" y="360" class="mono" xml:space="preserve"><tspan class="dim">    ├── </tspan><tspan class="file">dateUtil.ts</tspan></text>
+  <text x="522" y="380" class="mono" xml:space="preserve"><tspan class="dim">    └── </tspan><tspan class="file">priceUtil.ts</tspan></text>
+  <circle cx="522" cy="428" r="10" class="good-dot"/>
+  <path d="M518 428.5 L520.8 431.3 L526.2 425" class="good-mark" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <text x="542" y="432.5" class="sans item">One folder per feature, composed in app/</text>
+  <circle cx="522" cy="458" r="10" class="good-dot"/>
+  <path d="M518 458.5 L520.8 461.3 L526.2 455" class="good-mark" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <text x="542" y="462.5" class="sans item">Features never import each other</text>
+  <circle cx="522" cy="488" r="10" class="good-dot"/>
+  <path d="M518 488.5 L520.8 491.3 L526.2 485" class="good-mark" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <text x="542" y="492.5" class="sans item">Shared code never imports features</text>
+  <circle cx="522" cy="518" r="10" class="good-dot"/>
+  <path d="M518 518.5 L520.8 521.3 L526.2 515" class="good-mark" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <text x="542" y="522.5" class="sans item">Utils split by topic, named &lt;topic&gt;Util.ts</text>
+  <circle cx="470.0" cy="277.0" r="15" class="arrow-bg"/>
+  <path d="M465.0 277.0 L475.0 277.0 M471.0 273.0 L475.0 277.0 L471.0 281.0" class="arrow" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+</svg>

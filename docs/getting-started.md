@@ -85,5 +85,6 @@ already exist at `HEAD`. Fix the old findings when you have time, or set their r
 - [Configuration](configuration.md): every field of the config.
 - [Rules](rules/README.md): what each rule checks and its options.
 - [Agents](agents.md): the skill and hooks that make agents run pilotlint.
-- Complete configs: [feature folders](../examples/feature-folders/pilotlint.config.ts) and
-  [a monorepo](../examples/monorepo/pilotlint.config.ts).
+- Complete configs: [feature folders](../examples/feature-folders/pilotlint.config.ts),
+  [a monorepo](../examples/monorepo/pilotlint.config.ts), and
+  [Bulletproof React with naming rules](../examples/bulletproof-react/pilotlint.config.ts).

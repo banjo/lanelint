@@ -28,6 +28,8 @@
 </p>
 
 - 🤖 Built for agents: one finding per line, each with a hint that says how to fix it
+- 🛤️ Keeps agents in their lane: the same rules on every edit, however small the task or long
+  the session
 - 🎯 `--new` reports only what the current change broke, even in a codebase full of old problems
 - ⚡️ Built on [Oxc](https://oxc.rs), the Rust parser and resolver, so it can run after every edit
 - 📦 Built-in caching, so a check after an edit parses only the files that changed
@@ -45,10 +47,63 @@
 
 Coding agents write code that works and put it in the wrong place. A feature reaches into
 another feature's internals, shared code imports from a feature, and a new `helpers.ts` shows
-up next to the `utils/` folder you already have. Rules in `AGENTS.md` are suggestions, and the
-agent forgets them in a long session. pilotlint turns them into checks that run after every
-edit, so the agent fixes its own mistakes and you review code that is already in the right
-place.
+up next to the `utils/` folder you already have.
+
+It happens because an agent only knows the structure it can see. With a small task, it sees a
+few files and guesses the rest of the layout. With a big task or a long session, the rules in
+`AGENTS.md` scroll out of its context and get dropped. Either way, it drifts from the structure
+you expect, a little more with every change.
+
+pilotlint keeps it in its lane. The rules live in a config instead of a prompt, and a check
+runs after every edit, so the agent gets the same answer at the start of a session and three
+hours in, on a one-line fix and on a new feature. It fixes its own mistakes, and you review
+code that is already in the right place.
+
+## Before and after
+
+One example of what pilotlint can enforce. The "after" side is not built in: it is a
+structure and a set of conventions picked for this demo, and you write the rules for your
+own. Any layout and any naming scheme work, from your own folder names to `snake_case` files
+or a different util style.
+
+<p align="center">
+  <img src="assets/before-after-structure.svg" alt="Before: a src folder where features are mixed into components, with helpers, api.ts, types.ts, and utils.ts at the top. After: a Bulletproof React structure with app, one folder per feature, shared components and lib, and utils split by topic.">
+</p>
+
+<p align="center">
+  <img src="assets/before-after-utils.svg" alt="Before: src/utils.ts with loose date and price functions and a default export. After: src/utils/dateUtil.ts with only date functions, exported as one DateUtil object.">
+</p>
+
+These are the settings for this demo: the Bulletproof React preset, plus naming rules chosen
+for it. The [example project](examples/bulletproof-react) has the structure on the right, and a
+test checks that this config catches every problem on the left:
+
+```ts
+// pilotlint.config.ts
+export default defineConfig({
+  plugins: [conventions],
+  extends: [boundaries.configs.recommended, bulletproofReact()],
+  rules: {
+    // No catch-all files or folders.
+    'conventions/forbidden-files': ['error', { patterns: [{ name: '{utils,helpers,types}.ts' }] }],
+    'conventions/forbidden-directories': ['error', { patterns: [{ name: 'helpers' }] }],
+    // Utils are split by topic into <topic>Util.ts files.
+    'conventions/file-name-pattern': [
+      'error',
+      { rules: [{ directory: 'utils', pattern: '*Util.ts' }] },
+    ],
+    'conventions/no-default-export': 'error',
+  },
+  overrides: [
+    // dateUtil.ts exports one DateUtil object, and nothing else.
+    { files: ['src/**/utils/*Util.ts'], rules: { 'conventions/export-matches-filename': 'error' } },
+  ],
+});
+```
+
+Every part of this is a choice. Use [another preset](docs/presets/README.md) or
+[describe your own structure](docs/configuration.md#elements), and pick the
+[rules](docs/rules/README.md) and options that match how your team works.
 
 ## Getting started
 
@@ -168,6 +223,32 @@ agents get feedback when a change breaks the project structure.
 | Adds a message without its translations                       | [`changes/requires-change`](docs/rules/changes.md#requires-change)                         |
 | Edits a generated file by hand                                | [`changes/no-manual-edit`](docs/rules/changes.md#no-manual-edit)                           |
 | Edits the pilotlint config to make a finding go away          | [`pilotlint/config-changed`](docs/rules/pilotlint.md#config-changed)                       |
+
+## Why not an ESLint plugin?
+
+pilotlint could have been a set of ESLint rules, like
+[eslint-plugin-boundaries](https://github.com/javierbrea/eslint-plugin-boundaries). An ESLint
+plugin would have:
+
+- ✅ No new tool, for the many projects that already run ESLint
+- ✅ Errors in the editor as you type
+- ✅ ESLint's configs, integrations, and ecosystem
+
+But ESLint is built to check one file at a time, and architecture rules need more:
+
+- ❌ Cycles, public APIs, and unused files need the whole import graph. ESLint rules can only
+  build it with caches of their own, which break in editors and with `--cache`.
+- ❌ ESLint does not check directories, files that must exist, or files that change together.
+- ❌ ESLint cannot report only what a change broke. pilotlint's `--new` compares with git, so an
+  agent sees its own mistakes, not the ones that were already there.
+- ❌ `// eslint-disable` lets an agent switch a rule off in the code. pilotlint has no
+  suppression comments, and flags every config change for review.
+- ❌ Many projects now lint with Biome or Oxlint, and would install ESLint only for this.
+
+So pilotlint is its own tool. It is built on [Oxc](https://oxc.rs) and keeps imports between
+runs, so it is fast enough to run after every edit. The cost is one more tool and config file,
+and no editor integration yet. Writing a rule still feels like ESLint: `create`, visitors,
+`meta`, and `report` work the same way ([Writing rules](docs/writing-rules.md#coming-from-eslint)).
 
 ## Documentation
 

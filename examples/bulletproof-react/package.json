@@ -1,0 +1,19 @@
+{
+  "name": "example-bulletproof-react",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "pilotlint": "pilotlint check"
+  },
+  "dependencies": {
+    "@types/react": "catalog:",
+    "react": "catalog:"
+  },
+  "devDependencies": {
+    "@pilotlint/plugin-boundaries": "workspace:*",
+    "@pilotlint/plugin-conventions": "workspace:*",
+    "@pilotlint/presets": "workspace:*",
+    "pilotlint": "workspace:*"
+  }
+}

@@ -147,6 +147,7 @@ pilotlint/
   examples/
     feature-folders/      end-to-end fixture with feature and common folders
     monorepo/             end-to-end fixture with packages/*
+    bulletproof-react/    the README's before-and-after example, preset plus naming rules
   .changeset/             Changesets config and pending changesets
   .github/workflows/      CI with voidzero-dev/setup-vp
   pilotlint.config.ts      pilotlint checks its own repo

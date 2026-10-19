@@ -27,11 +27,48 @@ const violations = {
 
 describe('pilotlint check', () => {
   it('passes on the example projects', () => {
-    for (const example of ['feature-folders', 'monorepo']) {
+    for (const example of ['feature-folders', 'monorepo', 'bulletproof-react']) {
       const result = fixture(example).run('check');
       expect(result.stdout).toMatch(/^0 errors, 0 warnings in \d+ files \(\d+ ms\)$/m);
       expect(result.status).toBe(0);
     }
+  });
+
+  it('catches the problems of the before example in the README', () => {
+    const project = fixture('bulletproof-react', {
+      'src/utils.ts': [
+        'export const formatPrice = (cents: number) => `$${cents / 100}`;',
+        'export default { formatPrice };',
+      ].join('\n'),
+      'src/types.ts': 'export interface Comment { body: string }',
+      'src/helpers/format.ts': 'export const trim = (text: string) => text.trim();',
+      'src/utils/format.ts': 'export const FormatUtil = {};',
+      'src/utils/stringUtil.ts': 'export const slugify = (text: string) => text;',
+      'src/features/discussions/components/discussion-page.tsx': [
+        "import { CommentsList } from '../../comments/components/comments-list.tsx';",
+        'export const DiscussionPage = () => <CommentsList discussionId="1" />;',
+      ].join('\n'),
+      'src/components/ui/use-comments.ts': [
+        "import { getComments } from '../../features/comments/api/get-comments.ts';",
+        'export const useComments = getComments;',
+      ].join('\n'),
+    });
+    const report = JSON.parse(project.run('check', '--format', 'json').stdout) as {
+      findings: { ruleId: string; location: { path: string } }[];
+    };
+    expect(
+      report.findings.map((finding) => `${finding.location.path} ${finding.ruleId}`).sort(),
+    ).toEqual([
+      'src/components/ui/use-comments.ts boundaries/allowed-imports',
+      'src/features/discussions/components/discussion-page.tsx boundaries/allowed-imports',
+      'src/helpers conventions/forbidden-directories',
+      'src/types.ts conventions/forbidden-files',
+      'src/utils.ts conventions/forbidden-files',
+      'src/utils.ts conventions/no-default-export',
+      'src/utils/format.ts conventions/file-name-pattern',
+      'src/utils/stringUtil.ts conventions/export-matches-filename',
+      'src/utils/stringUtil.ts conventions/export-matches-filename',
+    ]);
   });
 
   it('reports findings with locations, rule ids, and hints, and exits with 1', () => {

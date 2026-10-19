@@ -24,6 +24,8 @@
 </p>
 
 - 🤖 Built for agents: one finding per line, each with a hint that says how to fix it
+- 🛤️ Keeps agents in their lane: the same rules on every edit, however small the task or long
+  the session
 - 🎯 `--new` reports only what the current change broke, even in a codebase full of old problems
 - ⚡️ Built on [Oxc](https://oxc.rs), the Rust parser and resolver, so it can run after every edit
 - 📦 Built-in caching, so a check after an edit parses only the files that changed
@@ -33,8 +35,28 @@
 - 🔒 No suppression comments: only the config can turn a finding off
 - 🤝 Runs next to ESLint, Oxlint, or Biome instead of replacing them
 
+An agent only knows the structure it can see: on a small task it guesses the layout, and in a
+long session the rules in `AGENTS.md` drop out of its context. pilotlint checks every edit
+against the same config, so the agent stays on the structure you expect.
+
 This package has the CLI, `defineConfig`, and the agent skill. The rules come from plugins, such
 as [`@pilotlint/plugin-boundaries`](https://www.npmjs.com/package/@pilotlint/plugin-boundaries).
+
+## Before and after
+
+One example of what pilotlint can enforce. The "after" side is a structure and conventions
+picked for this demo, not something built in: any layout and naming scheme can be configured.
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/banjo/pilotlint/main/assets/before-after-structure.svg" alt="Before: a src folder where features are mixed into components, with helpers, api.ts, types.ts, and utils.ts at the top. After: a Bulletproof React structure with app, one folder per feature, shared components and lib, and utils split by topic.">
+</p>
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/banjo/pilotlint/main/assets/before-after-utils.svg" alt="Before: src/utils.ts with loose date and price functions and a default export. After: src/utils/dateUtil.ts with only date functions, exported as one DateUtil object.">
+</p>
+
+See [the config for this demo](https://github.com/banjo/pilotlint#before-and-after),
+and [why pilotlint is not an ESLint plugin](https://github.com/banjo/pilotlint#why-not-an-eslint-plugin).
 
 ## Installation
 
