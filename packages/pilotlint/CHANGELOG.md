@@ -1,5 +1,20 @@
 # pilotlint
 
+## 0.2.0
+
+### Minor Changes
+
+- 6f22e2d: pilotlint keeps the imports and exports of each file between runs in `node_modules/.cache/pilotlint`, keyed by the file's git hash. After an edit, only the changed files are read and parsed, which makes rules such as `no-cycles` much faster on large projects. `check --no-cache` turns it off, and `stats` counts the modules taken from the cache.
+- fe71cde: `check` returns `stats`, the work it did: files read, files parsed, and imports resolved. `--format json` shows them in `summary.stats`.
+
+### Patch Changes
+
+- Updated dependencies [6f22e2d]
+- Updated dependencies [ffb8ae4]
+- Updated dependencies [6d7bf30]
+- Updated dependencies [fe71cde]
+  - @pilotlint/core@0.2.0
+
 ## 0.1.1
 
 ### Patch Changes
