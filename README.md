@@ -227,28 +227,25 @@ agents get feedback when a change breaks the project structure.
 ## Why not an ESLint plugin?
 
 pilotlint could have been a set of ESLint rules, like
-[eslint-plugin-boundaries](https://github.com/javierbrea/eslint-plugin-boundaries). An ESLint
-plugin would have:
+[eslint-plugin-boundaries](https://github.com/javierbrea/eslint-plugin-boundaries). It is its
+own tool because architecture rules need things ESLint is not built for:
 
-- ✅ No new tool, for the many projects that already run ESLint
-- ✅ Errors in the editor as you type
-- ✅ ESLint's configs, integrations, and ecosystem
+- ✅ **Sees the whole project.** Cycles and public APIs need the full import graph. ESLint checks
+  one file at a time, and graph rules there need caches that go stale in editors.
+- ✅ **Checks files that should exist.** pilotlint can require a test or an `index.ts`, or files
+  that change together. ESLint only runs on files that already exist.
+- ✅ **Shows only what a change broke.** `--new` compares with git, so an agent sees its own
+  mistakes, not the old ones. ESLint does not know git.
+- ✅ **Cannot be switched off in the code.** There is no `// eslint-disable`, and every config
+  change is flagged for a human to review.
+- ✅ **Works with any linter.** It runs next to ESLint, Biome, or Oxlint, so projects that moved
+  off ESLint do not need it back.
+- ✅ **Fast enough for every edit.** It is built on [Oxc](https://oxc.rs), with caches between
+  runs.
 
-But ESLint is built to check one file at a time, and architecture rules need more:
-
-- ❌ Cycles, public APIs, and unused files need the whole import graph. ESLint rules can only
-  build it with caches of their own, which break in editors and with `--cache`.
-- ❌ ESLint does not check directories, files that must exist, or files that change together.
-- ❌ ESLint cannot report only what a change broke. pilotlint's `--new` compares with git, so an
-  agent sees its own mistakes, not the ones that were already there.
-- ❌ `// eslint-disable` lets an agent switch a rule off in the code. pilotlint has no
-  suppression comments, and flags every config change for review.
-- ❌ Many projects now lint with Biome or Oxlint, and would install ESLint only for this.
-
-So pilotlint is its own tool. It is built on [Oxc](https://oxc.rs) and keeps imports between
-runs, so it is fast enough to run after every edit. The cost is one more tool and config file,
-and no editor integration yet. Writing a rule still feels like ESLint: `create`, visitors,
-`meta`, and `report` work the same way ([Writing rules](docs/writing-rules.md#coming-from-eslint)).
+Writing a rule still feels like ESLint: `create`, visitors, `meta`, and `report` work the same
+way ([Writing rules](docs/writing-rules.md#coming-from-eslint)). The trade-off is one more tool
+and config file, and no errors in the editor as you type yet.
 
 ## Documentation
 
