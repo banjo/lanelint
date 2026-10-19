@@ -3,6 +3,7 @@ import { dirname } from 'pathe';
 import { ResolverFactory } from 'oxc-resolver';
 import { SOURCE_EXTENSIONS } from '../constants/defaults.ts';
 import type { WorkStats } from '../models/stats.ts';
+import { ResolutionCacheService, type ResolutionCache } from './resolutionCacheService.ts';
 
 export type Resolution = { readonly builtin: true } | { readonly path: string } | undefined;
 
@@ -13,8 +14,11 @@ export interface Resolver {
 
 const BUILTIN = { builtin: true } as const;
 
-/** Resolves each specifier once per directory. */
-const create = (stats?: WorkStats): Resolver => {
+/** Resolves each specifier once per directory, or takes it from the cache between runs. */
+const create = (
+  stats?: WorkStats,
+  stored: ResolutionCache = ResolutionCacheService.memory(),
+): Resolver => {
   const options = {
     extensions: [...SOURCE_EXTENSIONS, '.d.ts', '.json', '.node'],
     extensionAlias: {
@@ -41,6 +45,15 @@ const create = (stats?: WorkStats): Resolver => {
       if (cache.has(key)) {
         return cache.get(key);
       }
+      const known = stored.get(directory, specifier);
+      if (known !== undefined) {
+        if (stats) {
+          stats.resolutionsFromCache++;
+        }
+        const resolution = known ?? undefined;
+        cache.set(key, resolution);
+        return resolution;
+      }
       if (stats) {
         stats.importsResolved++;
       }
@@ -55,6 +68,7 @@ const create = (stats?: WorkStats): Resolver => {
           ? { path: result.path }
           : undefined;
       cache.set(key, resolved);
+      stored.set(directory, specifier, resolved ?? null);
       return resolved;
     },
   };

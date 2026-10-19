@@ -8,4 +8,6 @@ export interface WorkStats {
   modulesFromCache: number;
   /** Specifiers resolved. Each specifier is resolved once per directory, even with `--new`. */
   importsResolved: number;
+  /** Resolutions that came from the cache of an earlier run instead of being resolved. */
+  resolutionsFromCache: number;
 }

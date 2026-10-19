@@ -1,4 +1,5 @@
-import { parseSync, Visitor, type Comment, type ParseResult } from 'oxc-parser';
+import { createRequire } from 'node:module';
+import type { Comment, ParseResult } from 'oxc-parser';
 import type { AstInfo, ModuleExport, ModuleImport, ModuleInfo } from '../models/module.ts';
 import type { WorkStats } from '../models/stats.ts';
 import { ModuleCacheService, type CachedModule, type ModuleCache } from './moduleCacheService.ts';
@@ -38,6 +39,11 @@ export interface ParseCache {
 
 const REQUIRE = /\brequire\s*\(/;
 
+const load = createRequire(import.meta.url);
+let oxc: typeof import('oxc-parser') | undefined;
+/** oxc-parser loads a native binding, so it is loaded on the first parse, not at startup. */
+const parser = () => (oxc ??= load('oxc-parser') as typeof import('oxc-parser'));
+
 // oxc-parser types its kinds as const enums, which cannot be compared to literals directly.
 const kindOf = (value: { readonly kind: unknown }) => String(value.kind);
 
@@ -65,6 +71,7 @@ const requiresOf = (result: ParseResult, lines: LineIndex): ModuleImport[] => {
       locals: [],
       reexport: false,
     });
+  const { Visitor } = parser();
   new Visitor({
     CallExpression(node) {
       const [argument] = node.arguments;
@@ -209,7 +216,7 @@ const astOf = (
 };
 
 const parseFile = (absolutePath: string, text: string): ParsedFile => {
-  const result = parseSync(absolutePath, text);
+  const result = parser().parseSync(absolutePath, text);
   const lines = LineUtil.create(text);
   let ast: AstInfo | undefined;
   const module = moduleOf(result, text, lines);

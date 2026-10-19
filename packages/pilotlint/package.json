@@ -55,7 +55,6 @@
   },
   "dependencies": {
     "@pilotlint/core": "workspace:*",
-    "c12": "catalog:",
     "citty": "catalog:",
     "jiti": "catalog:"
   },

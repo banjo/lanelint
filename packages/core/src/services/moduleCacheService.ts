@@ -1,13 +1,9 @@
 import { createHash } from 'node:crypto';
-import { existsSync } from 'node:fs';
-import { mkdir, readFile, rename, writeFile } from 'node:fs/promises';
-import { createRequire } from 'node:module';
-import { join } from 'pathe';
 import type { ModuleInfo } from '../models/module.ts';
+import { CacheFileService } from './cacheFileService.ts';
 
 /** Bump when `ModuleInfo`, parse errors, or how they are computed change. */
 const FORMAT = 1;
-const CACHE_DIRECTORY = 'node_modules/.cache/pilotlint';
 const CACHE_FILE = 'modules.json';
 
 export interface CachedModule {
@@ -28,17 +24,7 @@ interface CacheFile {
   readonly entries: Record<string, CachedModule>;
 }
 
-const require = createRequire(import.meta.url);
-
-const versionOf = (name: string): string => {
-  try {
-    return (require(`${name}/package.json`) as { version: string }).version;
-  } catch {
-    return 'unknown';
-  }
-};
-
-const VERSION = `${FORMAT}:${versionOf('@pilotlint/core')}:${versionOf('oxc-parser')}`;
+const VERSION = `${FORMAT}:${CacheFileService.versionOf('@pilotlint/core')}:${CacheFileService.versionOf('oxc-parser')}`;
 
 /** The key of a file's content: its git blob hash and extension, since the extension decides how it parses. */
 const keyOf = (hash: string, extension: string): string => `${hash}${extension}`;
@@ -58,28 +44,16 @@ const memory = (): ModuleCache => {
   };
 };
 
-const readCacheFile = async (path: string): Promise<Record<string, CachedModule>> => {
-  try {
-    const file = JSON.parse(await readFile(path, 'utf8')) as Partial<CacheFile>;
-    return file.version === VERSION && file.entries && typeof file.entries === 'object'
-      ? file.entries
-      : {};
-  } catch {
-    return {};
-  }
-};
-
 /**
  * The cache in `node_modules/.cache/pilotlint` of the project root. Without `node_modules` there,
  * the cache lives only for one run.
  */
 const load = async (root: string): Promise<ModuleCache> => {
-  if (!existsSync(join(root, 'node_modules'))) {
+  if (!CacheFileService.isAvailable(root)) {
     return memory();
   }
-  const directory = join(root, CACHE_DIRECTORY);
-  const path = join(directory, CACHE_FILE);
-  const entries = new Map(Object.entries(await readCacheFile(path)));
+  const file = await CacheFileService.read<CacheFile>(root, CACHE_FILE, VERSION);
+  const entries = new Map(Object.entries(file?.entries ?? {}));
   const used = new Set<string>();
   let dirty = false;
   return {
@@ -102,15 +76,8 @@ const load = async (root: string): Promise<ModuleCache> => {
       // Entries for old file contents pile up; when there are too many, keep the ones used now.
       const kept =
         entries.size > limit ? [...entries].filter(([key]) => used.has(key)) : [...entries];
-      const file: CacheFile = { version: VERSION, entries: Object.fromEntries(kept) };
-      try {
-        await mkdir(directory, { recursive: true });
-        const temporary = `${path}.${process.pid}.tmp`;
-        await writeFile(temporary, JSON.stringify(file));
-        await rename(temporary, path);
-      } catch {
-        // A cache that cannot be written only makes the next run slower.
-      }
+      const content: CacheFile = { version: VERSION, entries: Object.fromEntries(kept) };
+      await CacheFileService.write(root, CACHE_FILE, content);
     },
   };
 };

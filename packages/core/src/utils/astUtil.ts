@@ -1,4 +1,6 @@
-import { visitorKeys, type Node } from 'oxc-parser';
+import type { Node } from 'oxc-parser';
+// Only the keys, so walking an AST does not load the parser and its native binding.
+import visitorKeys from 'oxc-parser/src-js/generated/visit/keys';
 
 /** Return `false` to skip the children of a node. */
 export type AstVisitor = (

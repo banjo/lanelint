@@ -62,6 +62,7 @@ describe('work', () => {
       filesParsed: changedFiles,
       modulesFromCache: 0,
       importsResolved: 0,
+      resolutionsFromCache: 0,
     });
   });
 
@@ -126,6 +127,49 @@ describe('cache between runs', () => {
     expect(cached.some((identity) => identity.startsWith('boundaries/allowed-imports|'))).toBe(
       true,
     );
+  });
+});
+
+describe('resolutions between runs', () => {
+  let fixture: Fixture;
+  let first: WorkStats;
+  const unresolved = (fixture: Fixture) =>
+    identitiesOf(fixture).filter((identity) => identity.startsWith('boundaries/no-unresolved|'));
+
+  beforeAll(() => {
+    fixture = createFixture('feature-folders', {
+      ...project,
+      'src/common/domain-0/models/lookup.ts': "export { later } from './later.ts';\n",
+    });
+    first = cachedStatsOf(fixture);
+  });
+
+  afterAll(() => fixture.remove());
+
+  it('resolves nothing on the next run when no file was added or removed', () => {
+    fixture.write(CHANGES);
+    const next = cachedStatsOf(fixture);
+    expect(first.importsResolved).toBeGreaterThan(0);
+    expect(next.importsResolved).toBe(0);
+    expect(next.resolutionsFromCache).toBeGreaterThan(0);
+  });
+
+  it('resolves again when a file is added, so imports of the new file resolve', () => {
+    expect(unresolved(fixture)).toHaveLength(1);
+    fixture.write({ 'src/common/domain-0/models/later.ts': 'export const later = 1;\n' });
+    expect(unresolved(fixture)).toEqual([]);
+    expect(cachedStatsOf(fixture).importsResolved).toBe(0);
+  });
+
+  it('resolves again when a tsconfig changes', () => {
+    fixture.write({
+      'tsconfig.json': JSON.stringify({ compilerOptions: { paths: { '#/*': ['./src/*'] } } }),
+    });
+    expect(cachedStatsOf(fixture).importsResolved).toBeGreaterThan(0);
+  });
+
+  it('finds the same problems as without the cache', () => {
+    expect(identitiesOf(fixture)).toEqual(identitiesOf(fixture, '--no-cache'));
   });
 });
 

@@ -187,20 +187,19 @@ are upgraded on its release schedule.
 Kept small and chosen for startup time. Oxc and unjs are preferred. All
 dependencies are kept at their latest versions.
 
-| Need                                                      | Package                 | Used in           |
-| --------------------------------------------------------- | ----------------------- | ----------------- |
-| Parsing                                                   | `oxc-parser`            | core              |
-| Module resolution                                         | `oxc-resolver`          | core              |
-| Path handling with `/` on all platforms                   | `pathe` (unjs)          | core              |
-| File discovery                                            | `tinyglobby`            | core              |
-| Glob matching for `overrides`, `ignore`, and rule options | `picomatch`             | core              |
-| Options schema types                                      | `@standard-schema/spec` | core (types only) |
-| Running git                                               | `node:child_process`    | core              |
-| CLI commands                                              | `citty` (unjs)          | pilotlint         |
-| Config loading                                            | `c12` (unjs)            | pilotlint         |
-| TypeScript config files with extensionless imports        | `jiti` (unjs)           | pilotlint         |
-| Rule options                                              | `valibot`               | plugins           |
-| Colors                                                    | `node:util` `styleText` | pilotlint         |
+| Need                                                           | Package                 | Used in           |
+| -------------------------------------------------------------- | ----------------------- | ----------------- |
+| Parsing                                                        | `oxc-parser`            | core              |
+| Module resolution                                              | `oxc-resolver`          | core              |
+| Path handling with `/` on all platforms                        | `pathe` (unjs)          | core              |
+| File discovery                                                 | `tinyglobby`            | core              |
+| Glob matching for `overrides`, `ignore`, and rule options      | `picomatch`             | core              |
+| Options schema types                                           | `@standard-schema/spec` | core (types only) |
+| Running git                                                    | `node:child_process`    | core              |
+| CLI commands                                                   | `citty` (unjs)          | pilotlint         |
+| Config loading, including TypeScript and extensionless imports | `jiti` (unjs)           | pilotlint         |
+| Rule options                                                   | `valibot`               | plugins           |
+| Colors                                                         | `node:util` `styleText` | pilotlint         |
 
 All packages are ESM only and target the current Node LTS.
 
@@ -623,8 +622,10 @@ export default defineConfig({
 - Config validation fails with exit code 2 for unknown rules, invalid options,
   or a rule that references an element type that is not defined.
 
-The config is loaded with c12. If loading the TypeScript config dominates
-startup, use Node's native type stripping instead.
+The config is loaded with jiti, which caches its transforms in
+`node_modules/.cache/jiti`. Node's native type stripping is not used: it warns in
+packages without `"type": "module"` and fails on extensionless imports, which
+configs often have.
 
 ### Severity and exit codes
 
@@ -709,12 +710,22 @@ How:
   So after an edit only changed files are read and parsed, and a full AST is
   built only for rules that need one. The cache is versioned by a format
   number, the core version, and the oxc-parser version, written atomically,
-  and pruned when it grows past twice the project's files. Resolutions are not
-  cached yet: a new file can change what an existing import resolves to.
-  `--no-cache` turns it off. On Cal.com (4,813 parsed files), a `--changed`
+  and pruned when it grows past twice the project's files. `--no-cache` turns
+  it off.
+- Resolutions are kept between runs in `resolutions.json` next to the module
+  cache. A new file can change what an existing import resolves to, so the
+  whole file is valid only for one fingerprint: the sorted project file paths,
+  and the size and mtime of tsconfig, jsconfig, package.json, workspace, and
+  lockfiles in the project and the directories above it, and of
+  `node_modules`. Editing a file's content keeps the fingerprint, so an agent's
+  edit loop resolves nothing; adding or removing a file resolves everything
+  again. Files outside the project files that an import could resolve to are
+  not part of the fingerprint; `--no-cache` covers that rare case.
+- The CLI loads oxc-parser only when a file is parsed, loads the config with
+  jiti directly, and enables Node's compile cache for its own modules. On Cal.com (4,813 parsed files), a `--changed`
   check with `no-cycles` went from about 4 s to 1.4–2 s on a busy machine.
 - Each run prints its duration and counts its work: files read, files parsed,
-  and imports resolved (`stats` in `--format json`). A test checks the counts
+  imports resolved, and what came from the caches (`stats` in `--format json`). A test checks the counts
   on a generated project, for example that `--changed` without project rules
   parses only the changed files. Counts do not depend on the machine, so the
   test is never flaky. `pnpm bench` measures the time on a generated project
@@ -761,7 +772,7 @@ packages/pilotlint/
         exitCodes.ts        # 0 ok, 1 findings, 2 usage or config problem
       services/
         commandService.ts   # runs a command, sets the exit code, reports setup errors
-        configService.ts    # finds the nearest config and loads it with c12
+        configService.ts    # finds the nearest config and loads it with jiti
         packageService.ts   # version
       utils/
         argsUtil.ts         # repeatable flags and number flags

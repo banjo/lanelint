@@ -10,7 +10,6 @@ catalog:
   '@types/node': ^24
   '@types/picomatch': ^4.0.3
   '@valibot/to-json-schema': ^1.8.0
-  c12: ^4.0.0-rc.2
   citty: ^0.2.2
   jiti: ^2.7.0
   oxc-parser: 0.153.0

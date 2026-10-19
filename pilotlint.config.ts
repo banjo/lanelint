@@ -56,7 +56,7 @@ export default defineConfig({
             hint: 'Move code that touches files, processes, the network, or timers to a service.',
           },
           {
-            name: '{c12,jiti,oxc-resolver,tinyglobby,axios,ky,undici,node-fetch}',
+            name: '{jiti,oxc-resolver,tinyglobby,axios,ky,undici,node-fetch}',
             from: { files: 'packages/*/src/**/utils/**' },
             message: 'Utils are pure functions.',
             hint: 'Move code that loads files or calls the network to a service.',

@@ -9,6 +9,7 @@ import type { FailOn, Finding } from '../models/finding.ts';
 import type { WorkStats } from '../models/stats.ts';
 import { ParseService } from '../services/parseService.ts';
 import { createProject } from '../project/project.ts';
+import { ResolutionCacheService } from '../services/resolutionCacheService.ts';
 import { ResolveService } from '../services/resolveService.ts';
 import { SnapshotService, type Snapshot } from '../services/snapshotService.ts';
 import type { ChangeState } from './changeSet.ts';
@@ -33,7 +34,7 @@ export interface CheckOptions {
   readonly changes?: readonly Change[];
   /** Overrides `failOn` from the config. */
   readonly failOn?: FailOn;
-  /** Keep module info between runs in `node_modules/.cache/pilotlint`. Defaults to `true`. */
+  /** Keep module info and resolutions between runs in `node_modules/.cache/pilotlint`. Defaults to `true`. */
   readonly cache?: boolean;
 }
 
@@ -90,6 +91,7 @@ export async function check(options: CheckOptions): Promise<CheckResult> {
     filesParsed: 0,
     modulesFromCache: 0,
     importsResolved: 0,
+    resolutionsFromCache: 0,
   };
   const cache = options.cache ?? true;
 
@@ -104,8 +106,15 @@ export async function check(options: CheckOptions): Promise<CheckResult> {
     ]);
     return { repo, hashes, state: { available: !!repo || !!options.changes, changes } };
   };
-  const [listing, git, store] = await Promise.all([
-    SnapshotService.createWorkingTree(root, filter, stats),
+  const loadListing = async () => {
+    const listing = await SnapshotService.createWorkingTree(root, filter, stats);
+    const resolutions = cache
+      ? await ResolutionCacheService.load(root, listing.paths)
+      : ResolutionCacheService.memory();
+    return { listing, resolutions };
+  };
+  const [{ listing, resolutions }, git, store] = await Promise.all([
+    loadListing(),
     loadGit(),
     cache ? ModuleCacheService.load(root) : ModuleCacheService.memory(),
   ]);
@@ -122,7 +131,7 @@ export async function check(options: CheckOptions): Promise<CheckResult> {
     : undefined;
 
   const parseCache = ParseService.createCache(store, stats);
-  const resolver = ResolveService.create(stats);
+  const resolver = ResolveService.create(stats, resolutions);
   const run = async (snapshot: Snapshot, changes: ChangeState) => {
     const project = createProject({
       snapshot,
@@ -158,7 +167,7 @@ export async function check(options: CheckOptions): Promise<CheckResult> {
     findings = findings.filter((finding) => !known.has(finding.identity));
   }
 
-  await store.save(2 * working.paths.length + 1000);
+  await Promise.all([store.save(2 * working.paths.length + 1000), resolutions.save()]);
 
   findings = [...findings].sort(compare);
   const errorCount = findings.filter((finding) => finding.severity === 'error').length;

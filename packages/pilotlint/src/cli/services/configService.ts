@@ -6,7 +6,6 @@ import {
   type PilotlintConfig,
   type ResolvedConfig,
 } from '@pilotlint/core';
-import { loadConfig } from 'c12';
 import { createJiti } from 'jiti';
 
 const CONFIG_NAMES = ['ts', 'mts', 'cts', 'js', 'mjs', 'cjs'].map(
@@ -40,24 +39,11 @@ const load = async (options: { cwd: string; config?: string }): Promise<Resolved
   }
   const directory = dirname(configFile);
   let loaded: PilotlintConfig | undefined;
-  // jiti loads TypeScript configs in any package, including ones without `"type": "module"`
-  // and with extensionless imports, where Node's own import warns or fails.
-  const jiti = createJiti(configFile, { interopDefault: true, moduleCache: false });
   try {
-    const result = await loadConfig<PilotlintConfig & Record<string, unknown>>({
-      cwd: directory,
-      configFile,
-      import: (id) => jiti.import(id),
-      rcFile: false,
-      globalRc: false,
-      packageJson: false,
-      dotenv: false,
-      envName: false,
-      // pilotlint's own `extends` holds config objects, not c12 layers.
-      extend: false,
-      configFileRequired: true,
-    });
-    loaded = result.config;
+    // jiti loads TypeScript configs in any package, including ones without `"type": "module"`
+    // and with extensionless imports, where Node's own import warns or fails.
+    const jiti = createJiti(configFile, { interopDefault: true, moduleCache: false });
+    loaded = await jiti.import<PilotlintConfig>(configFile, { default: true });
   } catch (error) {
     throw new ConfigError(
       `Cannot load ${configFile}: ${error instanceof Error ? error.message : String(error)}`,

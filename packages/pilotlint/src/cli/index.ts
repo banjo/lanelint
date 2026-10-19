@@ -1,9 +1,13 @@
 #!/usr/bin/env node
+import { enableCompileCache } from 'node:module';
 import { stripVTControlCharacters } from 'node:util';
 import { defineCommand, runCommand, runMain, showUsage } from 'citty';
 import { logger, setLogLevel } from './logger.ts';
 import { EXIT_CODES } from './constants/exitCodes.ts';
 import { PackageService } from './services/packageService.ts';
+
+// Node keeps the compiled code of the modules loaded from here on, so later runs start faster.
+enableCompileCache();
 
 const main = defineCommand({
   meta: {
