@@ -1,6 +1,6 @@
 {
   "name": "@pilotlint/plugin-boundaries",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "pilotlint rules for dependencies between elements and on packages.",
   "homepage": "https://github.com/banjo/pilotlint/tree/main/packages/plugin-boundaries#readme",
   "bugs": {

@@ -1,5 +1,12 @@
 # pilotlint
 
+## 0.2.1
+
+### Patch Changes
+
+- New README, with a demo of an agent fixing a finding, and a new package description.
+- @pilotlint/core@0.2.1
+
 ## 0.2.0
 
 ### Minor Changes
