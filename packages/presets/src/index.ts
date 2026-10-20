@@ -1,3 +1,4 @@
+export { astra, type AstraOptions, type AstraRoles } from './presets/astra.ts';
 export { bulletproofReact, type BulletproofReactOptions } from './presets/bulletproofReact.ts';
 export {
   cleanArchitecture,

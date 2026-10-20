@@ -26,6 +26,7 @@ export default defineConfig({
 | [`monorepo()`](monorepo.md)                    | Monorepos with apps and packages                             |
 | [`cleanArchitecture()`](clean-architecture.md) | Backends with domain, application, and infrastructure layers |
 | [`layered()`](layered.md)                      | Backends with controllers, services, and repositories        |
+| [`astra()`](astra.md)                          | React apps with the same role directories in every feature   |
 
 ## How presets work
 
