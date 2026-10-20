@@ -6,6 +6,7 @@ Rules about file and directory names, placement, required files, exports, and su
 
 | Rule                                                | Description                                                              | Default level |
 | --------------------------------------------------- | ------------------------------------------------------------------------ | ------------- |
+| [allowed-directories](#allowed-directories)         | Only directories with these names may exist in some directories.         | `error`       |
 | [companion-files](#companion-files)                 | Some files require a companion file, such as a test next to a component. | `error`       |
 | [directory-case](#directory-case)                   | Directory names follow a naming case.                                    | `error`       |
 | [export-matches-filename](#export-matches-filename) | A file exports one value, named after the file.                          | `error`       |
@@ -18,6 +19,66 @@ Rules about file and directory names, placement, required files, exports, and su
 | [no-suppressions](#no-suppressions)                 | No comments that switch off type checks, lint rules, or coverage.        | `error`       |
 | [required-files](#required-files)                   | Files that must exist in each element or matching directory.             | `error`       |
 | [root-only-files](#root-only-files)                 | Some files may only exist at the root of an element.                     | `error`       |
+
+## allowed-directories
+
+Only directories with these names may exist in some directories.
+
+- **Id:** `conventions/allowed-directories`
+- **Default level:** `error`
+
+Each rule matches the parent directory by name, or by path when `directory` contains `/`,
+and allows only directories whose names match `names` inside it, for example only
+`components`, `hooks`, and `utils` in each feature. Deeper directories are not checked.
+
+To fix a finding, rename the directory to an allowed name, or move its files into an
+allowed directory. A singular name is reported with its allowed plural.
+
+### Options
+
+```ts
+{
+  rules: {
+    directory: string;
+    names: string[];
+    message?: string;
+    hint?: string;
+  }[];
+}
+```
+
+| Option              | Type       | Default  | Description                                                          |
+| ------------------- | ---------- | -------- | -------------------------------------------------------------------- |
+| `rules`             | `object[]` | required | Allowed names, each for a parent directory.                          |
+| `rules[].directory` | `string`   | required | Name of the parent directory, or a path glob when it contains `/`.   |
+| `rules[].names`     | `string[]` | required | Globs of the directory names allowed in the parent directory.        |
+| `rules[].message`   | `string`   |          | Replaces the finding message, for example to say what to do instead. |
+| `rules[].hint`      | `string`   |          | Shown under the finding as the next step.                            |
+
+### Example
+
+```ts
+rules: {
+  'conventions/allowed-directories': [
+    'error',
+    {
+      rules: [
+        {
+          directory: 'src/features/*',
+          names: [
+            'components',
+            'hooks',
+            'models',
+            'services',
+            'utils',
+            '__tests__',
+          ],
+        },
+      ],
+    },
+  ],
+},
+```
 
 ## companion-files
 

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vite-plus/test';
 import { testRule } from '@pilotlint/core/testing';
 import {
+  allowedDirectories,
   companionFiles,
   directoryCase,
   exportMatchesFilename,
@@ -112,6 +113,48 @@ testRule(
           { path: 'src/a/types.ts', message: 'Move types to models/.' },
           { path: 'src/b.js', message: 'Files named src/**/*.js are not allowed.' },
         ],
+      },
+    ],
+  },
+  framework,
+);
+
+testRule(
+  'conventions/allowed-directories',
+  allowedDirectories,
+  {
+    valid: [
+      {
+        options: {
+          rules: [{ directory: 'src/features/*', names: ['hooks', 'utils', '__tests__'] }],
+        },
+        files: {
+          'src/features/a/hooks/use-a.ts': '',
+          'src/features/a/hooks/use-b/use-b.ts': '',
+          'src/features/a/__tests__/a.test.ts': '',
+          'src/other/a.ts': '',
+        },
+      },
+    ],
+    invalid: [
+      {
+        options: { rules: [{ directory: 'src/features/*', names: ['hooks', 'utils'] }] },
+        files: { 'src/features/a/util/a.ts': '', 'src/features/a/helpers/b.ts': '' },
+        findings: [
+          {
+            path: 'src/features/a/helpers',
+            message: 'helpers/ is not allowed in a/.',
+            hint: 'Use one of: hooks, utils.',
+          },
+          { path: 'src/features/a/util', message: 'Rename util/ to utils/.' },
+        ],
+      },
+      {
+        options: {
+          rules: [{ directory: 'features', names: ['*-feature'], message: 'Name it *-feature.' }],
+        },
+        files: { 'src/features/a/b.ts': '' },
+        findings: [{ path: 'src/features/a', message: 'Name it *-feature.' }],
       },
     ],
   },

@@ -31,6 +31,7 @@ Rules about dependencies between elements and on packages and globals.
 
 Rules about file and directory names, placement, required files, exports, and suppression comments.
 
+- [allowed-directories](conventions.md#allowed-directories): Only directories with these names may exist in some directories.
 - [companion-files](conventions.md#companion-files): Some files require a companion file, such as a test next to a component.
 - [directory-case](conventions.md#directory-case): Directory names follow a naming case.
 - [export-matches-filename](conventions.md#export-matches-filename): A file exports one value, named after the file.

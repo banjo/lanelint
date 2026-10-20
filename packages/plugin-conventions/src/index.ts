@@ -1,6 +1,6 @@
 import { definePlugin } from '@pilotlint/core';
 import { exportMatchesFilename, exportNamePattern } from './rules/exports.ts';
-import { forbiddenDirectories, forbiddenFiles } from './rules/forbidden.ts';
+import { allowedDirectories, forbiddenDirectories, forbiddenFiles } from './rules/forbidden.ts';
 import { directoryCase, fileNameCase } from './rules/nameCase.ts';
 import { noDefaultExport } from './rules/noDefaultExport.ts';
 import { noSuppressions } from './rules/noSuppressions.ts';
@@ -8,6 +8,7 @@ import { fileNamePattern, rootOnlyFiles } from './rules/placement.ts';
 import { companionFiles, requiredFiles } from './rules/required.ts';
 
 export {
+  allowedDirectories,
   companionFiles,
   directoryCase,
   exportMatchesFilename,
@@ -27,6 +28,7 @@ const conventions = definePlugin({
   description:
     'Rules about file and directory names, placement, required files, exports, and suppression comments.',
   rules: {
+    'allowed-directories': allowedDirectories,
     'companion-files': companionFiles,
     'directory-case': directoryCase,
     'export-matches-filename': exportMatchesFilename,

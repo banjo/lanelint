@@ -36,7 +36,7 @@
 - 🏗️ [Presets](docs/presets/README.md) for Feature-Sliced Design, Bulletproof React, Clean
   Architecture, layered backends, and monorepos
 - 🧭 Works with any structure: you name the parts of your codebase with path patterns
-- 📏 [29 built-in rules](docs/rules/README.md) for imports, cycles, public APIs, file names, and
+- 📏 [30 built-in rules](docs/rules/README.md) for imports, cycles, public APIs, file names, and
   files that change together
 - 🔒 No suppression comments: only the config can turn a finding off, and every config change is
   flagged for a human to review
