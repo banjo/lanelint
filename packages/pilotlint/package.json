@@ -1,6 +1,6 @@
 {
   "name": "pilotlint",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "An architecture linter for TypeScript, built for coding agents.",
   "keywords": [
     "agents",

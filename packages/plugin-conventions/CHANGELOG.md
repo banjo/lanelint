@@ -1,5 +1,12 @@
 # @pilotlint/plugin-conventions
 
+## 0.2.4
+
+### Patch Changes
+
+- 570bb66: New rule `conventions/allowed-directories`, which allows only some directory names in a directory, for example only role directories in each feature. A singular name is reported with its plural, such as `Rename service/ to services/.`
+- @pilotlint/core@0.2.4
+
 ## 0.2.3
 
 ### Patch Changes

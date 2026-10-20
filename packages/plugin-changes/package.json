@@ -1,6 +1,6 @@
 {
   "name": "@pilotlint/plugin-changes",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "pilotlint rules for files that must or must not change together.",
   "homepage": "https://github.com/banjo/pilotlint/tree/main/packages/plugin-changes#readme",
   "bugs": {
