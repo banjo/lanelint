@@ -45,66 +45,6 @@
 - 🧩 [Custom rules](docs/writing-rules.md) for your own architecture and conventions take a
   few lines of TypeScript, with an API that works like ESLint's
 
-Coding agents write code that works and put it in the wrong place. A feature reaches into
-another feature's internals, shared code imports from a feature, and a new `helpers.ts` shows
-up next to the `utils/` folder you already have.
-
-It happens because an agent only knows the structure it can see. With a small task, it sees a
-few files and guesses the rest of the layout. With a big task or a long session, the rules in
-`AGENTS.md` scroll out of its context and get dropped. Either way, it drifts from the structure
-you expect, a little more with every change.
-
-pilotlint keeps it in its lane. The rules live in a config instead of a prompt, and a check
-runs after every edit, so the agent gets the same answer at the start of a session and three
-hours in, on a one-line fix and on a new feature. It fixes its own mistakes, and you review
-code that is already in the right place.
-
-## Before and after
-
-One example of what pilotlint can enforce. The "after" side is not built in: it is a
-structure and a set of conventions picked for this demo, and you write the rules for your
-own. Any layout and any naming scheme work, from your own folder names to `snake_case` files
-or a different util style.
-
-<p align="center">
-  <img src="assets/before-after-structure.svg" alt="Before: a src folder where features are mixed into components, with helpers, api.ts, types.ts, and utils.ts at the top. After: a Bulletproof React structure with app, one folder per feature, shared components and lib, and utils split by topic.">
-</p>
-
-<p align="center">
-  <img src="assets/before-after-utils.svg" alt="Before: src/utils.ts with loose date and price functions and a default export. After: src/utils/dateUtil.ts with only date functions, exported as one DateUtil object.">
-</p>
-
-These are the settings for this demo: the Bulletproof React preset, plus naming rules chosen
-for it. The [example project](examples/bulletproof-react) has the structure on the right, and a
-test checks that this config catches every problem on the left:
-
-```ts
-// pilotlint.config.ts
-export default defineConfig({
-  plugins: [conventions],
-  extends: [boundaries.configs.recommended, bulletproofReact()],
-  rules: {
-    // No catch-all files or folders.
-    'conventions/forbidden-files': ['error', { patterns: [{ name: '{utils,helpers,types}.ts' }] }],
-    'conventions/forbidden-directories': ['error', { patterns: [{ name: 'helpers' }] }],
-    // Utils are split by topic into <topic>Util.ts files.
-    'conventions/file-name-pattern': [
-      'error',
-      { rules: [{ directory: 'utils', pattern: '*Util.ts' }] },
-    ],
-    'conventions/no-default-export': 'error',
-  },
-  overrides: [
-    // dateUtil.ts exports one DateUtil object, and nothing else.
-    { files: ['src/**/utils/*Util.ts'], rules: { 'conventions/export-matches-filename': 'error' } },
-  ],
-});
-```
-
-Every part of this is a choice. Use [another preset](docs/presets/README.md) or
-[describe your own structure](docs/configuration.md#elements), and pick the
-[rules](docs/rules/README.md) and options that match how your team works.
-
 ## Getting started
 
 For more, see the [documentation](docs/getting-started.md).
@@ -205,6 +145,62 @@ agents get feedback when a change breaks the project structure.
 ```
 
 </details>
+
+## Why
+
+Coding agents write code that works and put it in the wrong place: a feature imports another
+feature's internals, or a new `helpers.ts` shows up next to your `utils/` folder. On a small
+task the agent sees too little of the codebase to know the layout, and in a long session the
+rules in `AGENTS.md` drop out of its context.
+
+pilotlint keeps the rules in a config and checks after every edit, so the agent gets the same
+answer on every change and fixes its own mistakes before you review.
+
+## Before and after
+
+The structure and conventions below are picked for this demo. pilotlint enforces whatever
+layout and naming you choose.
+
+<p align="center">
+  <img src="assets/before-after-structure.svg" alt="Before: a src folder where features are mixed into components, with helpers, api.ts, types.ts, and utils.ts at the top. After: a Bulletproof React structure with app, one folder per feature, shared components and lib, and utils split by topic.">
+</p>
+
+<p align="center">
+  <img src="assets/before-after-utils.svg" alt="Before: src/utils.ts with loose date and price functions and a default export. After: src/utils/dateUtil.ts with only date functions, exported as one DateUtil object.">
+</p>
+
+## Example
+
+The config behind the demo above: the Bulletproof React preset, plus naming rules. The
+[example project](examples/bulletproof-react) has the "after" structure, and a test checks that
+this config catches every problem in the "before" one.
+
+```ts
+// pilotlint.config.ts
+export default defineConfig({
+  plugins: [conventions],
+  extends: [boundaries.configs.recommended, bulletproofReact()],
+  rules: {
+    // No catch-all files or folders.
+    'conventions/forbidden-files': ['error', { patterns: [{ name: '{utils,helpers,types}.ts' }] }],
+    'conventions/forbidden-directories': ['error', { patterns: [{ name: 'helpers' }] }],
+    // Utils are split by topic into <topic>Util.ts files.
+    'conventions/file-name-pattern': [
+      'error',
+      { rules: [{ directory: 'utils', pattern: '*Util.ts' }] },
+    ],
+    'conventions/no-default-export': 'error',
+  },
+  overrides: [
+    // dateUtil.ts exports one DateUtil object, and nothing else.
+    { files: ['src/**/utils/*Util.ts'], rules: { 'conventions/export-matches-filename': 'error' } },
+  ],
+});
+```
+
+Swap in [another preset](docs/presets/README.md) or
+[describe your own structure](docs/configuration.md#elements), and pick the
+[rules](docs/rules/README.md) that match how your team works.
 
 ## What it catches
 
