@@ -1,4 +1,4 @@
-import { definePlugin } from '@pilotlint/core';
+import { definePlugin } from '@lanelint/core';
 import { noManualEdit, requiresChange } from './rules/changes.ts';
 
 export { noManualEdit, requiresChange };

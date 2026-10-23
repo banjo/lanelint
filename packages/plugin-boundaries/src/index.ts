@@ -1,4 +1,4 @@
-import { definePlugin } from '@pilotlint/core';
+import { definePlugin } from '@lanelint/core';
 import { allowedImports } from './rules/allowedImports.ts';
 import { entryOnly } from './rules/entryOnly.ts';
 import { noCycles } from './rules/noCycles.ts';

@@ -1,5 +1,5 @@
-import { DEFAULT_ENTRIES, defineConfigFragment } from '@pilotlint/core';
-import boundaries, { type Selector } from '@pilotlint/plugin-boundaries';
+import { DEFAULT_ENTRIES, defineConfigFragment } from '@lanelint/core';
+import boundaries, { type Selector } from '@lanelint/plugin-boundaries';
 import { FSD_LAYERS, FSD_SLICED_LAYERS, type FsdLayer } from '../constants/featureSliced.ts';
 import { PathUtil } from '../utils/pathUtil.ts';
 

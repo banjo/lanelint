@@ -1,23 +1,23 @@
 {
-  "name": "pilotlint-monorepo",
+  "name": "lanelint-monorepo",
   "version": "0.0.0",
   "private": true,
   "type": "module",
   "scripts": {
-    "ready": "vp check && vp run -r test && vp run pilotlint",
-    "bench": "vp run --no-cache pilotlint#bench",
-    "pilotlint": "pilotlint check",
-    "docs:rules": "pilotlint rules docs",
+    "ready": "vp check && vp run -r test && vp run lanelint",
+    "bench": "vp run --no-cache lanelint#bench",
+    "lanelint": "lanelint check",
+    "docs:rules": "lanelint rules docs",
     "changeset": "changeset",
     "prepare": "vp config"
   },
   "devDependencies": {
     "@changesets/cli": "catalog:",
-    "@pilotlint/plugin-boundaries": "workspace:*",
-    "@pilotlint/plugin-changes": "workspace:*",
-    "@pilotlint/plugin-conventions": "workspace:*",
+    "@lanelint/plugin-boundaries": "workspace:*",
+    "@lanelint/plugin-changes": "workspace:*",
+    "@lanelint/plugin-conventions": "workspace:*",
     "@types/node": "catalog:",
-    "pilotlint": "workspace:*",
+    "lanelint": "workspace:*",
     "typescript": "catalog:",
     "vite-plus": "catalog:"
   },

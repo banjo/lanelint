@@ -7,7 +7,7 @@ side effects, hooks and contexts hold the React logic, containers coordinate hoo
 components only display.
 
 ```ts
-import { astra } from '@pilotlint/presets';
+import { astra } from '@lanelint/presets';
 
 export default defineConfig({
   extends: [astra()],
@@ -118,7 +118,7 @@ astra({ roles: { services: ['**/services/**', '**/api/**'] } });
 ## Naming
 
 Like every preset, Astra checks structure only. These rules from
-`@pilotlint/plugin-conventions` add the naming that usually goes with it:
+`@lanelint/plugin-conventions` add the naming that usually goes with it:
 
 - A file is named after what it exports: `UserService.ts` exports the `UserService` object,
   `useUser.ts` the `useUser` hook, and `UserCard.tsx` the `UserCard` component. Code reads
@@ -138,10 +138,10 @@ Like every preset, Astra checks structure only. These rules from
 - Named exports only, except in stories.
 
 ```ts
-import boundaries from '@pilotlint/plugin-boundaries';
-import conventions from '@pilotlint/plugin-conventions';
-import { astra } from '@pilotlint/presets';
-import { defineConfig } from 'pilotlint';
+import boundaries from '@lanelint/plugin-boundaries';
+import conventions from '@lanelint/plugin-conventions';
+import { astra } from '@lanelint/presets';
+import { defineConfig } from 'lanelint';
 
 const roles = [
   'components',

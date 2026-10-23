@@ -1,9 +1,9 @@
-# @pilotlint/core
+# @lanelint/core
 
-[![npm](https://img.shields.io/npm/v/@pilotlint/core)](https://www.npmjs.com/package/@pilotlint/core)
+[![npm](https://img.shields.io/npm/v/@lanelint/core)](https://www.npmjs.com/package/@lanelint/core)
 
-The engine and rule API behind [pilotlint](https://github.com/banjo/pilotlint), for authors of
-plugins. To check a project, install [`pilotlint`](https://www.npmjs.com/package/pilotlint)
+The engine and rule API behind [lanelint](https://github.com/banjo/lanelint), for authors of
+plugins. To check a project, install [`lanelint`](https://www.npmjs.com/package/lanelint)
 instead.
 
 ## Install
@@ -12,14 +12,14 @@ Plugins depend on core as a peer dependency:
 
 ```json
 {
-  "peerDependencies": { "@pilotlint/core": "^0.1.0" }
+  "peerDependencies": { "@lanelint/core": "^0.1.0" }
 }
 ```
 
 ## Write a rule
 
 ```ts
-import { definePlugin, defineRule } from '@pilotlint/core';
+import { definePlugin, defineRule } from '@lanelint/core';
 
 const noLegacyImports = defineRule({
   meta: {
@@ -45,7 +45,7 @@ ArkType, and their types flow into `defineConfig`.
 ## Test a rule
 
 ```ts
-import { testRule } from '@pilotlint/core/testing';
+import { testRule } from '@lanelint/core/testing';
 import { describe, expect, it } from 'vitest';
 
 testRule(
@@ -71,9 +71,9 @@ testRule(
 
 ## Docs
 
-- [Writing rules](https://github.com/banjo/pilotlint/blob/main/docs/writing-rules.md): visitors,
+- [Writing rules](https://github.com/banjo/lanelint/blob/main/docs/writing-rules.md): visitors,
   context, options, tests, and publishing
-- [Concepts](https://github.com/banjo/pilotlint/blob/main/docs/concepts.md): elements, imports,
+- [Concepts](https://github.com/banjo/lanelint/blob/main/docs/concepts.md): elements, imports,
   and findings
 
 ## License

@@ -1,5 +1,5 @@
-import { defineConfigFragment } from '@pilotlint/core';
-import boundaries, { type Selector } from '@pilotlint/plugin-boundaries';
+import { defineConfigFragment } from '@lanelint/core';
+import boundaries, { type Selector } from '@lanelint/plugin-boundaries';
 import { IO_BUILTINS, IO_GLOBALS } from '../constants/io.ts';
 import { PathUtil } from '../utils/pathUtil.ts';
 

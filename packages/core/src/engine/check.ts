@@ -34,7 +34,7 @@ export interface CheckOptions {
   readonly changes?: readonly Change[];
   /** Overrides `failOn` from the config. */
   readonly failOn?: FailOn;
-  /** Keep module info and resolutions between runs in `node_modules/.cache/pilotlint`. Defaults to `true`. */
+  /** Keep module info and resolutions between runs in `node_modules/.cache/lanelint`. Defaults to `true`. */
   readonly cache?: boolean;
 }
 
@@ -81,7 +81,7 @@ export async function check(options: CheckOptions): Promise<CheckResult> {
   for (const id of ruleFilter ?? []) {
     if (!config.rules.has(id)) {
       throw new UsageError(
-        `Unknown rule "${id}". Run pilotlint rules list to see the active rules.`,
+        `Unknown rule "${id}". Run lanelint rules list to see the active rules.`,
       );
     }
   }

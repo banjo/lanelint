@@ -4,16 +4,16 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "pilotlint": "pilotlint check"
+    "lanelint": "lanelint check"
   },
   "dependencies": {
     "@types/react": "catalog:",
     "react": "catalog:"
   },
   "devDependencies": {
-    "@pilotlint/plugin-boundaries": "workspace:*",
-    "@pilotlint/plugin-conventions": "workspace:*",
-    "@pilotlint/presets": "workspace:*",
-    "pilotlint": "workspace:*"
+    "@lanelint/plugin-boundaries": "workspace:*",
+    "@lanelint/plugin-conventions": "workspace:*",
+    "@lanelint/presets": "workspace:*",
+    "lanelint": "workspace:*"
   }
 }

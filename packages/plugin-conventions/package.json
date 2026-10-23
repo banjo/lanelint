@@ -1,16 +1,16 @@
 {
-  "name": "@pilotlint/plugin-conventions",
-  "version": "0.2.4",
-  "description": "pilotlint rules for file and directory names, placement, required files, and exports.",
-  "homepage": "https://github.com/banjo/pilotlint/tree/main/packages/plugin-conventions#readme",
+  "name": "@lanelint/plugin-conventions",
+  "version": "0.0.1",
+  "description": "lanelint rules for file and directory names, placement, required files, and exports.",
+  "homepage": "https://github.com/banjo/lanelint/tree/main/packages/plugin-conventions#readme",
   "bugs": {
-    "url": "https://github.com/banjo/pilotlint/issues"
+    "url": "https://github.com/banjo/lanelint/issues"
   },
   "license": "MIT",
   "author": "Anton Ödman",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/banjo/pilotlint.git",
+    "url": "git+https://github.com/banjo/lanelint.git",
     "directory": "packages/plugin-conventions"
   },
   "files": [
@@ -40,13 +40,13 @@
     "valibot": "catalog:"
   },
   "devDependencies": {
-    "@pilotlint/core": "workspace:*",
+    "@lanelint/core": "workspace:*",
     "@types/node": "catalog:",
     "typescript": "catalog:",
     "vite-plus": "catalog:"
   },
   "peerDependencies": {
-    "@pilotlint/core": "workspace:^"
+    "@lanelint/core": "workspace:^"
   },
   "engines": {
     "node": ">=22.18.0"

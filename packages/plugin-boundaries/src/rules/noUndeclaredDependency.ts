@@ -1,4 +1,4 @@
-import { defineRule, GlobUtil, type PackageInfo } from '@pilotlint/core';
+import { defineRule, GlobUtil, type PackageInfo } from '@lanelint/core';
 import { toStandardJsonSchema } from '@valibot/to-json-schema';
 import * as v from 'valibot';
 import { EdgeUtil } from '../utils/edgeUtil.ts';

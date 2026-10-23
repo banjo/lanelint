@@ -5,7 +5,7 @@ Checks the project structure from
 React applications: code flows one way, from shared code to features to the app.
 
 ```ts
-import { bulletproofReact } from '@pilotlint/presets';
+import { bulletproofReact } from '@lanelint/presets';
 
 export default defineConfig({
   extends: [bulletproofReact()],

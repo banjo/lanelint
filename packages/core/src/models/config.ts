@@ -36,7 +36,7 @@ export interface Plugin<
   ConfigName extends string = string,
 > {
   readonly name: Name;
-  /** One sentence about the plugin, shown by `pilotlint rules docs`. */
+  /** One sentence about the plugin, shown by `lanelint rules docs`. */
   readonly description?: string;
   readonly rules: Rules;
   /** Configs for `extends`. Each one carries the plugin, so its rules are known to `defineConfig`. */
@@ -69,10 +69,10 @@ type UnionToIntersection<U> = (U extends unknown ? (value: U) => void : never) e
   : never;
 
 export type CoreRuleId =
-  | 'pilotlint/config-changed'
-  | 'pilotlint/stale-config'
-  | 'pilotlint/no-git'
-  | 'pilotlint/parse-error';
+  | 'lanelint/config-changed'
+  | 'lanelint/stale-config'
+  | 'lanelint/no-git'
+  | 'lanelint/parse-error';
 
 type CoreRuleEntries = { [Key in CoreRuleId]?: RuleEntry<never> };
 
@@ -95,7 +95,7 @@ export interface TypedConfigFragment<Plugins extends readonly AnyPlugin[]> exten
   readonly overrides?: readonly OverrideConfig<RulesOf<Plugins[number]>>[];
 }
 
-export interface PilotlintConfig<
+export interface LanelintConfig<
   Plugins extends readonly AnyPlugin[] = readonly AnyPlugin[],
   Extends extends readonly ConfigFragment[] = readonly ConfigFragment[],
 > {

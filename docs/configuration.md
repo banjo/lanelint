@@ -1,15 +1,15 @@
 # Configuration
 
-pilotlint reads `pilotlint.config.ts` (or `.mts`, `.cts`, `.js`, `.mjs`, `.cjs`) from the
+lanelint reads `lanelint.config.ts` (or `.mts`, `.cts`, `.js`, `.mjs`, `.cjs`) from the
 current directory or the nearest parent that has one. Pass `--config <path>` to use another
 file.
 
 ```ts
-import boundaries from '@pilotlint/plugin-boundaries';
-import changes from '@pilotlint/plugin-changes';
-import conventions from '@pilotlint/plugin-conventions';
-import { defineConfig } from 'pilotlint';
-import local from './pilotlint/plugin.ts';
+import boundaries from '@lanelint/plugin-boundaries';
+import changes from '@lanelint/plugin-changes';
+import conventions from '@lanelint/plugin-conventions';
+import { defineConfig } from 'lanelint';
+import local from './lanelint/plugin.ts';
 
 export default defineConfig({
   include: ['src/**', 'package.json'],
@@ -56,13 +56,13 @@ All globs use `/` as the separator, are relative to the root, and support `*`, `
 
 ## Files
 
-In a git repository, pilotlint asks git for the files instead of walking the directories:
+In a git repository, lanelint asks git for the files instead of walking the directories:
 tracked files, and untracked files that `.gitignore` does not exclude. `include` and `ignore`
 then pick the project files from that list. This is faster, and generated or ignored files
 stay out without listing them in `ignore`. Files in git submodules are left out.
 
 Set `gitignore: false` to walk the directories instead, for example when the project checks
-generated files that git ignores. Outside a git repository, pilotlint always walks the
+generated files that git ignores. Outside a git repository, lanelint always walks the
 directories.
 
 ## Elements
@@ -73,7 +73,7 @@ directories.
   pattern: string;                             // directory pattern, such as 'src/features/:name'
   where?: Record<string, string[]>;            // allowed values per capture
   entry?: string | string[];                   // entry files or globs, relative to the element root
-  description?: string;                        // shown by pilotlint describe
+  description?: string;                        // shown by lanelint describe
 }
 ```
 
@@ -101,7 +101,7 @@ A rule entry is a level, or a level with options:
 rules: {
   'conventions/no-default-export': 'error',
   'boundaries/no-orphans': ['warn', { roots: ['src/main.ts'] }],
-  'pilotlint/stale-config': 'off',
+  'lanelint/stale-config': 'off',
 }
 ```
 
@@ -131,19 +131,19 @@ overrides: [
 ],
 ```
 
-| Field         | Type                        | Description                                             |
-| ------------- | --------------------------- | ------------------------------------------------------- |
-| `description` | `string`                    | Why the override exists. Shown by `pilotlint describe`. |
-| `files`       | `string[]`                  | Globs of locations the override applies to.             |
-| `ignore`      | `string[]`                  | Globs of locations it does not apply to.                |
-| `elements`    | `string[]`                  | Element types it applies to.                            |
-| `rules`       | `Record<string, RuleEntry>` | Rule entries, as in `rules`.                            |
+| Field         | Type                        | Description                                            |
+| ------------- | --------------------------- | ------------------------------------------------------ |
+| `description` | `string`                    | Why the override exists. Shown by `lanelint describe`. |
+| `files`       | `string[]`                  | Globs of locations the override applies to.            |
+| `ignore`      | `string[]`                  | Globs of locations it does not apply to.               |
+| `elements`    | `string[]`                  | Element types it applies to.                           |
+| `rules`       | `Record<string, RuleEntry>` | Rule entries, as in `rules`.                           |
 
 When an override has both `files` and `elements`, a location must match both.
 
 ## Order
 
-pilotlint applies `extends` in order, then `rules`, then `overrides` in order. The last
+lanelint applies `extends` in order, then `rules`, then `overrides` in order. The last
 entry that applies to a location wins. Each finding is checked against the config at its
 location: the rule must be on there, and the finding gets the level set there. Findings on
 the whole project use the top-level config.
@@ -178,8 +178,8 @@ To share a config between projects, publish a fragment made with `defineConfigFr
 checks the fragment's rules against its plugins, and configs that extend it know them too:
 
 ```ts
-import boundaries from '@pilotlint/plugin-boundaries';
-import { defineConfigFragment } from 'pilotlint';
+import boundaries from '@lanelint/plugin-boundaries';
+import { defineConfigFragment } from 'lanelint';
 
 export default defineConfigFragment({
   plugins: [boundaries],
@@ -194,7 +194,7 @@ Rules that only make sense in one project live in the project, as a local plugin
 
 ## Validation
 
-pilotlint checks the config before it runs and exits with code `2` when:
+lanelint checks the config before it runs and exits with code `2` when:
 
 - a rule id is unknown, or its plugin is not listed
 - options do not match the rule's schema

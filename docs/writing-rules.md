@@ -7,7 +7,7 @@ projects go in a published plugin. Both are written the same way.
 
 The rule API follows ESLint where it fits, so most of what you know carries over:
 
-| ESLint                                    | pilotlint                                                                     |
+| ESLint                                    | lanelint                                                                      |
 | ----------------------------------------- | ----------------------------------------------------------------------------- |
 | `meta.docs.description`                   | `meta.description`                                                            |
 | `meta.schema` (JSON Schema)               | `options` (any Standard Schema, such as Zod or Valibot)                       |
@@ -21,15 +21,15 @@ The rule API follows ESLint where it fits, so most of what you know carries over
 | ESTree AST                                | The same ESTree AST, with TypeScript nodes, from Oxc                          |
 | `// eslint-disable` comments              | None, on purpose: only the config can turn a rule off                         |
 
-The difference is the scope. An ESLint rule sees one file. A pilotlint rule can also see
+The difference is the scope. An ESLint rule sees one file. A lanelint rule can also see
 directories, elements, the resolved import graph, and the files that changed since a git ref.
 
 ## A local plugin
 
 ```ts
-// pilotlint/plugin.ts
+// lanelint/plugin.ts
 import { toStandardJsonSchema } from '@valibot/to-json-schema';
-import { definePlugin, defineRule } from 'pilotlint';
+import { definePlugin, defineRule } from 'lanelint';
 import * as v from 'valibot';
 
 const noLegacyImports = defineRule({
@@ -76,9 +76,9 @@ export default definePlugin({
 ```
 
 ```ts
-// pilotlint.config.ts
-import { defineConfig } from 'pilotlint';
-import local from './pilotlint/plugin.ts';
+// lanelint.config.ts
+import { defineConfig } from 'lanelint';
+import local from './lanelint/plugin.ts';
 
 export default defineConfig({
   plugins: [local],
@@ -101,7 +101,7 @@ what is wrong.
 ## Options
 
 `options` takes any [Standard Schema](https://standardschema.dev): Zod, Valibot, ArkType, and
-others. pilotlint validates the options in the config with it, and its types flow into
+others. lanelint validates the options in the config with it, and its types flow into
 `defineConfig` and `context.options`.
 
 For the generated docs, the schema should also implement
@@ -122,7 +122,7 @@ optional, with a default, when every option has one.
 
 ## Visitors
 
-`create` returns visitors. pilotlint reads and parses only what the active visitors need:
+`create` returns visitors. lanelint reads and parses only what the active visitors need:
 
 | Visitor     | Receives                                           | Runs for                          |
 | ----------- | -------------------------------------------------- | --------------------------------- |
@@ -136,7 +136,7 @@ optional, with a default, when every option has one.
 | `project`   | The whole project, and may be `async`              | Once per run                      |
 
 The `ast` visitor builds the program only when the rule reads `ast.program`. `AstUtil` from
-`@pilotlint/core` walks a program and finds declared names.
+`@lanelint/core` walks a program and finds declared names.
 
 ## Context
 
@@ -168,7 +168,7 @@ of line numbers, so `--new` recognizes a finding after code moves.
 For a condition and a message, use `defineFileRule` or `defineDirectoryRule`:
 
 ```ts
-import { defineFileRule } from 'pilotlint';
+import { defineFileRule } from 'lanelint';
 
 export const noTypesFiles = defineFileRule({
   meta: { description: 'No types.ts files.', severity: 'warn' },
@@ -179,10 +179,10 @@ export const noTypesFiles = defineFileRule({
 
 ## Tests
 
-`@pilotlint/core/testing` runs a rule on files in a temporary directory:
+`@lanelint/core/testing` runs a rule on files in a temporary directory:
 
 ```ts
-import { testRule } from '@pilotlint/core/testing';
+import { testRule } from '@lanelint/core/testing';
 import { describe, expect, it } from 'vitest';
 import { noTypesFiles } from '../src/noTypesFiles.ts';
 
@@ -207,9 +207,9 @@ that compare with git. `runRule` returns the findings of one case, for your own 
 
 ## Publishing a plugin
 
-- Name the package `pilotlint-plugin-<name>` or `@scope/pilotlint-plugin-<name>`, and
-  configs without rules `pilotlint-config-<name>`.
-- Depend on `@pilotlint/core` as a peer dependency.
+- Name the package `lanelint-plugin-<name>` or `@scope/lanelint-plugin-<name>`, and
+  configs without rules `lanelint-config-<name>`.
+- Depend on `@lanelint/core` as a peer dependency.
 - Export the plugin as the default export, and add `configs` such as `recommended` for a
   good start.
 
@@ -218,7 +218,7 @@ that compare with git. `runRule` returns the findings of one case, for your own 
 Generate docs for your plugin's rules with:
 
 ```bash
-pilotlint rules docs --plugin <name> --out docs/rules
+lanelint rules docs --plugin <name> --out docs/rules
 ```
 
 The page is made from `meta`, the options schema, and `example`, so the docs and the rules

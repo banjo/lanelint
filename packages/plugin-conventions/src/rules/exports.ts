@@ -1,4 +1,4 @@
-import { defineRule, GlobUtil, type AstInfo, type ModuleExport } from '@pilotlint/core';
+import { defineRule, GlobUtil, type AstInfo, type ModuleExport } from '@lanelint/core';
 import { toStandardJsonSchema } from '@valibot/to-json-schema';
 import * as v from 'valibot';
 import { MessageSchema } from '../models/optionSchemas.ts';

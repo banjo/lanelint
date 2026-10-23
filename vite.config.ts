@@ -2,7 +2,7 @@ import { defineConfig } from 'vite-plus';
 
 export default defineConfig({
   staged: {
-    '*': ['vp check --fix', 'pilotlint check --new'],
+    '*': ['vp check --fix', 'lanelint check --new'],
   },
   fmt: {
     singleQuote: true,

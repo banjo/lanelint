@@ -6,7 +6,7 @@ describes the idea in
 [Presentation Domain Data Layering](https://martinfowler.com/bliki/PresentationDomainDataLayering.html).
 
 ```ts
-import { layered } from '@pilotlint/presets';
+import { layered } from '@lanelint/presets';
 
 export default defineConfig({
   extends: [layered()],

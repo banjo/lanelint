@@ -3,20 +3,20 @@
 ## Install
 
 ```bash
-pnpm add -D pilotlint @pilotlint/plugin-boundaries @pilotlint/plugin-conventions
+pnpm add -D lanelint @lanelint/plugin-boundaries @lanelint/plugin-conventions
 ```
 
-pilotlint needs Node 22.18 or later. Change rules and `--new` also need git.
+lanelint needs Node 22.18 or later. Change rules and `--new` also need git.
 
 ## Write a config
 
-Create `pilotlint.config.ts` in the project root. This one describes a project with
+Create `lanelint.config.ts` in the project root. This one describes a project with
 feature folders and shared domain code:
 
 ```ts
-import boundaries from '@pilotlint/plugin-boundaries';
-import conventions from '@pilotlint/plugin-conventions';
-import { defineConfig } from 'pilotlint';
+import boundaries from '@lanelint/plugin-boundaries';
+import conventions from '@lanelint/plugin-conventions';
+import { defineConfig } from 'lanelint';
 
 export default defineConfig({
   include: ['src/**'],
@@ -42,7 +42,7 @@ Architecture, or a layered backend, a [preset](presets/README.md) writes the ele
 import rules for you:
 
 ```ts
-import { featureSliced } from '@pilotlint/presets';
+import { featureSliced } from '@lanelint/presets';
 
 export default defineConfig({
   extends: [boundaries.configs.recommended, featureSliced()],
@@ -52,7 +52,7 @@ export default defineConfig({
 ## Run a check
 
 ```bash
-npx pilotlint check
+npx lanelint check
 ```
 
 ```
@@ -72,7 +72,7 @@ An existing project usually has findings already. Show only the findings that a 
 introduces:
 
 ```bash
-npx pilotlint check --changed --new
+npx lanelint check --changed --new
 ```
 
 `--changed` reports only on files that differ from `HEAD`, and `--new` hides findings that
@@ -84,7 +84,7 @@ already exist at `HEAD`. Fix the old findings when you have time, or set their r
 - [Concepts](concepts.md): elements, findings, levels, and changes.
 - [Configuration](configuration.md): every field of the config.
 - [Rules](rules/README.md): what each rule checks and its options.
-- [Agents](agents.md): the skill and hooks that make agents run pilotlint.
-- Complete configs: [feature folders](../examples/feature-folders/pilotlint.config.ts),
-  [a monorepo](../examples/monorepo/pilotlint.config.ts), and
-  [Bulletproof React with naming rules](../examples/bulletproof-react/pilotlint.config.ts).
+- [Agents](agents.md): the skill and hooks that make agents run lanelint.
+- Complete configs: [feature folders](../examples/feature-folders/lanelint.config.ts),
+  [a monorepo](../examples/monorepo/lanelint.config.ts), and
+  [Bulletproof React with naming rules](../examples/bulletproof-react/lanelint.config.ts).

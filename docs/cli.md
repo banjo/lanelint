@@ -1,24 +1,24 @@
 # CLI
 
 ```bash
-pilotlint check [paths...]       # check the project
-pilotlint describe [path]        # the structure, or what applies to one path
-pilotlint rules list             # active rules
-pilotlint rules explain <id>     # what a rule checks and how to fix findings
-pilotlint rules docs             # write Markdown docs for the rules
+lanelint check [paths...]       # check the project
+lanelint describe [path]        # the structure, or what applies to one path
+lanelint rules list             # active rules
+lanelint rules explain <id>     # what a rule checks and how to fix findings
+lanelint rules docs             # write Markdown docs for the rules
 ```
 
-Every command takes `--config <path>`. `--debug` logs what pilotlint does, and `--help`
+Every command takes `--config <path>`. `--debug` logs what lanelint does, and `--help`
 shows the options of a command.
 
 ## check
 
 ```bash
-pilotlint check                              # the whole project
-pilotlint check src/features/calendar        # only report on these paths
-pilotlint check --changed --new              # only what the current change caused
-pilotlint check --base origin/main --new     # in CI
-pilotlint check --rule boundaries/entry-only # one rule
+lanelint check                              # the whole project
+lanelint check src/features/calendar        # only report on these paths
+lanelint check --changed --new              # only what the current change caused
+lanelint check --base origin/main --new     # in CI
+lanelint check --rule boundaries/entry-only # one rule
 ```
 
 | Flag                 | Description                                                         |
@@ -36,7 +36,7 @@ pilotlint check --rule boundaries/entry-only # one rule
 Paths and `--changed` limit what is reported, not what is checked: a cycle is still found
 when only one of its files changed.
 
-pilotlint keeps the imports and exports of each file in `node_modules/.cache/pilotlint`, keyed
+lanelint keeps the imports and exports of each file in `node_modules/.cache/lanelint`, keyed
 by the file's git hash, so the next check reads and parses only the files that changed. It also
 keeps what each import resolved to, until a file is added or removed, or a tsconfig,
 package.json, lockfile, or `node_modules` changes. The cache is skipped when the project root
@@ -98,8 +98,8 @@ and, with `--new`, the base.
 ## describe
 
 ```bash
-pilotlint describe                                       # the whole structure
-pilotlint describe src/features/calendar/hooks/useSlots.ts   # what applies to one path
+lanelint describe                                       # the whole structure
+lanelint describe src/features/calendar/hooks/useSlots.ts   # what applies to one path
 ```
 
 Prints the structure as Markdown: the elements with their patterns, entry files, and
@@ -115,7 +115,7 @@ Lists the active rules with their level and description, and how many overrides 
 ## rules explain
 
 ```bash
-pilotlint rules explain boundaries/entry-only
+lanelint rules explain boundaries/entry-only
 ```
 
 Prints what a rule checks, its level in this project, what it enforces with the configured
@@ -124,10 +124,10 @@ options, and how to fix its findings.
 ## rules docs
 
 ```bash
-pilotlint rules docs                           # write docs/rules
-pilotlint rules docs --out docs/architecture   # write somewhere else
-pilotlint rules docs --check                   # exit 1 when the docs are out of date
-pilotlint rules docs --plugin local            # only one plugin
+lanelint rules docs                           # write docs/rules
+lanelint rules docs --out docs/architecture   # write somewhere else
+lanelint rules docs --check                   # exit 1 when the docs are out of date
+lanelint rules docs --plugin local            # only one plugin
 ```
 
 Writes a `README.md` that lists every rule, and one page per plugin with the rule's
@@ -149,8 +149,8 @@ See [Writing rules](writing-rules.md#documentation) for how a plugin gets good p
 
 ## Exit codes
 
-| Code | Meaning                                                                     |
-| ---- | --------------------------------------------------------------------------- |
-| `0`  | No findings at the `failOn` level                                           |
-| `1`  | Findings at the `failOn` level, or rule docs out of date with `--check`     |
-| `2`  | pilotlint could not run: a bad flag, a missing config, or an invalid config |
+| Code | Meaning                                                                    |
+| ---- | -------------------------------------------------------------------------- |
+| `0`  | No findings at the `failOn` level                                          |
+| `1`  | Findings at the `failOn` level, or rule docs out of date with `--check`    |
+| `2`  | lanelint could not run: a bad flag, a missing config, or an invalid config |

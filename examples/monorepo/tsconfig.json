@@ -12,5 +12,5 @@
       "@example/ui": ["./packages/ui/src/index.ts"]
     }
   },
-  "include": ["packages", "pilotlint.config.ts"]
+  "include": ["packages", "lanelint.config.ts"]
 }

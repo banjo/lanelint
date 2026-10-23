@@ -1,4 +1,4 @@
-import { defineRule, GlobUtil, type ProjectApi } from '@pilotlint/core';
+import { defineRule, GlobUtil, type ProjectApi } from '@lanelint/core';
 import { normalize } from 'node:path/posix';
 import { toStandardJsonSchema } from '@valibot/to-json-schema';
 import * as v from 'valibot';

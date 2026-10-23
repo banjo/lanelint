@@ -4,7 +4,7 @@ Checks the import rules of [Feature-Sliced Design](https://feature-sliced.design
 methodology for frontend projects.
 
 ```ts
-import { featureSliced } from '@pilotlint/presets';
+import { featureSliced } from '@lanelint/presets';
 
 export default defineConfig({
   extends: [featureSliced()],

@@ -1,16 +1,16 @@
 {
-  "name": "@pilotlint/presets",
-  "version": "0.2.4",
-  "description": "pilotlint presets for well-known architectures: Feature-Sliced Design, Bulletproof React, monorepos, Clean Architecture, and layered backends.",
-  "homepage": "https://github.com/banjo/pilotlint/tree/main/packages/presets#readme",
+  "name": "@lanelint/presets",
+  "version": "0.0.1",
+  "description": "lanelint presets for well-known architectures: Feature-Sliced Design, Bulletproof React, monorepos, Clean Architecture, and layered backends.",
+  "homepage": "https://github.com/banjo/lanelint/tree/main/packages/presets#readme",
   "bugs": {
-    "url": "https://github.com/banjo/pilotlint/issues"
+    "url": "https://github.com/banjo/lanelint/issues"
   },
   "license": "MIT",
   "author": "Anton Ödman",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/banjo/pilotlint.git",
+    "url": "git+https://github.com/banjo/lanelint.git",
     "directory": "packages/presets"
   },
   "files": [
@@ -36,15 +36,15 @@
     "prepublishOnly": "vp run build"
   },
   "devDependencies": {
-    "@pilotlint/core": "workspace:*",
-    "@pilotlint/plugin-boundaries": "workspace:*",
+    "@lanelint/core": "workspace:*",
+    "@lanelint/plugin-boundaries": "workspace:*",
     "@types/node": "catalog:",
     "typescript": "catalog:",
     "vite-plus": "catalog:"
   },
   "peerDependencies": {
-    "@pilotlint/core": "workspace:^",
-    "@pilotlint/plugin-boundaries": "workspace:^"
+    "@lanelint/core": "workspace:^",
+    "@lanelint/plugin-boundaries": "workspace:^"
   },
   "engines": {
     "node": ">=22.18.0"

@@ -86,9 +86,9 @@ export interface RuleMeta<Input = unknown> {
   readonly description: string;
   /** Default level, used when the config enables the rule without a level. */
   readonly severity: Severity;
-  /** Markdown shown by `pilotlint rules explain` and `pilotlint rules docs`. */
+  /** Markdown shown by `lanelint rules explain` and `lanelint rules docs`. */
   readonly docs?: string;
-  /** An example entry for the rule in the config, shown by `pilotlint rules docs`. */
+  /** An example entry for the rule in the config, shown by `lanelint rules docs`. */
   readonly example?: RuleEntry<Input>;
 }
 
@@ -96,7 +96,7 @@ export interface Rule<Options = unknown, Input = unknown> {
   readonly meta: RuleMeta<Input>;
   readonly options?: StandardSchemaV1<Input, Options>;
   // Methods rather than function properties, so any rule is assignable to `AnyRule`.
-  /** What the rule enforces with these options, for `pilotlint describe`. */
+  /** What the rule enforces with these options, for `lanelint describe`. */
   describe?(options: Options): string | readonly string[];
   /** Element types referenced by these options, validated against the config. */
   elementTypes?(options: Options): readonly string[];

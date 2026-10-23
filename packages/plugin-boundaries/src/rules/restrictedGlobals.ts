@@ -1,4 +1,4 @@
-import { AstUtil, defineRule, type AstNode } from '@pilotlint/core';
+import { AstUtil, defineRule, type AstNode } from '@lanelint/core';
 import { toStandardJsonSchema } from '@valibot/to-json-schema';
 import * as v from 'valibot';
 import { HintSchema, ReasonSchema, SelectorListSchema } from '../models/optionSchemas.ts';

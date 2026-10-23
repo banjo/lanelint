@@ -5,7 +5,7 @@ import {
   defineConfigFragment,
   definePlugin,
   defineRule,
-  type PilotlintConfig,
+  type LanelintConfig,
   type RuleEntry,
 } from '../src/index.ts';
 
@@ -33,8 +33,8 @@ const beta = definePlugin({
 
 /** The rule entries a config accepts. */
 type RulesOfConfig<Config> =
-  Config extends PilotlintConfig<infer Plugins, infer Extends>
-    ? NonNullable<PilotlintConfig<Plugins, Extends>['rules']>
+  Config extends LanelintConfig<infer Plugins, infer Extends>
+    ? NonNullable<LanelintConfig<Plugins, Extends>['rules']>
     : never;
 
 describe('config types', () => {

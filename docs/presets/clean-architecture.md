@@ -5,7 +5,7 @@ Checks the dependency rule of
 source code dependencies point only inward, toward the business rules.
 
 ```ts
-import { cleanArchitecture } from '@pilotlint/presets';
+import { cleanArchitecture } from '@lanelint/presets';
 
 export default defineConfig({
   extends: [cleanArchitecture({ frameworks: ['express', '@prisma/client'] })],

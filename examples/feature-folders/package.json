@@ -4,12 +4,12 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "pilotlint": "pilotlint check"
+    "lanelint": "lanelint check"
   },
   "devDependencies": {
-    "@pilotlint/plugin-boundaries": "workspace:*",
-    "@pilotlint/plugin-changes": "workspace:*",
-    "@pilotlint/plugin-conventions": "workspace:*",
-    "pilotlint": "workspace:*"
+    "@lanelint/plugin-boundaries": "workspace:*",
+    "@lanelint/plugin-changes": "workspace:*",
+    "@lanelint/plugin-conventions": "workspace:*",
+    "lanelint": "workspace:*"
   }
 }

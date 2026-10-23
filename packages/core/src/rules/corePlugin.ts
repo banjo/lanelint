@@ -3,16 +3,16 @@ import { defineRule } from '../api/defineRule.ts';
 import type { ResolvedConfig } from '../config/resolveConfig.ts';
 import { GlobUtil } from '../utils/globUtil.ts';
 
-export const CORE_PLUGIN_NAME = 'pilotlint';
+export const CORE_PLUGIN_NAME = 'lanelint';
 
 /** Core rules. `no-git` and `parse-error` are reported by the engine; they exist here for config and docs. */
 export function createCorePlugin(getConfig: () => ResolvedConfig) {
   const configChanged = defineRule({
     meta: {
-      description: 'Reports changes to the pilotlint config, which need a human review.',
+      description: 'Reports changes to the lanelint config, which need a human review.',
       severity: 'warn',
       docs: [
-        'The pilotlint config defines what the project structure must look like. Changing it',
+        'The lanelint config defines what the project structure must look like. Changing it',
         'changes the rules, so the change needs a human review. This rule cannot be turned off.',
         '',
         'If you are an agent: do not change the config to make a finding go away. Revert the',
@@ -27,7 +27,7 @@ export function createCorePlugin(getConfig: () => ResolvedConfig) {
         if (context.changes.get(project.configFile)) {
           context.report({
             at: 'project',
-            message: `The pilotlint config ${project.configFile} changed and needs a human review.`,
+            message: `The lanelint config ${project.configFile} changed and needs a human review.`,
             hint: 'Revert the config change and fix the code instead, or ask a human to review it.',
             key: 'config-changed',
           });
@@ -93,7 +93,7 @@ export function createCorePlugin(getConfig: () => ResolvedConfig) {
         'Change rules and `--new` compare the working tree with a git ref. Outside a git',
         'repository they cannot run, and this finding says which rules were skipped.',
         '',
-        'To fix a finding, run pilotlint inside the git repository, or turn the change rules off.',
+        'To fix a finding, run lanelint inside the git repository, or turn the change rules off.',
       ].join('\n'),
     },
     create: () => ({}),

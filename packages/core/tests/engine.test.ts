@@ -376,7 +376,7 @@ describe('changes', () => {
     ]);
   });
 
-  it('reports pilotlint/no-git when a rule needs git outside a repository', async () => {
+  it('reports lanelint/no-git when a rule needs git outside a repository', async () => {
     const findings = await runRule(changed, { files: { 'a.ts': '' } });
     expect(findings).toEqual([]);
   });

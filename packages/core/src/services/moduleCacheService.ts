@@ -24,7 +24,7 @@ interface CacheFile {
   readonly entries: Record<string, CachedModule>;
 }
 
-const VERSION = `${FORMAT}:${CacheFileService.versionOf('@pilotlint/core')}:${CacheFileService.versionOf('oxc-parser')}`;
+const VERSION = `${FORMAT}:${CacheFileService.versionOf('@lanelint/core')}:${CacheFileService.versionOf('oxc-parser')}`;
 
 /** The key of a file's content: its git blob hash and extension, since the extension decides how it parses. */
 const keyOf = (hash: string, extension: string): string => `${hash}${extension}`;
@@ -45,7 +45,7 @@ const memory = (): ModuleCache => {
 };
 
 /**
- * The cache in `node_modules/.cache/pilotlint` of the project root. Without `node_modules` there,
+ * The cache in `node_modules/.cache/lanelint` of the project root. Without `node_modules` there,
  * the cache lives only for one run.
  */
 const load = async (root: string): Promise<ModuleCache> => {

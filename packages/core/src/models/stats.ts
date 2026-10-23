@@ -1,4 +1,4 @@
-/** How much work a check did. Used to test that pilotlint only does the work its rules need. */
+/** How much work a check did. Used to test that lanelint only does the work its rules need. */
 export interface WorkStats {
   /** Files read from the working tree or from git. Each file is read once, even with `--new`. */
   filesRead: number;

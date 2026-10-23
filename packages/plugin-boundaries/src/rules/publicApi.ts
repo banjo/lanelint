@@ -4,7 +4,7 @@ import {
   type ImportEdge,
   type ProjectApi,
   type ProjectFile,
-} from '@pilotlint/core';
+} from '@lanelint/core';
 import { toStandardJsonSchema } from '@valibot/to-json-schema';
 import * as v from 'valibot';
 import { EdgeUtil } from '../utils/edgeUtil.ts';

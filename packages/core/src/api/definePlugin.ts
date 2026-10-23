@@ -1,7 +1,7 @@
 import type {
   AnyPlugin,
   ConfigFragment,
-  PilotlintConfig,
+  LanelintConfig,
   Plugin,
   TypedConfigFragment,
 } from '../models/config.ts';
@@ -42,11 +42,11 @@ export function definePlugin<
   return plugin;
 }
 
-/** Typed pilotlint config. Rule ids and options are checked against `plugins` and `extends`. */
+/** Typed lanelint config. Rule ids and options are checked against `plugins` and `extends`. */
 export function defineConfig<
   const Plugins extends readonly AnyPlugin[] = readonly [],
   const Extends extends readonly ConfigFragment[] = readonly [],
->(config: PilotlintConfig<Plugins, Extends>): PilotlintConfig<Plugins, Extends> {
+>(config: LanelintConfig<Plugins, Extends>): LanelintConfig<Plugins, Extends> {
   return config;
 }
 

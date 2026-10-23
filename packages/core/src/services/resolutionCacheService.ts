@@ -6,7 +6,7 @@ import { CacheFileService } from './cacheFileService.ts';
 /** Bump when resolver options or how resolutions are stored change. */
 const FORMAT = 1;
 const CACHE_FILE = 'resolutions.json';
-const VERSION = `${FORMAT}:${CacheFileService.versionOf('@pilotlint/core')}:${CacheFileService.versionOf('oxc-resolver')}`;
+const VERSION = `${FORMAT}:${CacheFileService.versionOf('@lanelint/core')}:${CacheFileService.versionOf('oxc-resolver')}`;
 
 /** Files that change what an import resolves to, besides the files that exist. */
 const RESOLUTION_INPUT =
@@ -86,7 +86,7 @@ const memory = (): ResolutionCache => ({
 });
 
 /**
- * The resolutions in `node_modules/.cache/pilotlint` of the project root, if they were made for
+ * The resolutions in `node_modules/.cache/lanelint` of the project root, if they were made for
  * the same project files. Without `node_modules` there, nothing is kept between runs.
  */
 const load = async (root: string, paths: readonly string[]): Promise<ResolutionCache> => {

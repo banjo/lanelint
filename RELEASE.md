@@ -1,6 +1,6 @@
 # Releasing
 
-pilotlint is released with [Changesets](https://github.com/changesets/changesets). Every
+lanelint is released with [Changesets](https://github.com/changesets/changesets). Every
 package is published to the public npm registry, `https://registry.npmjs.org/`.
 
 ## The registry
@@ -29,22 +29,22 @@ repository requires pnpm through `devEngines`, so npm refuses to run inside it.
    cd ~ && npm login --registry https://registry.npmjs.org/
    ```
 
-2. Check that you are logged in and can publish to the `@pilotlint` scope:
+2. Check that you are logged in and can publish to the `@lanelint` scope:
 
    ```bash
    cd ~ && npm whoami --registry https://registry.npmjs.org/
-   cd ~ && npm org ls pilotlint --registry https://registry.npmjs.org/
+   cd ~ && npm org ls lanelint --registry https://registry.npmjs.org/
    ```
 
    Your user must be in the organization, with permission to publish its packages. The
-   unscoped `pilotlint` package belongs to a user account, not the organization, so publishing
+   unscoped `lanelint` package belongs to a user account, not the organization, so publishing
    it needs that account or an owner of the package.
 
 Publishing requires two-factor authentication, so keep your authenticator app at hand.
 
 ## 1. Describe each change
 
-Every change to a package needs a changeset. `pilotlint check` in this repository reports
+Every change to a package needs a changeset. `lanelint check` in this repository reports
 `changes/requires-change` when files in `packages/*/src` changed without one.
 
 ```bash
@@ -56,8 +56,8 @@ the file by hand in `.changeset/`:
 
 ```md
 ---
-'@pilotlint/core': minor
-'pilotlint': patch
+'@lanelint/core': minor
+'lanelint': patch
 ---
 
 `defineConfig` knows the rules of plugins in `extends`.
@@ -81,7 +81,7 @@ changeset for one package bumps them all.
 ```bash
 git switch main && git pull
 git status            # must be clean
-pnpm ready            # vp check, all tests, and pilotlint on this repository
+pnpm ready            # vp check, all tests, and lanelint on this repository
 pnpm docs:rules --check
 ```
 
@@ -119,7 +119,7 @@ NPM_CONFIG_REGISTRY=https://registry.npmjs.org/ npm_config_registry=https://regi
 ```
 
 Changesets publishes every package whose version is not on the registry yet, then creates a
-git tag per package, such as `pilotlint@0.2.0`. Push the tags:
+git tag per package, such as `lanelint@0.0.1`. Push the tags:
 
 ```bash
 git push --follow-tags
@@ -130,17 +130,17 @@ git push --follow-tags
 New versions can take a few minutes to show up. Check the versions:
 
 ```bash
-cd ~ && npm view pilotlint version --registry https://registry.npmjs.org/
-cd ~ && npm view @pilotlint/core version --registry https://registry.npmjs.org/
+cd ~ && npm view lanelint version --registry https://registry.npmjs.org/
+cd ~ && npm view @lanelint/core version --registry https://registry.npmjs.org/
 ```
 
 Then install the release in an empty directory and run it:
 
 ```bash
-mkdir /tmp/pilotlint-release && cd /tmp/pilotlint-release && git init -q
+mkdir /tmp/lanelint-release && cd /tmp/lanelint-release && git init -q
 echo '{ "type": "module" }' > package.json
-npm install -D pilotlint @pilotlint/plugin-boundaries --registry https://registry.npmjs.org/
-npx --registry https://registry.npmjs.org/ pilotlint --version
+npm install -D lanelint @lanelint/plugin-boundaries --registry https://registry.npmjs.org/
+npx --registry https://registry.npmjs.org/ lanelint --version
 ```
 
 ## Troubleshooting
@@ -149,7 +149,7 @@ npx --registry https://registry.npmjs.org/ pilotlint --version
 | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `EOTP` or an expired code during publish                   | Run the publish command again with a new code. Changesets skips the packages that are already published.                                                            |
 | `ENEEDAUTH` or `need auth`                                 | You are not logged in to the public registry. Run `npm login` with `--registry`, as above.                                                                          |
-| `E404` for `@pilotlint/...` during publish                 | You are not a member of the `pilotlint` organization, or the registry variables are missing, so the publish went to another registry.                               |
+| `E404` for `@lanelint/...` during publish                  | You are not a member of the `lanelint` organization, or the registry variables are missing, so the publish went to another registry.                                |
 | `E404` for a new version or tarball right after publishing | The registry has not caught up yet. Wait a few minutes. Brand-new packages took about five minutes for the first release.                                           |
 | `EBADDEVENGINES` from npm                                  | You ran `npm` inside the repository. Run it from another directory.                                                                                                 |
 | A version shows as `0.0.0-stage`                           | npm's placeholder for a new package. It disappears from `latest` when the real version is live. See [staged publishing](https://docs.npmjs.com/staged-publishing/). |

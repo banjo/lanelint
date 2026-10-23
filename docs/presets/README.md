@@ -2,17 +2,17 @@
 
 Presets are ready-made configs for well-known architectures. Each one defines the elements
 and the import rules of its architecture, so a config can start from one line. They are in
-the `@pilotlint/presets` package:
+the `@lanelint/presets` package:
 
 ```bash
-npm install -D pilotlint @pilotlint/plugin-boundaries @pilotlint/presets
+npm install -D lanelint @lanelint/plugin-boundaries @lanelint/presets
 ```
 
 ```ts
-// pilotlint.config.ts
-import boundaries from '@pilotlint/plugin-boundaries';
-import { featureSliced } from '@pilotlint/presets';
-import { defineConfig } from 'pilotlint';
+// lanelint.config.ts
+import boundaries from '@lanelint/plugin-boundaries';
+import { featureSliced } from '@lanelint/presets';
+import { defineConfig } from 'lanelint';
 
 export default defineConfig({
   extends: [boundaries.configs.recommended, featureSliced()],
@@ -32,9 +32,9 @@ export default defineConfig({
 
 - A preset is a function that returns a config fragment for `extends`. Its options adapt it to
   your directories, for example `featureSliced({ root: 'app' })`.
-- Presets check structure only. Add naming rules from `@pilotlint/plugin-conventions` if you
+- Presets check structure only. Add naming rules from `@lanelint/plugin-conventions` if you
   want them.
 - Your own elements come before the preset's, so they win where both match. Presets can be
   combined, such as `[monorepo(), featureSliced({ root: 'apps/:app/src' })]`.
-- Rules you set replace the preset's options for the same rule. Run `pilotlint describe` to
+- Rules you set replace the preset's options for the same rule. Run `lanelint describe` to
   see what applies.

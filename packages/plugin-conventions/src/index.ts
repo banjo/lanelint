@@ -1,4 +1,4 @@
-import { definePlugin } from '@pilotlint/core';
+import { definePlugin } from '@lanelint/core';
 import { exportMatchesFilename, exportNamePattern } from './rules/exports.ts';
 import { allowedDirectories, forbiddenDirectories, forbiddenFiles } from './rules/forbidden.ts';
 import { directoryCase, fileNameCase } from './rules/nameCase.ts';

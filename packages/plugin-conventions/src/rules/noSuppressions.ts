@@ -1,4 +1,4 @@
-import { defineRule } from '@pilotlint/core';
+import { defineRule } from '@lanelint/core';
 import { toStandardJsonSchema } from '@valibot/to-json-schema';
 import * as v from 'valibot';
 

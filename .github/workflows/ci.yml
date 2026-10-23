@@ -11,7 +11,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7.0.1
         with:
-          # pilotlint compares with the base branch, so it needs the history.
+          # lanelint compares with the base branch, so it needs the history.
           fetch-depth: 0
 
       - uses: voidzero-dev/setup-vp@v1.21.2
@@ -24,7 +24,7 @@ jobs:
       - run: vp run -r test
 
       # Prints the time of checks on about 1,000 files. It never fails on the times.
-      - run: vp run --no-cache pilotlint#bench
+      - run: vp run --no-cache lanelint#bench
 
-      - name: pilotlint
-        run: vp exec pilotlint check ${{ github.event_name == 'pull_request' && format('--base origin/{0} --new', github.base_ref) || '' }}
+      - name: lanelint
+        run: vp exec lanelint check ${{ github.event_name == 'pull_request' && format('--base origin/{0} --new', github.base_ref) || '' }}

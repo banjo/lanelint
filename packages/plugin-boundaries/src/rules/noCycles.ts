@@ -1,4 +1,4 @@
-import { defineRule, type ImportEdge } from '@pilotlint/core';
+import { defineRule, type ImportEdge } from '@lanelint/core';
 import { toStandardJsonSchema } from '@valibot/to-json-schema';
 import * as v from 'valibot';
 import { EdgeUtil } from '../utils/edgeUtil.ts';

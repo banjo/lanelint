@@ -2,7 +2,7 @@ import { isAbsolute, normalize, relative, resolve } from 'pathe';
 import type { StandardSchemaV1 } from '@standard-schema/spec';
 import type {
   AnyPlugin,
-  PilotlintConfig,
+  LanelintConfig,
   ConfigFragment,
   ElementDefinition,
   OverrideConfig,
@@ -143,7 +143,7 @@ const overrideMatches = (override: ResolvedOverride, location: ConfigLocation) =
 };
 
 export async function resolveConfig(
-  config: PilotlintConfig,
+  config: LanelintConfig,
   options: ResolveConfigOptions = {},
 ): Promise<ResolvedConfig> {
   const errors: string[] = [];
@@ -301,7 +301,7 @@ export async function resolveConfig(
   }
 
   if (errors.length) {
-    throw new ConfigError('The pilotlint config is invalid.', [...new Set(errors)]);
+    throw new ConfigError('The lanelint config is invalid.', [...new Set(errors)]);
   }
 
   const memo = new Map<string, ReadonlyMap<string, ResolvedEntry>>();

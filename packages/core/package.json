@@ -1,16 +1,16 @@
 {
-  "name": "@pilotlint/core",
-  "version": "0.2.4",
-  "description": "Engine, project model, and rule API for pilotlint.",
-  "homepage": "https://github.com/banjo/pilotlint/tree/main/packages/core#readme",
+  "name": "@lanelint/core",
+  "version": "0.0.1",
+  "description": "Engine, project model, and rule API for lanelint.",
+  "homepage": "https://github.com/banjo/lanelint/tree/main/packages/core#readme",
   "bugs": {
-    "url": "https://github.com/banjo/pilotlint/issues"
+    "url": "https://github.com/banjo/lanelint/issues"
   },
   "license": "MIT",
   "author": "Anton Ödman",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/banjo/pilotlint.git",
+    "url": "git+https://github.com/banjo/lanelint.git",
     "directory": "packages/core"
   },
   "files": [

@@ -6,7 +6,7 @@ import { definePlugin } from '../api/definePlugin.ts';
 import { resolveConfig } from '../config/resolveConfig.ts';
 import { check } from '../engine/check.ts';
 import type { Change } from '../models/changes.ts';
-import type { PilotlintConfig } from '../models/config.ts';
+import type { LanelintConfig } from '../models/config.ts';
 import type { Finding, Level } from '../models/finding.ts';
 import type { AnyRule } from '../models/rule.ts';
 
@@ -29,7 +29,7 @@ export interface RuleCase extends RunCase {
   readonly options?: unknown;
   readonly level?: Exclude<Level, 'off'>;
   /** Config other than plugins and rules, for example elements. */
-  readonly config?: Omit<PilotlintConfig, 'plugins' | 'rules' | 'extends' | 'root'>;
+  readonly config?: Omit<LanelintConfig, 'plugins' | 'rules' | 'extends' | 'root'>;
 }
 
 export interface ExpectedFinding {
@@ -58,8 +58,8 @@ const write = (root: string, files: Files) => {
  * Writes a fixture to a temporary directory, checks it with a whole config, and returns all
  * findings. Use it to test shared configs and presets.
  */
-export async function runConfig(config: PilotlintConfig, testCase: RunCase): Promise<Finding[]> {
-  const root = realpathSync(mkdtempSync(join(tmpdir(), 'pilotlint-')));
+export async function runConfig(config: LanelintConfig, testCase: RunCase): Promise<Finding[]> {
+  const root = realpathSync(mkdtempSync(join(tmpdir(), 'lanelint-')));
   try {
     if (testCase.base) {
       write(root, testCase.base);
@@ -67,9 +67,9 @@ export async function runConfig(config: PilotlintConfig, testCase: RunCase): Pro
       git(root, ['add', '-A']);
       git(root, [
         '-c',
-        'user.name=pilotlint',
+        'user.name=lanelint',
         '-c',
-        'user.email=pilotlint@example.com',
+        'user.email=lanelint@example.com',
         'commit',
         '--quiet',
         '--allow-empty',
@@ -105,10 +105,10 @@ export async function runRule(rule: AnyRule, testCase: RuleCase): Promise<Findin
       ...testCase.config,
       plugins: [plugin],
       rules: {
-        'pilotlint/stale-config': 'off',
+        'lanelint/stale-config': 'off',
         'test/rule': testCase.options === undefined ? level : [level, testCase.options],
       },
-    } as PilotlintConfig,
+    } as LanelintConfig,
     testCase,
   );
   return findings.filter((finding) => finding.ruleId === 'test/rule');

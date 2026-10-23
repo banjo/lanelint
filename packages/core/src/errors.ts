@@ -11,7 +11,7 @@ export class ConfigError extends Error {
   }
 }
 
-/** A problem with how pilotlint was called, for example an unknown base ref. Exit code 2. */
+/** A problem with how lanelint was called, for example an unknown base ref. Exit code 2. */
 export class UsageError extends Error {
   constructor(message: string) {
     super(message);

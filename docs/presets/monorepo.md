@@ -5,7 +5,7 @@ Checks a monorepo with deployable apps and shared packages, the layout that
 and [pnpm workspaces](https://pnpm.io/workspaces) recommend.
 
 ```ts
-import { monorepo } from '@pilotlint/presets';
+import { monorepo } from '@lanelint/presets';
 
 export default defineConfig({
   extends: [monorepo()],

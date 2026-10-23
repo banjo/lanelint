@@ -1,4 +1,4 @@
-import { defineRule, GlobUtil } from '@pilotlint/core';
+import { defineRule, GlobUtil } from '@lanelint/core';
 import { toStandardJsonSchema } from '@valibot/to-json-schema';
 import * as v from 'valibot';
 import { HintSchema, MessageSchema } from '../models/optionSchemas.ts';

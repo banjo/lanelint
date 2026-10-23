@@ -3,7 +3,7 @@ import { mkdir, readFile, rename, writeFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { join } from 'pathe';
 
-const CACHE_DIRECTORY = 'node_modules/.cache/pilotlint';
+const CACHE_DIRECTORY = 'node_modules/.cache/lanelint';
 
 const require = createRequire(import.meta.url);
 

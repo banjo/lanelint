@@ -1,5 +1,5 @@
-import { defineConfigFragment } from '@pilotlint/core';
-import boundaries from '@pilotlint/plugin-boundaries';
+import { defineConfigFragment } from '@lanelint/core';
+import boundaries from '@lanelint/plugin-boundaries';
 
 export interface LayeredLayers {
   /** Globs of controller files. Defaults to `controllers/` directories and `*.controller.*` files. */

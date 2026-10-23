@@ -1,16 +1,16 @@
 <p align="center">
-  <img src="assets/logo.svg" width="96" height="96" alt="pilotlint logo">
+  <img src="assets/logo.svg" width="96" height="96" alt="lanelint logo">
 </p>
 
-<h1 align="center">pilotlint</h1>
+<h1 align="center">lanelint</h1>
 
 <p align="center">
   An architecture linter for TypeScript, built for coding agents.
 </p>
 
 <p align="center">
-  <a href="https://www.npmjs.com/package/pilotlint"><img src="https://img.shields.io/npm/v/pilotlint" alt="npm version"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/npm/l/pilotlint" alt="MIT license"></a>
+  <a href="https://www.npmjs.com/package/lanelint"><img src="https://img.shields.io/npm/v/lanelint" alt="npm version"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/npm/l/lanelint" alt="MIT license"></a>
 </p>
 
 <p align="center">
@@ -20,7 +20,7 @@
 </p>
 
 <p align="center">
-  <img src="assets/demo.svg" alt="An agent writes a file that imports another feature. The pilotlint hook reports the broken boundary with a hint. The agent moves the import to the app route, and the next check passes.">
+  <img src="assets/demo.svg" alt="An agent writes a file that imports another feature. The lanelint hook reports the broken boundary with a hint. The agent moves the import to the app route, and the next check passes.">
 </p>
 
 <p align="center">
@@ -52,7 +52,7 @@ For more, see the [documentation](docs/getting-started.md).
 ### Installation
 
 ```bash
-npm install -D pilotlint @pilotlint/plugin-boundaries @pilotlint/presets
+npm install -D lanelint @lanelint/plugin-boundaries @lanelint/presets
 ```
 
 ### Configuration
@@ -60,10 +60,10 @@ npm install -D pilotlint @pilotlint/plugin-boundaries @pilotlint/presets
 If your project follows a well-known architecture, the config is one line:
 
 ```ts
-// pilotlint.config.ts
-import boundaries from '@pilotlint/plugin-boundaries';
-import { bulletproofReact } from '@pilotlint/presets';
-import { defineConfig } from 'pilotlint';
+// lanelint.config.ts
+import boundaries from '@lanelint/plugin-boundaries';
+import { bulletproofReact } from '@lanelint/presets';
+import { defineConfig } from 'lanelint';
 
 export default defineConfig({
   extends: [boundaries.configs.recommended, bulletproofReact()],
@@ -74,9 +74,9 @@ Or describe your own structure. Elements are the parts of your codebase, and rul
 they may use each other:
 
 ```ts
-// pilotlint.config.ts
-import boundaries from '@pilotlint/plugin-boundaries';
-import { defineConfig } from 'pilotlint';
+// lanelint.config.ts
+import boundaries from '@lanelint/plugin-boundaries';
+import { defineConfig } from 'lanelint';
 
 export default defineConfig({
   elements: [
@@ -98,19 +98,19 @@ See [configuration](docs/configuration.md) for every field.
 ### Usage
 
 ```bash
-npx pilotlint check                    # Check the whole project.
-npx pilotlint check --changed --new    # Report only what the current change broke.
-npx pilotlint describe src/features    # Explain what applies to a path, even a new one.
+npx lanelint check                    # Check the whole project.
+npx lanelint check --changed --new    # Report only what the current change broke.
+npx lanelint describe src/features    # Explain what applies to a path, even a new one.
 ```
 
-Exit code `1` means findings, and `2` means pilotlint could not run. See the [CLI](docs/cli.md).
+Exit code `1` means findings, and `2` means lanelint could not run. See the [CLI](docs/cli.md).
 
 ### Connect your agent
 
-1. Copy the skill in `node_modules/pilotlint/skills/pilotlint/SKILL.md` into your agent's
+1. Copy the skill in `node_modules/lanelint/skills/lanelint/SKILL.md` into your agent's
    skills directory. It tells the agent to read the structure before it writes, and to fix
    the code rather than the config.
-2. Add a hook that runs `pilotlint check --new` after each edit, so the agent never has to
+2. Add a hook that runs `lanelint check --new` after each edit, so the agent never has to
    remember it.
 
 [Set up your agent →](docs/agents.md) has hooks for Claude Code and OpenCode, and a check for
@@ -122,24 +122,24 @@ commits and CI.
 Copy this prompt into your coding agent, in your own repository:
 
 ```text
-Set up pilotlint (https://github.com/banjo/pilotlint) in this repository, so you and other
+Set up lanelint (https://github.com/banjo/lanelint) in this repository, so you and other
 agents get feedback when a change breaks the project structure.
 
 1. Read these docs first:
-   https://raw.githubusercontent.com/banjo/pilotlint/main/docs/getting-started.md
-   https://raw.githubusercontent.com/banjo/pilotlint/main/docs/configuration.md
-   https://raw.githubusercontent.com/banjo/pilotlint/main/docs/rules/README.md
-   https://raw.githubusercontent.com/banjo/pilotlint/main/docs/presets/README.md
-   https://raw.githubusercontent.com/banjo/pilotlint/main/docs/agents.md
-2. Install pilotlint, @pilotlint/plugin-boundaries, and @pilotlint/plugin-conventions as dev
+   https://raw.githubusercontent.com/banjo/lanelint/main/docs/getting-started.md
+   https://raw.githubusercontent.com/banjo/lanelint/main/docs/configuration.md
+   https://raw.githubusercontent.com/banjo/lanelint/main/docs/rules/README.md
+   https://raw.githubusercontent.com/banjo/lanelint/main/docs/presets/README.md
+   https://raw.githubusercontent.com/banjo/lanelint/main/docs/agents.md
+2. Install lanelint, @lanelint/plugin-boundaries, and @lanelint/plugin-conventions as dev
    dependencies with this project's package manager.
-3. Study the project and write pilotlint.config.ts that describes its structure as it is
+3. Study the project and write lanelint.config.ts that describes its structure as it is
    today: elements for the main parts, with a description each, which parts may import which,
    and the naming conventions the code already follows. If the project follows an
-   architecture that has a preset, install @pilotlint/presets and start from that preset.
-4. Run `npx pilotlint check`. When existing code breaks a rule many times, set that rule to
+   architecture that has a preset, install @lanelint/presets and start from that preset.
+4. Run `npx lanelint check`. When existing code breaks a rule many times, set that rule to
    'warn' instead of changing the code.
-5. Copy node_modules/pilotlint/skills/pilotlint/SKILL.md into this repository's skills
+5. Copy node_modules/lanelint/skills/lanelint/SKILL.md into this repository's skills
    directory for agents.
 6. Do not change any other code. Show me the config and explain each rule, so I can review it.
 ```
@@ -153,12 +153,12 @@ feature's internals, or a new `helpers.ts` shows up next to your `utils/` folder
 task the agent sees too little of the codebase to know the layout, and in a long session the
 rules in `AGENTS.md` drop out of its context.
 
-pilotlint keeps the rules in a config and checks after every edit, so the agent gets the same
+lanelint keeps the rules in a config and checks after every edit, so the agent gets the same
 answer on every change and fixes its own mistakes before you review.
 
 ## Before and after
 
-The structure and conventions below are picked for this demo. pilotlint enforces whatever
+The structure and conventions below are picked for this demo. lanelint enforces whatever
 layout and naming you choose.
 
 <p align="center">
@@ -176,7 +176,7 @@ The config behind the demo above: the Bulletproof React preset, plus naming rule
 this config catches every problem in the "before" one.
 
 ```ts
-// pilotlint.config.ts
+// lanelint.config.ts
 export default defineConfig({
   plugins: [conventions],
   extends: [boundaries.configs.recommended, bulletproofReact()],
@@ -218,17 +218,17 @@ Swap in [another preset](docs/presets/README.md) or
 | Adds `@ts-ignore` or `eslint-disable` to hide an error        | [`conventions/no-suppressions`](docs/rules/conventions.md#no-suppressions)                 |
 | Adds a message without its translations                       | [`changes/requires-change`](docs/rules/changes.md#requires-change)                         |
 | Edits a generated file by hand                                | [`changes/no-manual-edit`](docs/rules/changes.md#no-manual-edit)                           |
-| Edits the pilotlint config to make a finding go away          | [`pilotlint/config-changed`](docs/rules/pilotlint.md#config-changed)                       |
+| Edits the lanelint config to make a finding go away           | [`lanelint/config-changed`](docs/rules/lanelint.md#config-changed)                         |
 
 ## Why not an ESLint plugin?
 
-pilotlint could have been a set of ESLint rules, like
+lanelint could have been a set of ESLint rules, like
 [eslint-plugin-boundaries](https://github.com/javierbrea/eslint-plugin-boundaries). It is its
 own tool because architecture rules need things ESLint is not built for:
 
 - ✅ **Sees the whole project.** Cycles and public APIs need the full import graph. ESLint checks
   one file at a time, and graph rules there need caches that go stale in editors.
-- ✅ **Checks files that should exist.** pilotlint can require a test or an `index.ts`, or files
+- ✅ **Checks files that should exist.** lanelint can require a test or an `index.ts`, or files
   that change together. ESLint only runs on files that already exist.
 - ✅ **Shows only what a change broke.** `--new` compares with git, so an agent sees its own
   mistakes, not the old ones. ESLint does not know git.
@@ -256,14 +256,14 @@ and config file, and no errors in the editor as you type yet.
 
 ## Packages
 
-| Package                                                        | Version                                                                                                                           | Contents                                      |
-| -------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------- |
-| [`pilotlint`](packages/pilotlint)                              | [![npm](https://img.shields.io/npm/v/pilotlint)](https://www.npmjs.com/package/pilotlint)                                         | The CLI, `defineConfig`, and the agent skill  |
-| [`@pilotlint/plugin-boundaries`](packages/plugin-boundaries)   | [![npm](https://img.shields.io/npm/v/@pilotlint/plugin-boundaries)](https://www.npmjs.com/package/@pilotlint/plugin-boundaries)   | Imports between parts, packages, and globals  |
-| [`@pilotlint/plugin-conventions`](packages/plugin-conventions) | [![npm](https://img.shields.io/npm/v/@pilotlint/plugin-conventions)](https://www.npmjs.com/package/@pilotlint/plugin-conventions) | Names, placement, required files, and exports |
-| [`@pilotlint/plugin-changes`](packages/plugin-changes)         | [![npm](https://img.shields.io/npm/v/@pilotlint/plugin-changes)](https://www.npmjs.com/package/@pilotlint/plugin-changes)         | Files that must change together               |
-| [`@pilotlint/presets`](packages/presets)                       | [![npm](https://img.shields.io/npm/v/@pilotlint/presets)](https://www.npmjs.com/package/@pilotlint/presets)                       | Presets for well-known architectures          |
-| [`@pilotlint/core`](packages/core)                             | [![npm](https://img.shields.io/npm/v/@pilotlint/core)](https://www.npmjs.com/package/@pilotlint/core)                             | The engine and rule API, for plugin authors   |
+| Package                                                       | Version                                                                                                                         | Contents                                      |
+| ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------- |
+| [`lanelint`](packages/lanelint)                               | [![npm](https://img.shields.io/npm/v/lanelint)](https://www.npmjs.com/package/lanelint)                                         | The CLI, `defineConfig`, and the agent skill  |
+| [`@lanelint/plugin-boundaries`](packages/plugin-boundaries)   | [![npm](https://img.shields.io/npm/v/@lanelint/plugin-boundaries)](https://www.npmjs.com/package/@lanelint/plugin-boundaries)   | Imports between parts, packages, and globals  |
+| [`@lanelint/plugin-conventions`](packages/plugin-conventions) | [![npm](https://img.shields.io/npm/v/@lanelint/plugin-conventions)](https://www.npmjs.com/package/@lanelint/plugin-conventions) | Names, placement, required files, and exports |
+| [`@lanelint/plugin-changes`](packages/plugin-changes)         | [![npm](https://img.shields.io/npm/v/@lanelint/plugin-changes)](https://www.npmjs.com/package/@lanelint/plugin-changes)         | Files that must change together               |
+| [`@lanelint/presets`](packages/presets)                       | [![npm](https://img.shields.io/npm/v/@lanelint/presets)](https://www.npmjs.com/package/@lanelint/presets)                       | Presets for well-known architectures          |
+| [`@lanelint/core`](packages/core)                             | [![npm](https://img.shields.io/npm/v/@lanelint/core)](https://www.npmjs.com/package/@lanelint/core)                             | The engine and rule API, for plugin authors   |
 
 ## Contributing
 
@@ -271,7 +271,7 @@ The repository uses [Vite+](https://viteplus.dev) and pnpm:
 
 ```bash
 pnpm install
-pnpm ready         # format, lint, type check, test, and check this repository with pilotlint
+pnpm ready         # format, lint, type check, test, and check this repository with lanelint
 pnpm docs:rules    # update docs/rules
 pnpm bench         # time checks on a generated project of about 1,000 files
 pnpm changeset     # describe a change for the changelog

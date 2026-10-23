@@ -1,5 +1,5 @@
-import { defineConfigFragment } from '@pilotlint/core';
-import boundaries from '@pilotlint/plugin-boundaries';
+import { defineConfigFragment } from '@lanelint/core';
+import boundaries from '@lanelint/plugin-boundaries';
 import { PathUtil } from '../utils/pathUtil.ts';
 
 export interface BulletproofReactOptions {
