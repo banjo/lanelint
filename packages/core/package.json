@@ -1,6 +1,6 @@
 {
   "name": "@lanelint/core",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Engine, project model, and rule API for lanelint.",
   "homepage": "https://github.com/banjo/lanelint/tree/main/packages/core#readme",
   "bugs": {

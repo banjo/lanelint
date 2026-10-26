@@ -1,6 +1,6 @@
 {
   "name": "@lanelint/plugin-changes",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "lanelint rules for files that must or must not change together.",
   "homepage": "https://github.com/banjo/lanelint/tree/main/packages/plugin-changes#readme",
   "bugs": {

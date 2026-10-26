@@ -1,6 +1,6 @@
 {
   "name": "@lanelint/plugin-conventions",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "lanelint rules for file and directory names, placement, required files, and exports.",
   "homepage": "https://github.com/banjo/lanelint/tree/main/packages/plugin-conventions#readme",
   "bugs": {

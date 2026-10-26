@@ -1,6 +1,6 @@
 {
   "name": "@lanelint/plugin-boundaries",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "lanelint rules for dependencies between elements and on packages.",
   "homepage": "https://github.com/banjo/lanelint/tree/main/packages/plugin-boundaries#readme",
   "bugs": {
