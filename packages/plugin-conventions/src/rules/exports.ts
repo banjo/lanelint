@@ -11,6 +11,26 @@ const isDeprecated = (ast: AstInfo, entry: ModuleExport) =>
       .some((comment) => comment.type === 'Block' && comment.value.includes('@deprecated')),
   );
 
+type Transform = 'pascal' | 'camel' | 'capitalize' | 'none';
+
+const exportNameOf = (stem: string, transform: Transform): string => {
+  switch (transform) {
+    case 'none':
+      return stem;
+    case 'capitalize':
+      return stem.charAt(0).toUpperCase() + stem.slice(1);
+    default:
+      return CaseUtil.convert(stem, transform);
+  }
+};
+
+const describeTransform: Record<Transform, string> = {
+  pascal: ' in pascal case',
+  camel: ' in camel case',
+  capitalize: ', with its first letter upper-cased',
+  none: '',
+};
+
 export const exportMatchesFilename = defineRule({
   meta: {
     description: 'A file exports one value, named after the file.',
@@ -30,9 +50,9 @@ export const exportMatchesFilename = defineRule({
       v.object({
         transform: v.optional(
           v.pipe(
-            v.picklist(['pascal', 'camel', 'none']),
+            v.picklist(['pascal', 'camel', 'capitalize', 'none']),
             v.description(
-              'How the file name becomes the export name: `dateUtil.ts` exports `DateUtil` with `pascal`.',
+              'How the file name becomes the export name: `dateUtil.ts` exports `DateUtil` with `pascal`. `capitalize` only upper-cases the first letter, so `pdfURLUtil.ts` exports `PdfURLUtil`.',
             ),
           ),
           'pascal',
@@ -46,11 +66,11 @@ export const exportMatchesFilename = defineRule({
     ),
   ),
   describe: (options) =>
-    `Each file exports one value named after the file${options.transform === 'none' ? '' : ` in ${options.transform} case`}.`,
+    `Each file exports one value named after the file${describeTransform[options.transform]}.`,
   create: (context) => ({
     ast(file, ast) {
       const { transform, allowDeprecated } = context.options;
-      const expected = transform === 'none' ? file.stem : CaseUtil.convert(file.stem, transform);
+      const expected = exportNameOf(file.stem, transform);
       const values = ast.module.exports.filter((entry) => !entry.typeOnly);
       if (!values.some((entry) => entry.name === expected)) {
         context.report({

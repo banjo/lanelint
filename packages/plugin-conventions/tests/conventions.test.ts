@@ -64,6 +64,17 @@ testRule(
           },
         ],
       },
+      {
+        options: { case: 'kebab' },
+        files: { 'src/pdfURLParser.ts': '' },
+        findings: [
+          {
+            path: 'src/pdfURLParser.ts',
+            message: 'Rename pdfURLParser.ts to kebab-case.',
+            hint: 'For example pdf-url-parser.ts.',
+          },
+        ],
+      },
     ],
   },
   framework,
@@ -307,6 +318,10 @@ testRule(
           ].join('\n'),
         },
       },
+      {
+        options: { transform: 'capitalize' },
+        files: { 'pdfURLUtil.ts': 'export const PdfURLUtil = {};' },
+      },
     ],
     invalid: [
       {
@@ -323,6 +338,21 @@ testRule(
             line: 2,
             message: 'Do not re-export whole modules from dateUtil.ts; export DateUtil only.',
           },
+        ],
+      },
+      {
+        files: { 'pdfURLUtil.ts': 'export const PdfURLUtil = {};' },
+        findings: [
+          { path: 'pdfURLUtil.ts', line: 1, message: 'Export PdfUrlUtil from pdfURLUtil.ts.' },
+          { path: 'pdfURLUtil.ts', line: 1, message: 'Move PdfURLUtil into PdfUrlUtil.' },
+        ],
+      },
+      {
+        options: { transform: 'capitalize' },
+        files: { 'pdfURLUtil.ts': 'export const PdfUrlUtil = {};' },
+        findings: [
+          { path: 'pdfURLUtil.ts', line: 1, message: 'Export PdfURLUtil from pdfURLUtil.ts.' },
+          { path: 'pdfURLUtil.ts', line: 1, message: 'Move PdfUrlUtil into PdfURLUtil.' },
         ],
       },
     ],

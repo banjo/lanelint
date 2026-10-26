@@ -179,15 +179,15 @@ To fix a finding, move the other exports into the main export, or into their own
 
 ```ts
 {
-  transform?: 'pascal' | 'camel' | 'none';
+  transform?: 'pascal' | 'camel' | 'capitalize' | 'none';
   allowDeprecated?: boolean;
 }
 ```
 
-| Option            | Type                            | Default    | Description                                                                                |
-| ----------------- | ------------------------------- | ---------- | ------------------------------------------------------------------------------------------ |
-| `transform`       | `'pascal' \| 'camel' \| 'none'` | `'pascal'` | How the file name becomes the export name: `dateUtil.ts` exports `DateUtil` with `pascal`. |
-| `allowDeprecated` | `boolean`                       | `false`    | Allow other exports marked `@deprecated`.                                                  |
+| Option            | Type                                            | Default    | Description                                                                                                                                                                         |
+| ----------------- | ----------------------------------------------- | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `transform`       | `'pascal' \| 'camel' \| 'capitalize' \| 'none'` | `'pascal'` | How the file name becomes the export name: `dateUtil.ts` exports `DateUtil` with `pascal`. `capitalize` only upper-cases the first letter, so `pdfURLUtil.ts` exports `PdfURLUtil`. |
+| `allowDeprecated` | `boolean`                                       | `false`    | Allow other exports marked `@deprecated`.                                                                                                                                           |
 
 ### Example
 
