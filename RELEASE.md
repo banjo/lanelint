@@ -23,16 +23,22 @@ repository requires pnpm through `devEngines`, so npm refuses to run inside it.
 
 ## Once per machine
 
-1. Log in to the public registry:
+1. Log in to the public registry with both npm and pnpm:
 
    ```bash
    cd ~ && npm login --registry https://registry.npmjs.org/
+   cd ~ && pnpm login --registry https://registry.npmjs.org/
    ```
+
+   They keep separate logins: npm in `~/.npmrc`, pnpm in `~/.config/pnpm/config.yaml`.
+   `pnpm changeset publish` publishes with pnpm, so it uses the pnpm login. The npm login is
+   for the `npm` commands below.
 
 2. Check that you are logged in and can publish to the `@lanelint` scope:
 
    ```bash
    cd ~ && npm whoami --registry https://registry.npmjs.org/
+   cd ~ && pnpm whoami --registry https://registry.npmjs.org/
    cd ~ && npm org ls lanelint --registry https://registry.npmjs.org/
    ```
 
@@ -145,14 +151,14 @@ npx --registry https://registry.npmjs.org/ lanelint --version
 
 ## Troubleshooting
 
-| Problem                                                    | What to do                                                                                                                                                          |
-| ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `EOTP` or an expired code during publish                   | Run the publish command again with a new code. Changesets skips the packages that are already published.                                                            |
-| `ENEEDAUTH` or `need auth`                                 | You are not logged in to the public registry. Run `npm login` with `--registry`, as above.                                                                          |
-| `E404` for `@lanelint/...` during publish                  | You are not a member of the `lanelint` organization, or the registry variables are missing, so the publish went to another registry.                                |
-| `E404` for a new version or tarball right after publishing | The registry has not caught up yet. Wait a few minutes. Brand-new packages took about five minutes for the first release.                                           |
-| `EBADDEVENGINES` from npm                                  | You ran `npm` inside the repository. Run it from another directory.                                                                                                 |
-| A version shows as `0.0.0-stage`                           | npm's placeholder for a new package. It disappears from `latest` when the real version is live. See [staged publishing](https://docs.npmjs.com/staged-publishing/). |
+| Problem                                                    | What to do                                                                                                                                                                                                                   |
+| ---------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `EOTP` or an expired code during publish                   | Run the publish command again with a new code. Changesets skips the packages that are already published.                                                                                                                     |
+| `ENEEDAUTH` or `need auth`                                 | You are not logged in to the public registry. Run `npm login` and `pnpm login` with `--registry`, as above.                                                                                                                  |
+| `E404` for `@lanelint/...` during publish                  | Your pnpm login is missing or expired; run `pnpm login` with `--registry`, as above. Or you are not a member of the `lanelint` organization, or the registry variables are missing, so the publish went to another registry. |
+| `E404` for a new version or tarball right after publishing | The registry has not caught up yet. Wait a few minutes. Brand-new packages took about five minutes for the first release.                                                                                                    |
+| `EBADDEVENGINES` from npm                                  | You ran `npm` inside the repository. Run it from another directory.                                                                                                                                                          |
+| A version shows as `0.0.0-stage`                           | npm's placeholder for a new package. It disappears from `latest` when the real version is live. See [staged publishing](https://docs.npmjs.com/staged-publishing/).                                                          |
 
 A published version can never be published again, even after it is unpublished. If a release
 is broken, fix it and release a new patch version.
