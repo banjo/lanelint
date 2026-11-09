@@ -1,10 +1,10 @@
 # Astra
 
-Checks a feature-layered frontend. Features and common domains are used through the files
+Checks a feature-layered app, frontend or backend. Features and common domains are used through the files
 their `index.ts` exports, and each has the same role directories, where each role may import
 only the roles below it. Models, mappers, constants, and utils are pure, services have the
-side effects, hooks and contexts hold the React logic, containers coordinate hooks, and
-components only display.
+side effects, repositories read and write data below them, controllers are the thin entry points that call services, hooks, contexts, and stores hold
+the React logic, containers coordinate hooks, and components only display.
 
 ```ts
 import { astra } from '@lanelint/presets';
@@ -29,8 +29,11 @@ src/
                     useUserQuery.ts
       mappers/      UserMapper.ts              map between models, such as a DTO and User
       models/       User.ts                    the User type, and User.from(dto)
-      services/     UserService.ts             side effects: API calls, stores, logging
+      services/     UserService.ts             side effects: API calls, logging
                     __tests__/UserService.test.ts
+      controllers/  UserController.ts          thin entry points, such as server functions: call services
+      repositories/ UserRepository.ts          data access: database queries, local storage
+      stores/       UserStore.ts               client state, such as Zustand stores (useUserStore.ts also works)
       utils/        UserUtil.ts                pure functions
                     __tests__/UserUtil.test.ts
     vehicle/
@@ -61,19 +64,21 @@ rules, so they may import any file.
 
 **Roles**
 
-| Role                              | Must not import                                   |
-| --------------------------------- | ------------------------------------------------- |
-| constants, mappers, models, utils | services, hooks, contexts, components, containers |
-| services                          | hooks, contexts, components, containers           |
-| hooks, contexts                   | components, containers                            |
-| components                        | containers, hooks, contexts, services, mappers    |
-| containers                        | services, mappers (they call them through a hook) |
+| Role                              | Must not import                                                                      |
+| --------------------------------- | ------------------------------------------------------------------------------------ |
+| constants, mappers, models, utils | services, repositories, controllers, hooks, contexts, stores, components, containers |
+| repositories                      | services, controllers, hooks, contexts, stores, components, containers               |
+| controllers                       | hooks, contexts, stores, components, containers                                      |
+| services                          | controllers, hooks, contexts, stores, components, containers                         |
+| hooks, contexts, stores           | components, containers                                                               |
+| components                        | containers, hooks, contexts, stores, controllers, services, repositories, mappers    |
+| containers                        | controllers, services, repositories, mappers (they call them through a hook)         |
 
 - **Constants, mappers, models, and utils are pure.** They do not import Node I/O modules or
   use `fetch`, `localStorage`, `window`, `document`, `process`, and similar globals.
-- **Only hooks, contexts, components, and containers use React.** The other roles do not
+- **Only hooks, contexts, stores, components, and containers use React.** The other roles do not
   import `react` or `react-dom`, except for types.
-- **API calls belong in services.** Hooks, contexts, components, and containers do not use
+- **API calls belong in services and repositories.** Hooks, contexts, stores, components, and containers do not use
   `fetch`, `XMLHttpRequest`, or `WebSocket`.
 
 The roles apply across features too: a util in `vehicle/` may not import a service in
@@ -98,18 +103,21 @@ The prefix keeps related features next to each other.
 
 ## Options
 
-| Option             | Default                | Description                                                                                        |
-| ------------------ | ---------------------- | -------------------------------------------------------------------------------------------------- |
-| `root`             | `'src'`                | The directory that holds `features/` and `common/`. It can have captures, such as `apps/:app/src`. |
-| `roles.components` | `['**/components/**']` | Globs of component files.                                                                          |
-| `roles.constants`  | `['**/constants/**']`  | Globs of constant files.                                                                           |
-| `roles.containers` | `['**/containers/**']` | Globs of container files.                                                                          |
-| `roles.contexts`   | `['**/contexts/**']`   | Globs of context files.                                                                            |
-| `roles.hooks`      | `['**/hooks/**']`      | Globs of hook files.                                                                               |
-| `roles.mappers`    | `['**/mappers/**']`    | Globs of mapper files.                                                                             |
-| `roles.models`     | `['**/models/**']`     | Globs of model files.                                                                              |
-| `roles.services`   | `['**/services/**']`   | Globs of service files.                                                                            |
-| `roles.utils`      | `['**/utils/**']`      | Globs of util files.                                                                               |
+| Option               | Default                  | Description                                                                                        |
+| -------------------- | ------------------------ | -------------------------------------------------------------------------------------------------- |
+| `root`               | `'src'`                  | The directory that holds `features/` and `common/`. It can have captures, such as `apps/:app/src`. |
+| `roles.controllers`  | `['**/controllers/**']`  | Globs of controller files.                                                                         |
+| `roles.components`   | `['**/components/**']`   | Globs of component files.                                                                          |
+| `roles.constants`    | `['**/constants/**']`    | Globs of constant files.                                                                           |
+| `roles.containers`   | `['**/containers/**']`   | Globs of container files.                                                                          |
+| `roles.contexts`     | `['**/contexts/**']`     | Globs of context files.                                                                            |
+| `roles.hooks`        | `['**/hooks/**']`        | Globs of hook files.                                                                               |
+| `roles.mappers`      | `['**/mappers/**']`      | Globs of mapper files.                                                                             |
+| `roles.models`       | `['**/models/**']`       | Globs of model files.                                                                              |
+| `roles.repositories` | `['**/repositories/**']` | Globs of repository files.                                                                         |
+| `roles.services`     | `['**/services/**']`     | Globs of service files.                                                                            |
+| `roles.stores`       | `['**/stores/**']`       | Globs of store files.                                                                              |
+| `roles.utils`        | `['**/utils/**']`        | Globs of util files.                                                                               |
 
 ```ts
 astra({ roles: { services: ['**/services/**', '**/api/**'] } });
@@ -121,7 +129,7 @@ Like every preset, Astra checks structure only. These rules from
 `@lanelint/plugin-conventions` add the naming that usually goes with it:
 
 - A file is named after what it exports: `UserService.ts` exports the `UserService` object,
-  `useUser.ts` the `useUser` hook, and `UserCard.tsx` the `UserCard` component. Code reads
+  `UserController.ts` the `UserController` object, `useUser.ts` the `useUser` hook, `UserStore.ts` or `useUserStore.ts` the store of that name, and `UserCard.tsx` the `UserCard` component. Code reads
   `UserService.getUser()` and `UserUtil.getInitials()`. Model files may export only types,
   and constants files any number of constants.
 - Each role has its name pattern, such as `*Service.ts` in `services/` and `use*.ts` in
@@ -148,10 +156,13 @@ const roles = [
   'constants',
   'containers',
   'contexts',
+  'controllers',
   'hooks',
   'mappers',
   'models',
+  'repositories',
   'services',
+  'stores',
   'utils',
 ];
 
@@ -176,7 +187,7 @@ export default defineConfig({
           { name: 'types', message: 'Put types in named files in models/.' },
           { name: '{lib,helpers}', message: 'Put the code in a role directory, such as utils/.' },
           {
-            name: '{component,constant,container,context,hook,mapper,model,service,util}',
+            name: '{component,constant,container,context,controller,hook,mapper,model,repository,service,store,util}',
             message: 'Role directories have plural names, such as services/.',
           },
         ],
@@ -210,16 +221,22 @@ export default defineConfig({
           { directory: 'components', pattern: '[A-Z]*.tsx' },
           { directory: 'containers', pattern: '[A-Z]*Container{,.stories}.tsx' },
           { directory: 'contexts', pattern: '[A-Z]*Context.tsx' },
+          { directory: 'controllers', pattern: '[A-Z]*Controller.ts' },
           { directory: 'hooks', pattern: 'use[A-Z]*.{ts,tsx}' },
           { directory: 'mappers', pattern: '[A-Z]*Mapper.ts' },
           { directory: 'models', pattern: '[A-Z]*.ts' },
+          { directory: 'repositories', pattern: '[A-Z]*Repository.ts' },
           { directory: 'services', pattern: '[A-Z]*Service.ts' },
+          { directory: 'stores', pattern: '{,use}[A-Z]*Store.ts' },
           { directory: 'utils', pattern: '[A-Z]*Util.ts' },
           { directory: '__tests__', pattern: '*.test.{ts,tsx}' },
           { directory: '**/containers/__tests__', pattern: '[A-Z]*Container.test.tsx' },
+          { directory: '**/controllers/__tests__', pattern: '[A-Z]*Controller.test.ts' },
           { directory: '**/hooks/__tests__', pattern: 'use[A-Z]*.test.{ts,tsx}' },
           { directory: '**/mappers/__tests__', pattern: '[A-Z]*Mapper.test.ts' },
+          { directory: '**/repositories/__tests__', pattern: '[A-Z]*Repository.test.ts' },
           { directory: '**/services/__tests__', pattern: '[A-Z]*Service.test.ts' },
+          { directory: '**/stores/__tests__', pattern: '{,use}[A-Z]*Store.test.ts' },
           { directory: '**/utils/__tests__', pattern: '[A-Z]*Util.test.ts' },
         ],
       },
@@ -234,7 +251,9 @@ export default defineConfig({
     },
     {
       description: 'Each file exports a value named after the file, such as UserService.',
-      files: ['src/**/{components,containers,contexts,hooks,mappers,services,utils}/*'],
+      files: [
+        'src/**/{components,containers,contexts,controllers,hooks,mappers,repositories,services,stores,utils}/*',
+      ],
       ignore: ['**/*.stories.*'],
       rules: { 'conventions/export-matches-filename': ['error', { transform: 'none' }] },
     },

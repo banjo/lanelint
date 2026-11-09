@@ -46,6 +46,19 @@ const valid = {
     'export const UserContext = createContext(DEFAULT_USER_ID);',
   ].join('\n'),
   [`${user}/constants/userConstants.ts`]: "export const DEFAULT_USER_ID = '1';",
+  [`${user}/repositories/UserRepository.ts`]: [
+    "import { User } from '../models/User.ts';",
+    'export const UserRepository = { getById: async (id: string) => User.from(await fetch(`/db/${id}`)) };',
+  ].join('\n'),
+  [`${user}/stores/useUserStore.ts`]: [
+    "import { create } from 'zustand';",
+    "import { UserUtil } from '../utils/UserUtil.ts';",
+    'export const useUserStore = create(() => ({ initials: UserUtil.getInitials }));',
+  ].join('\n'),
+  [`${user}/controllers/UserController.ts`]: [
+    "import { UserService } from '../services/UserService.ts';",
+    'export const UserController = { getUser: (id: string) => UserService.getUser(id) };',
+  ].join('\n'),
   [`${user}/index.ts`]: "export { UserListContainer } from './containers/UserListContainer.tsx';",
   'src/common/date/index.ts': "export { DateUtil } from './utils/DateUtil.ts';",
   'src/common/date/utils/DateUtil.ts': 'export const DateUtil = {};',
@@ -79,16 +92,16 @@ describe('astra', () => {
       ].join('\n'),
     });
     expect(findings).toEqual([
-      `${user}/components/UserCard.tsx:1 boundaries/allowed-imports Components must not import containers, hooks, contexts, services, or mappers.`,
-      `${user}/components/UserCard.tsx:2 boundaries/allowed-imports Components must not import containers, hooks, contexts, services, or mappers.`,
-      `${user}/components/UserCard.tsx:3 boundaries/allowed-imports Components must not import containers, hooks, contexts, services, or mappers.`,
-      `${user}/containers/UserListContainer.tsx:1 boundaries/allowed-imports Containers must not import services or mappers.`,
-      `${user}/containers/UserListContainer.tsx:2 boundaries/allowed-imports Containers must not import services or mappers.`,
+      `${user}/components/UserCard.tsx:1 boundaries/allowed-imports Components must not import containers, hooks, contexts, stores, controllers, services, repositories, or mappers.`,
+      `${user}/components/UserCard.tsx:2 boundaries/allowed-imports Components must not import containers, hooks, contexts, stores, controllers, services, repositories, or mappers.`,
+      `${user}/components/UserCard.tsx:3 boundaries/allowed-imports Components must not import containers, hooks, contexts, stores, controllers, services, repositories, or mappers.`,
+      `${user}/containers/UserListContainer.tsx:1 boundaries/allowed-imports Containers must not import controllers, services, repositories, or mappers.`,
+      `${user}/containers/UserListContainer.tsx:2 boundaries/allowed-imports Containers must not import controllers, services, repositories, or mappers.`,
       `${user}/hooks/useUser.ts:1 boundaries/allowed-imports Hooks must not import components or containers.`,
-      `${user}/mappers/UserMapper.ts:1 boundaries/allowed-imports Mappers must not import services, hooks, contexts, components, or containers.`,
-      `${user}/models/User.ts:1 boundaries/allowed-imports Models must not import services, hooks, contexts, components, or containers.`,
-      `${user}/services/UserService.ts:1 boundaries/allowed-imports Services must not import hooks, contexts, components, or containers.`,
-      `${user}/utils/UserUtil.ts:1 boundaries/allowed-imports Utils must not import services, hooks, contexts, components, or containers.`,
+      `${user}/mappers/UserMapper.ts:1 boundaries/allowed-imports Mappers must not import services, repositories, controllers, hooks, contexts, stores, components, or containers.`,
+      `${user}/models/User.ts:1 boundaries/allowed-imports Models must not import services, repositories, controllers, hooks, contexts, stores, components, or containers.`,
+      `${user}/services/UserService.ts:1 boundaries/allowed-imports Services must not import controllers, hooks, contexts, stores, components, or containers.`,
+      `${user}/utils/UserUtil.ts:1 boundaries/allowed-imports Utils must not import services, repositories, controllers, hooks, contexts, stores, components, or containers.`,
     ]);
   });
 
@@ -103,9 +116,65 @@ describe('astra', () => {
         "import { UserContext } from '../contexts/UserContext.tsx';",
     });
     expect(findings).toEqual([
-      `${user}/components/UserCard.tsx:1 boundaries/allowed-imports Components must not import containers, hooks, contexts, services, or mappers.`,
-      `${user}/constants/userConstants.ts:1 boundaries/allowed-imports Constants must not import services, hooks, contexts, components, or containers.`,
+      `${user}/components/UserCard.tsx:1 boundaries/allowed-imports Components must not import containers, hooks, contexts, stores, controllers, services, repositories, or mappers.`,
+      `${user}/constants/userConstants.ts:1 boundaries/allowed-imports Constants must not import services, repositories, controllers, hooks, contexts, stores, components, or containers.`,
       `${user}/contexts/UserContext.tsx:1 boundaries/allowed-imports Contexts must not import components or containers.`,
+    ]);
+  });
+
+  it('treats stores like hooks, and repositories like services below them', async () => {
+    const findings = await check([astra()], {
+      ...valid,
+      [`${user}/services/UserService.ts`]: [
+        "import { UserRepository } from '../repositories/UserRepository.ts';",
+        "import { useUserStore } from '../stores/useUserStore.ts';",
+      ].join('\n'),
+      [`${user}/repositories/UserRepository.ts`]: [
+        "import { UserService } from '../services/UserService.ts';",
+        "import { useUserStore } from '../stores/useUserStore.ts';",
+      ].join('\n'),
+      [`${user}/stores/useUserStore.ts`]: [
+        "import { UserCard } from '../components/UserCard.tsx';",
+        "import { UserRepository } from '../repositories/UserRepository.ts';",
+      ].join('\n'),
+      [`${user}/utils/UserUtil.ts`]:
+        "import { UserRepository } from '../repositories/UserRepository.ts';",
+      [`${user}/components/UserCard.tsx`]: [
+        "import { useUserStore } from '../stores/useUserStore.ts';",
+        "import { UserRepository } from '../repositories/UserRepository.ts';",
+      ].join('\n'),
+      [`${user}/containers/UserListContainer.tsx`]: [
+        "import { useUserStore } from '../stores/useUserStore.ts';",
+        "import { UserRepository } from '../repositories/UserRepository.ts';",
+      ].join('\n'),
+    });
+    expect(findings).toEqual([
+      `${user}/components/UserCard.tsx:1 boundaries/allowed-imports Components must not import containers, hooks, contexts, stores, controllers, services, repositories, or mappers.`,
+      `${user}/components/UserCard.tsx:2 boundaries/allowed-imports Components must not import containers, hooks, contexts, stores, controllers, services, repositories, or mappers.`,
+      `${user}/containers/UserListContainer.tsx:2 boundaries/allowed-imports Containers must not import controllers, services, repositories, or mappers.`,
+      `${user}/repositories/UserRepository.ts:1 boundaries/allowed-imports Repositories must not import services, controllers, hooks, contexts, stores, components, or containers.`,
+      `${user}/repositories/UserRepository.ts:2 boundaries/allowed-imports Repositories must not import services, controllers, hooks, contexts, stores, components, or containers.`,
+      `${user}/services/UserService.ts:2 boundaries/allowed-imports Services must not import controllers, hooks, contexts, stores, components, or containers.`,
+      `${user}/stores/useUserStore.ts:1 boundaries/allowed-imports Stores must not import components or containers.`,
+      `${user}/utils/UserUtil.ts:1 boundaries/allowed-imports Utils must not import services, repositories, controllers, hooks, contexts, stores, components, or containers.`,
+    ]);
+  });
+
+  it('treats controllers as the entry above services that hooks may call', async () => {
+    const findings = await check([astra()], {
+      ...valid,
+      [`${user}/hooks/useUser.ts`]:
+        "import { UserController } from '../controllers/UserController.ts';",
+      [`${user}/services/UserService.ts`]:
+        "import { UserController } from '../controllers/UserController.ts';",
+      [`${user}/controllers/UserController.ts`]: "import { useUser } from '../hooks/useUser.ts';",
+      [`${user}/components/UserCard.tsx`]:
+        "import { UserController } from '../controllers/UserController.ts';",
+    });
+    expect(findings).toEqual([
+      `${user}/components/UserCard.tsx:1 boundaries/allowed-imports Components must not import containers, hooks, contexts, stores, controllers, services, repositories, or mappers.`,
+      `${user}/controllers/UserController.ts:1 boundaries/allowed-imports Controllers must not import hooks, contexts, stores, components, or containers.`,
+      `${user}/services/UserService.ts:1 boundaries/allowed-imports Services must not import controllers, hooks, contexts, stores, components, or containers.`,
     ]);
   });
 
@@ -176,7 +245,7 @@ describe('astra', () => {
     );
     expect(findings).toEqual([
       `${user}/mappers/UserMapper.ts:1 boundaries/restricted-globals Do not use fetch. Constants, mappers, models, and utils are pure. (Move the code with side effects to a service.)`,
-      `${user}/services/UserService.ts:1 boundaries/restricted-packages Do not import react. React code belongs in hooks, contexts, components, and containers. (Move the React code to a hook, and keep this file plain TypeScript.)`,
+      `${user}/services/UserService.ts:1 boundaries/restricted-packages Do not import react. React code belongs in hooks, contexts, stores, components, and containers. (Move the React code to a hook, and keep this file plain TypeScript.)`,
       `${user}/utils/UserUtil.ts:1 boundaries/restricted-packages Do not import node:fs. Constants, mappers, models, and utils are pure. (Move the code with side effects to a service.)`,
       `${user}/utils/UserUtil.ts:2 boundaries/restricted-globals Do not use localStorage. Constants, mappers, models, and utils are pure. (Move the code with side effects to a service.)`,
     ]);
@@ -189,8 +258,8 @@ describe('astra', () => {
       [`${user}/components/UserCard.tsx`]: "export const UserCard = () => { fetch('/users'); };",
     });
     expect(findings).toEqual([
-      `${user}/components/UserCard.tsx:1 boundaries/restricted-globals Do not use fetch. API calls belong in services.`,
-      `${user}/hooks/useUser.ts:1 boundaries/restricted-globals Do not use fetch. API calls belong in services.`,
+      `${user}/components/UserCard.tsx:1 boundaries/restricted-globals Do not use fetch. API calls belong in services and repositories.`,
+      `${user}/hooks/useUser.ts:1 boundaries/restricted-globals Do not use fetch. API calls belong in services and repositories.`,
     ]);
   });
 
@@ -201,7 +270,7 @@ describe('astra', () => {
       [`${user}/utils/UserUtil.ts`]: "import { getUser } from '../api/getUser.ts';",
     });
     expect(findings).toEqual([
-      `${user}/utils/UserUtil.ts:1 boundaries/allowed-imports Utils must not import services, hooks, contexts, components, or containers.`,
+      `${user}/utils/UserUtil.ts:1 boundaries/allowed-imports Utils must not import services, repositories, controllers, hooks, contexts, stores, components, or containers.`,
     ]);
   });
 
@@ -214,7 +283,7 @@ describe('astra', () => {
         "import { UserService } from '../services/UserService.ts';",
     });
     expect(findings).toEqual([
-      `${user}/containers/UserListContainer.tsx:1 boundaries/allowed-imports Containers must not import services or mappers.`,
+      `${user}/containers/UserListContainer.tsx:1 boundaries/allowed-imports Containers must not import controllers, services, repositories, or mappers.`,
     ]);
   });
 });

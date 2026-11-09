@@ -4,6 +4,8 @@ import { IO_BUILTINS, IO_GLOBALS } from '../constants/io.ts';
 import { PathUtil } from '../utils/pathUtil.ts';
 
 export interface AstraRoles {
+  /** Globs of controllers: thin entry points such as server functions, which call services. Defaults to `controllers/` directories. */
+  readonly controllers?: readonly string[];
   /** Globs of components: dumb, display-only React components. Defaults to `components/` directories. */
   readonly components?: readonly string[];
   /** Globs of constants. Defaults to `constants/` directories. */
@@ -18,8 +20,12 @@ export interface AstraRoles {
   readonly mappers?: readonly string[];
   /** Globs of models. Defaults to `models/` directories. */
   readonly models?: readonly string[];
+  /** Globs of repositories: data access, below services. Defaults to `repositories/` directories. */
+  readonly repositories?: readonly string[];
   /** Globs of services: logic with side effects. Defaults to `services/` directories. */
   readonly services?: readonly string[];
+  /** Globs of stores: client state such as Zustand stores, like hooks. Defaults to `stores/` directories. */
+  readonly stores?: readonly string[];
   /** Globs of utils: pure functions. Defaults to `utils/` directories. */
   readonly utils?: readonly string[];
 }
@@ -46,7 +52,8 @@ const either = (words: readonly string[]) =>
  * Astra: features and common domains are used through the files their index file exports,
  * and every feature and domain has the same role directories. Models, mappers, constants,
  * and utils are pure, services have the side effects, hooks and contexts hold the React
- * logic, containers coordinate hooks, and components only display.
+ * logic, stores hold client state like hooks, repositories read and write data below the
+ * services, containers coordinate hooks, and components only display.
  */
 export function astra(options: AstraOptions = {}) {
   const root = PathUtil.normalize(options.root ?? 'src');
@@ -60,7 +67,7 @@ export function astra(options: AstraOptions = {}) {
     hint,
   });
   const pure = ['constants', 'mappers', 'models', 'utils'] as const;
-  const react = ['hooks', 'contexts', 'components', 'containers'] as const;
+  const react = ['hooks', 'contexts', 'stores', 'components', 'containers'] as const;
   const pureIo = {
     from: pure.map(role),
     message: 'Constants, mappers, models, and utils are pure.',
@@ -91,19 +98,34 @@ export function astra(options: AstraOptions = {}) {
             ...pure.map((name) =>
               roleRule(
                 name,
-                ['services', ...react],
+                ['services', 'repositories', 'controllers', ...react],
                 `${capitalize(name)} are pure. Pass what they need in as arguments, or move the code to a service or a hook.`,
               ),
             ),
             roleRule(
               'services',
+              ['controllers', ...react],
+              'Services do not know about React or controllers. Call the service from a controller or a hook instead.',
+            ),
+            roleRule(
+              'controllers',
               react,
-              'Services do not know about React. Call the service from a hook instead.',
+              'Controllers do not know about React. Call the controller from a hook instead.',
+            ),
+            roleRule(
+              'repositories',
+              ['services', 'controllers', ...react],
+              'Repositories only read and write data. Call them from a service.',
             ),
             roleRule(
               'hooks',
               ['components', 'containers'],
               'Hooks return data and callbacks. Render components in a container.',
+            ),
+            roleRule(
+              'stores',
+              ['components', 'containers'],
+              'Stores hold state and callbacks. Render components in a container.',
             ),
             roleRule(
               'contexts',
@@ -112,12 +134,21 @@ export function astra(options: AstraOptions = {}) {
             ),
             roleRule(
               'components',
-              ['containers', 'hooks', 'contexts', 'services', 'mappers'],
+              [
+                'containers',
+                'hooks',
+                'contexts',
+                'stores',
+                'controllers',
+                'services',
+                'repositories',
+                'mappers',
+              ],
               'Components only display data. Take it as props, and get it in a container through a hook.',
             ),
             roleRule(
               'containers',
-              ['services', 'mappers'],
+              ['controllers', 'services', 'repositories', 'mappers'],
               'Call the service in a hook, and use the hook in the container.',
             ),
             {
@@ -153,8 +184,13 @@ export function astra(options: AstraOptions = {}) {
             {
               name: '{react,react-dom}',
               allowTypeImports: true,
-              from: [...pure, 'services' as const].map(role),
-              message: 'React code belongs in hooks, contexts, components, and containers.',
+              from: [
+                ...pure,
+                'services' as const,
+                'repositories' as const,
+                'controllers' as const,
+              ].map(role),
+              message: 'React code belongs in hooks, contexts, stores, components, and containers.',
               hint: 'Move the React code to a hook, and keep this file plain TypeScript.',
             },
           ],
@@ -168,8 +204,8 @@ export function astra(options: AstraOptions = {}) {
             ...NETWORK_GLOBALS.map((name) => ({
               name,
               from: react.map(role),
-              message: 'API calls belong in services.',
-              hint: 'Move the call to a service, and call the service from a hook.',
+              message: 'API calls belong in services and repositories.',
+              hint: 'Move the call to a service or a repository, and call it from a hook.',
             })),
           ],
         },
