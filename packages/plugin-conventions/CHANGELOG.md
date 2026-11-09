@@ -1,11 +1,5 @@
 # @lanelint/plugin-conventions
 
-## 0.1.0
-
-### Patch Changes
-
-- @lanelint/core@0.1.0
-
 ## 0.0.2
 
 ### Patch Changes
