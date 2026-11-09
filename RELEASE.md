@@ -77,6 +77,8 @@ Bump types while the version is below 1.0:
 | `minor` | New features, and breaking changes before 1.0     |
 | `major` | Breaking changes after 1.0; do not use before 1.0 |
 
+The first `minor` release must be 0.2.0, not 0.1.0. See [Skipped versions](#skipped-versions).
+
 Commit the changeset together with the change.
 
 All packages share one version: they are a `fixed` group in `.changeset/config.json`, so a
@@ -162,3 +164,22 @@ npx --registry https://registry.npmjs.org/ lanelint --version
 
 A published version can never be published again, even after it is unpublished. If a release
 is broken, fix it and release a new patch version.
+
+## Unpublishing
+
+npm only lets you unpublish a version within 72 hours, and only from a package that no other
+package on the registry depends on. Every published version of the other packages counts,
+devDependencies included. In practice only `lanelint` and `@lanelint/presets` can be
+unpublished; `@lanelint/core` and the plugins cannot. Deprecate a version instead:
+
+```bash
+cd ~ && pnpm deprecate '@lanelint/core@<version>' "Published by mistake. Use <version> or later." --otp=<code> --registry https://registry.npmjs.org/
+```
+
+### Skipped versions
+
+0.1.0 was published by mistake on 2026-11-09 and replaced by 0.0.3. It is unpublished from
+`lanelint` and `@lanelint/presets`, and deprecated in `@lanelint/core` and the plugins, so it
+can never be published again. The first `minor` release must therefore be 0.2.0: after
+`pnpm changeset version`, set the version in each `package.json` and `CHANGELOG.md` to 0.2.0
+before committing.
